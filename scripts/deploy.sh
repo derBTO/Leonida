@@ -5,7 +5,7 @@
 #   scripts/deploy.sh --rollback auf die vorige Release zurückschalten (ohne Datenbank-Rückbau)
 #   scripts/deploy.sh --dry-run  nur bauen, nichts hochladen
 #
-# Voraussetzungen lokal: git, php 8.3+, composer, node 20+, npm, rsync, ssh.
+# Voraussetzungen lokal: git, rsync, ssh und entweder php 8.3+/composer/node 20+ oder Docker.
 # Zugangsdaten: deploy.env (Vorlage deploy.env.example). Ablauf: docs/INSTALLATION.md
 
 set -euo pipefail
@@ -41,8 +41,14 @@ if [[ "$MODE" == "rollback" ]]; then
     exit 0
 fi
 
-TOOLS=(git composer npm php)
+# composer/npm lokal oder – falls nicht installiert – über Docker
+TOOLS=(git)
 [[ "$MODE" == "deploy" ]] && TOOLS+=(rsync ssh)
+USE_DOCKER_COMPOSER=0
+USE_DOCKER_NODE=0
+command -v composer >/dev/null && command -v php >/dev/null || USE_DOCKER_COMPOSER=1
+command -v npm >/dev/null || USE_DOCKER_NODE=1
+if [[ $USE_DOCKER_COMPOSER -eq 1 || $USE_DOCKER_NODE -eq 1 ]]; then TOOLS+=(docker); fi
 for tool in "${TOOLS[@]}"; do
     command -v "$tool" >/dev/null || { echo "FEHLER: '$tool' fehlt lokal." >&2; exit 1; }
 done
@@ -56,8 +62,19 @@ mkdir -p "$BUILD"
 echo "==> Release $RELEASE bauen in $BUILD"
 git -C "$PROJECT_DIR" archive HEAD backend | tar -x -C "$BUILD" --strip-components=1
 git -C "$PROJECT_DIR" archive HEAD frontend | tar -x -C "$(dirname "$BUILD")"
-(cd "$(dirname "$BUILD")/frontend" && npm ci --no-audit --no-fund --silent && npx vite build --outDir "$BUILD/public/spa" --emptyOutDir >/dev/null)
-(cd "$BUILD" && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --quiet)
+WORK="$(dirname "$BUILD")"
+if [[ $USE_DOCKER_NODE -eq 1 ]]; then
+    docker run --rm -v "$WORK:/w" -w /w/frontend node:22-alpine sh -c \
+        "npm ci --no-audit --no-fund --silent && npx vite build --outDir /w/$(basename "$BUILD")/public/spa --emptyOutDir >/dev/null"
+else
+    (cd "$WORK/frontend" && npm ci --no-audit --no-fund --silent && npx vite build --outDir "$BUILD/public/spa" --emptyOutDir >/dev/null)
+fi
+if [[ $USE_DOCKER_COMPOSER -eq 1 ]]; then
+    docker run --rm -v "$BUILD:/app" -w /app composer:2 install --no-dev --prefer-dist --optimize-autoloader \
+        --no-interaction --quiet --ignore-platform-req=ext-intl --ignore-platform-req=ext-gd
+else
+    (cd "$BUILD" && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --quiet)
+fi
 rm -rf "$BUILD/storage" "$BUILD/tests" "$BUILD/.env" "$BUILD/public/media" "$BUILD/public/map"
 echo "$RELEASE" > "$BUILD/RELEASE"
 
