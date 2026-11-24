@@ -88,7 +88,7 @@ remote "mkdir -p '$R/releases' '$R/shared/storage/app' '$R/shared/storage/framew
     '$R/shared/storage/framework/views' '$R/shared/storage/logs' '$R/shared/uploads' '$R/shared/map' '$R/shared/backups'"
 remote "test -f '$R/shared/.env'" || { echo "FEHLER: $R/shared/.env fehlt auf dem Server (siehe docs/INSTALLATION.md)." >&2; exit 1; }
 LINK_DEST=""
-PREV="$(remote "readlink -f '$R/current' 2>/dev/null || true")"
+PREV="$(remote "if [ -L '$R/current' ]; then readlink -f '$R/current'; fi")"
 [[ -n "$PREV" ]] && LINK_DEST="--link-dest=$PREV/"
 rsync -a --delete --exclude=.git ${LINK_DEST:+"$LINK_DEST"} -e "ssh -p $PORT" "$BUILD/" "$LEONIDA_SSH_USER@$LEONIDA_SSH_HOST:$R/releases/$RELEASE/"
 
@@ -100,7 +100,7 @@ remote "cd '$R/releases/$RELEASE' \
     && $RPHP artisan leonida:bootstrap-admin \
     && $RPHP artisan leonida:link \
     && $RPHP artisan leonida:map-register \
-    && $RPHP artisan config:cache && $RPHP artisan route:cache && $RPHP artisan view:cache \
+    && $RPHP artisan config:cache && $RPHP artisan route:cache \
     && ln -sfn 'releases/$RELEASE' '$R/current.tmp' && mv -T '$R/current.tmp' '$R/current'"
 
 echo "==> Alte Releases aufräumen (behalte $KEEP)"
