@@ -50,7 +50,7 @@ if [[ -n "$REMOTE_CURRENT" && "$(basename "$REMOTE_CURRENT")" != "$VERSION" ]]; 
     LINK_DEST="--link-dest=$REMOTE_CURRENT/"
     echo "    unveränderte Kacheln werden aus $(basename "$REMOTE_CURRENT") übernommen"
 fi
-rsync -a --delete --stats $DRY_RUN ${LINK_DEST:+"$LINK_DEST"} \
+rsync -a --delete $DRY_RUN ${LINK_DEST:+"$LINK_DEST"} \
     -e "ssh -p $LEONIDA_SSH_PORT" "$SOURCE/" \
     "$LEONIDA_SSH_USER@$LEONIDA_SSH_HOST:$REMOTE_MAP/versions/$VERSION/"
 
