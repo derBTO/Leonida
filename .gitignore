@@ -1,0 +1,31 @@
+# Betriebssystem
+.DS_Store
+
+# Zugangsdaten – nie committen
+.env
+.env.*
+!.env.example
+deploy.env
+
+# Daten außerhalb von Git: Kacheln, Bilder, Datenbank-Dumps, Backups
+/data/
+
+# Abhängigkeiten und Build-Ergebnisse
+node_modules/
+vendor/
+dist/
+/backend/public/build/
+/backend/storage/*.key
+.phpunit.result.cache
+coverage/
+playwright-report/
+test-results/
+
+# Python
+__pycache__/
+*.pyc
+
+# Editoren
+.idea/
+.vscode/
+*.swp

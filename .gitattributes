@@ -1,0 +1,5 @@
+# Zeilenenden immer LF (Server und Skripte laufen unter Linux/macOS)
+* text=auto eol=lf
+*.jpg binary
+*.png binary
+*.webp binary
