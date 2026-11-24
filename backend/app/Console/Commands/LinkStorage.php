@@ -21,6 +21,11 @@ class LinkStorage extends Command
                 return self::FAILURE;
             }
             $link = public_path($name);
+            if (! is_link($link) && is_dir($link) && realpath($link) === realpath($target)) {
+                $this->info("public/$name liegt bereits im Webverzeichnis ($target)");
+
+                continue;
+            }
             if (is_link($link)) {
                 unlink($link);
             } elseif (file_exists($link)) {

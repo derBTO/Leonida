@@ -5,6 +5,10 @@ return [
     'admin_username' => env('LEONIDA_ADMIN_USERNAME', 'BTO'),
     'admin_initial_password' => env('LEONIDA_ADMIN_INITIAL_PASSWORD'),
 
+    // Webverzeichnis, aus dem der Webserver ausliefert (Produktion: public_html/...).
+    // Leer = backend/public (Entwicklung)
+    'public_dir' => env('LEONIDA_PUBLIC_DIR'),
+
     // Ablage außerhalb der Releases. Leer = storage/app/... (nur für Entwicklung)
     'upload_dir' => env('LEONIDA_UPLOAD_DIR') ?: storage_path('app/uploads'),
     'map_dir' => env('LEONIDA_MAP_DIR') ?: base_path('../data/map'),

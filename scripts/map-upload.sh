@@ -39,7 +39,7 @@ CURRENT="$DATA_DIR/map/current"
 [[ -L "$CURRENT" ]] || { echo "FEHLER: Keine aktive Kartenversion. Zuerst scripts/map-import.sh --activate." >&2; exit 1; }
 VERSION="$(basename "$(readlink "$CURRENT")")"
 SOURCE="$(cd "$CURRENT" && pwd -P)"
-REMOTE_MAP="$LEONIDA_REMOTE_DIR/shared/map"
+REMOTE_MAP="${LEONIDA_PUBLIC_DIR:-$LEONIDA_REMOTE_DIR/shared}/map"
 SSH=(ssh -p "$LEONIDA_SSH_PORT" "$LEONIDA_SSH_USER@$LEONIDA_SSH_HOST")
 
 echo "==> Kartenversion $VERSION hochladen nach $LEONIDA_SSH_HOST:$REMOTE_MAP/versions/$VERSION"

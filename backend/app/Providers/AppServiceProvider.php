@@ -11,7 +11,10 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Produktion: Webverzeichnis liegt getrennt vom Code (siehe docs/INSTALLATION.md)
+        if ($dir = config('leonida.public_dir')) {
+            $this->app->usePublicPath($dir);
+        }
     }
 
     public function boot(): void

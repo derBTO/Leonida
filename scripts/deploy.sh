@@ -24,7 +24,8 @@ CONFIG="$PROJECT_DIR/deploy.env"
 [[ -f "$CONFIG" ]] || { echo "FEHLER: $CONFIG fehlt (Vorlage: deploy.env.example)." >&2; exit 1; }
 # shellcheck source=/dev/null
 source "$CONFIG"
-: "${LEONIDA_SSH_HOST:?}" "${LEONIDA_SSH_USER:?}" "${LEONIDA_REMOTE_DIR:?}"
+: "${LEONIDA_SSH_HOST:?}" "${LEONIDA_SSH_USER:?}" "${LEONIDA_REMOTE_DIR:?}" "${LEONIDA_PUBLIC_DIR:?in deploy.env setzen}"
+PUB="$LEONIDA_PUBLIC_DIR"
 PORT="${LEONIDA_SSH_PORT:-222}"
 RPHP="${LEONIDA_REMOTE_PHP:-php}"
 KEEP="${LEONIDA_KEEP_RELEASES:-5}"
@@ -36,7 +37,8 @@ if [[ "$MODE" == "rollback" ]]; then
     PREVIOUS="$(remote "cd '$R/releases' && ls -1 | sort | tail -n 2 | head -n 1")"
     CURRENT="$(remote "basename \$(readlink '$R/current')")"
     [[ -n "$PREVIOUS" && "$PREVIOUS" != "$CURRENT" ]] || { echo "Keine ältere Release vorhanden." >&2; exit 1; }
-    remote "ln -sfn 'releases/$PREVIOUS' '$R/current.tmp' && mv -T '$R/current.tmp' '$R/current'"
+    remote "ln -sfn 'releases/$PREVIOUS' '$R/current.tmp' && mv -T '$R/current.tmp' '$R/current' \
+        && rsync -a --delete --exclude=/media --exclude=/map --exclude=/index.php '$R/current/public/' '$PUB/'"
     echo "Zurückgeschaltet: $CURRENT → $PREVIOUS (Datenbank unverändert)."
     exit 0
 fi
@@ -76,6 +78,7 @@ else
     (cd "$BUILD" && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --quiet)
 fi
 rm -rf "$BUILD/storage" "$BUILD/tests" "$BUILD/.env" "$BUILD/public/media" "$BUILD/public/map"
+sed "s#__LEONIDA_APP__#$R/current#" "$PROJECT_DIR/scripts/templates/index.php" > "$BUILD/public/index.web.php"
 echo "$RELEASE" > "$BUILD/RELEASE"
 
 if [[ "$MODE" == "dry-run" ]]; then
@@ -85,7 +88,9 @@ fi
 
 echo "==> Hochladen nach $LEONIDA_SSH_HOST:$R/releases/$RELEASE"
 remote "mkdir -p '$R/releases' '$R/shared/storage/app' '$R/shared/storage/framework/cache/data' '$R/shared/storage/framework/sessions' \
-    '$R/shared/storage/framework/views' '$R/shared/storage/logs' '$R/shared/uploads' '$R/shared/map' '$R/shared/backups'"
+    '$R/shared/storage/framework/views' '$R/shared/storage/logs' '$R/shared/backups' '$PUB/media' '$PUB/map' \
+    && chmod 755 '$PUB' '$PUB/media' '$PUB/map' && chmod 700 '$R/shared'"
+remote "test ! -L '$PUB'" || { echo "FEHLER: $PUB ist ein Symlink. Bitte entfernen (rm, ohne Schrägstrich am Ende) und erneut starten." >&2; exit 1; }
 remote "test -f '$R/shared/.env'" || { echo "FEHLER: $R/shared/.env fehlt auf dem Server (siehe docs/INSTALLATION.md)." >&2; exit 1; }
 LINK_DEST=""
 PREV="$(remote "if [ -L '$R/current' ]; then readlink -f '$R/current'; fi")"
@@ -101,7 +106,9 @@ remote "cd '$R/releases/$RELEASE' \
     && $RPHP artisan leonida:link \
     && $RPHP artisan leonida:map-register \
     && $RPHP artisan config:cache && $RPHP artisan route:cache \
-    && ln -sfn 'releases/$RELEASE' '$R/current.tmp' && mv -T '$R/current.tmp' '$R/current'"
+    && ln -sfn 'releases/$RELEASE' '$R/current.tmp' && mv -T '$R/current.tmp' '$R/current' \
+    && rsync -a --delete --exclude=/media --exclude=/map --exclude=/index.php --exclude=/index.web.php '$R/current/public/' '$PUB/' \
+    && cp '$R/current/public/index.web.php' '$PUB/index.php.tmp' && mv '$PUB/index.php.tmp' '$PUB/index.php'"
 
 echo "==> Alte Releases aufräumen (behalte $KEEP)"
 remote "cd '$R/releases' && ls -1 | sort | head -n -$KEEP | xargs -r rm -rf"
