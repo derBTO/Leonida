@@ -16,4 +16,12 @@ Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Inte
 
 ## Bibliotheken
 
-Die Liste der verwendeten Bibliotheken und ihrer Lizenzen wird mit dem Anwendungscode ergänzt.
+| Bibliothek | Lizenz |
+|---|---|
+| Laravel, Intervention Image, Scramble | MIT |
+| Vue, Vue Router, Pinia, Vite | MIT |
+| Leaflet, Leaflet.markercluster | BSD-2-Clause, MIT |
+| Lucide Icons (auch die Marker-Symbole) | ISC |
+| Inter, Barlow Condensed (über Fontsource) | SIL Open Font License 1.1 |
+
+Vollständige Lizenztexte liegen in `backend/vendor` bzw. `frontend/node_modules` der jeweiligen Pakete.

@@ -1,0 +1,194 @@
+<script setup lang="ts">
+import { computed, onMounted, reactive, ref } from 'vue'
+import { api, ApiError } from '../api/client'
+import type { GalleryImage, LootType, Pin, PinCode, PinStatus, RespawnStatus, VehicleSummary, WeaponSummary } from '../api/types'
+import { formatNumber, parseUsd } from '../lib/format'
+import { LOOT, LOOT_ORDER } from '../lib/lootTypes'
+import { usePins } from '../stores/pins'
+import { useSession } from '../stores/session'
+import { useUi } from '../stores/ui'
+import CatalogPicker from './CatalogPicker.vue'
+import CodesEditor from './CodesEditor.vue'
+import EnumSelect from './EnumSelect.vue'
+import ImageManager from './ImageManager.vue'
+import Modal from './Modal.vue'
+
+/** Anlegen und Bearbeiten eines Pins. Felder je Loottyp werden dynamisch eingeblendet. */
+const props = defineProps<{ pinId: number | null; x: number; y: number }>()
+const emit = defineEmits<{ close: []; saved: [Pin] }>()
+const ui = useUi()
+const pins = usePins()
+const session = useSession()
+const loading = ref(props.pinId !== null)
+const busy = ref(false)
+const errors = ref<Record<string, string[]>>({})
+const images = ref<GalleryImage[]>([])
+const manager = ref<InstanceType<typeof ImageManager> | null>(null)
+
+const form = reactive({
+  title: '',
+  description: '',
+  x: props.x,
+  y: props.y,
+  loot_types: [] as LootType[],
+  weapons: [] as WeaponSummary[],
+  vehicles: [] as VehicleSummary[],
+  drugs: '',
+  jewelry: '',
+  cash: '',
+  codes: [] as PinCode[],
+  requirements: '',
+  respawn: 'unknown' as RespawnStatus,
+  status: 'unconfirmed' as PinStatus,
+})
+let initial = ''
+const dirty = computed(() => !loading.value && JSON.stringify(form) !== initial)
+const money = (v: number | null) => (v === null ? '' : formatNumber(v))
+
+onMounted(async () => {
+  if (props.pinId !== null) {
+    try {
+      const pin = (await api.get<{ pin: Pin }>(`/api/pins/${props.pinId}`)).pin
+      Object.assign(form, {
+        title: pin.title, description: pin.description ?? '', x: pin.x, y: pin.y, loot_types: pin.loot_types,
+        weapons: pin.weapons, vehicles: pin.vehicles, drugs: money(pin.drugs_value_usd), jewelry: money(pin.jewelry_value_usd),
+        cash: money(pin.cash_usd), codes: pin.codes.map((c) => ({ ...c })), requirements: pin.requirements ?? '',
+        respawn: pin.respawn, status: pin.status,
+      })
+      images.value = pin.images
+    } catch (e) {
+      ui.error(e)
+      emit('close')
+    }
+    loading.value = false
+  }
+  initial = JSON.stringify(form)
+})
+
+const has = (t: LootType) => form.loot_types.includes(t)
+function toggle(t: LootType) {
+  form.loot_types = has(t) ? form.loot_types.filter((x) => x !== t) : LOOT_ORDER.filter((x) => x === t || form.loot_types.includes(x))
+}
+const err = (k: string) => errors.value[k]?.[0]
+const usdError = (s: string) => (Number.isNaN(parseUsd(s)) ? 'Nur ganze Dollar-Beträge' : undefined)
+
+async function save() {
+  for (const [k, v] of [['drugs', form.drugs], ['jewelry', form.jewelry], ['cash', form.cash]] as const) {
+    if (usdError(v)) return ui.error(`Ungültiger Betrag bei ${LOOT[k].label}.`)
+  }
+  busy.value = true
+  errors.value = {}
+  const payload = {
+    title: form.title,
+    description: form.description,
+    x: form.x,
+    y: form.y,
+    loot_types: form.loot_types,
+    weapon_ids: form.weapons.map((w) => w.id),
+    vehicle_ids: form.vehicles.map((v) => v.id),
+    drugs_value_usd: parseUsd(form.drugs),
+    jewelry_value_usd: parseUsd(form.jewelry),
+    cash_usd: parseUsd(form.cash),
+    codes: form.codes.filter((c) => c.code.trim() !== '' || (c.label ?? '').trim() !== ''),
+    requirements: form.requirements,
+    respawn: form.respawn,
+    status: form.status,
+  }
+  try {
+    let pin = props.pinId
+      ? (await api.put<{ pin: Pin }>(`/api/pins/${props.pinId}`, payload)).pin
+      : (await api.post<{ pin: Pin }>('/api/pins', payload)).pin
+    if (manager.value?.hasPending()) {
+      await manager.value.flush(pin.id)
+      pin = (await api.get<{ pin: Pin }>(`/api/pins/${pin.id}`)).pin
+    }
+    await pins.refresh()
+    ui.toast(props.pinId ? 'Pin gespeichert.' : 'Pin angelegt.', 'ok')
+    initial = JSON.stringify(form)
+    emit('saved', pin)
+  } catch (e) {
+    if (e instanceof ApiError && e.status === 422) errors.value = e.errors
+    ui.error(e)
+  } finally {
+    busy.value = false
+  }
+}
+</script>
+
+<template>
+  <Modal :title="pinId ? 'Pin bearbeiten' : 'Neuer Pin'" width="760px" :dirty="dirty" @close="emit('close')">
+    <div v-if="loading" class="muted">Lade …</div>
+    <form v-else id="pin-form" @submit.prevent="save">
+      <div class="field">
+        <label for="pe-title">Titel *</label>
+        <input id="pe-title" class="input" v-model="form.title" maxlength="150" required placeholder="z. B. Safe im Motel" />
+        <div v-if="err('title')" class="error-text">{{ err('title') }}</div>
+      </div>
+      <div class="coords faint">Position: x {{ form.x.toFixed(1) }}, y {{ form.y.toFixed(1) }}</div>
+
+      <div class="section-title">Loottypen</div>
+      <div class="chips">
+        <button v-for="t in LOOT_ORDER" :key="t" type="button" class="chip" :class="{ on: has(t) }" :style="{ '--c': LOOT[t].color }" :aria-pressed="has(t)" @click="toggle(t)">
+          <span class="dot" /> {{ LOOT[t].label }}
+        </button>
+      </div>
+
+      <div v-if="has('vehicles')" class="block">
+        <div class="label">Fahrzeuge</div>
+        <CatalogPicker kind="vehicles" v-model="form.vehicles" />
+      </div>
+      <div v-if="has('weapons')" class="block">
+        <div class="label">Waffen</div>
+        <CatalogPicker kind="weapons" v-model="form.weapons" />
+      </div>
+      <div v-if="has('drugs') || has('jewelry') || has('cash')" class="grid-3 block">
+        <div v-if="has('drugs')" class="field">
+          <label for="pe-drugs">Wert Drogen (US$)</label>
+          <input id="pe-drugs" class="input" inputmode="numeric" placeholder="unbekannt" v-model="form.drugs" />
+          <div v-if="usdError(form.drugs) || err('drugs_value_usd')" class="error-text">{{ usdError(form.drugs) ?? err('drugs_value_usd') }}</div>
+        </div>
+        <div v-if="has('jewelry')" class="field">
+          <label for="pe-jewelry">Wert Schmuck (US$)</label>
+          <input id="pe-jewelry" class="input" inputmode="numeric" placeholder="unbekannt" v-model="form.jewelry" />
+          <div v-if="usdError(form.jewelry) || err('jewelry_value_usd')" class="error-text">{{ usdError(form.jewelry) ?? err('jewelry_value_usd') }}</div>
+        </div>
+        <div v-if="has('cash')" class="field">
+          <label for="pe-cash">Geldbetrag (US$)</label>
+          <input id="pe-cash" class="input" inputmode="numeric" placeholder="unbekannt" v-model="form.cash" />
+          <div v-if="usdError(form.cash) || err('cash_usd')" class="error-text">{{ usdError(form.cash) ?? err('cash_usd') }}</div>
+        </div>
+      </div>
+
+      <div class="field block">
+        <label for="pe-desc">Beschreibung</label>
+        <textarea id="pe-desc" class="input" v-model="form.description" maxlength="20000" />
+      </div>
+      <div class="field block">
+        <label for="pe-req">Voraussetzungen / Hinweise</label>
+        <textarea id="pe-req" class="input small" v-model="form.requirements" maxlength="5000" placeholder="z. B. nur nachts, Brecheisen nötig" />
+      </div>
+      <div class="grid-2 block">
+        <EnumSelect label="Status" :options="session.meta!.enums.pin_status" v-model="form.status as any" required />
+        <EnumSelect label="Respawn" :options="session.meta!.enums.respawn" v-model="form.respawn as any" required />
+      </div>
+
+      <div class="section-title">Codes</div>
+      <CodesEditor v-model="form.codes" :errors="errors" />
+
+      <div class="section-title">Bilder</div>
+      <ImageManager ref="manager" :pin-id="pinId" :images="images" @changed="images = $event" />
+    </form>
+    <template #footer>
+      <button class="btn" type="button" @click="emit('close')">Abbrechen</button>
+      <button class="btn primary" type="submit" form="pin-form" :disabled="busy || loading">{{ busy ? 'Speichere …' : 'Speichern' }}</button>
+    </template>
+  </Modal>
+</template>
+
+<style scoped>
+.coords { font-size: 12px; margin-top: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.block { margin-top: 14px; }
+.block > .label { margin-bottom: 6px; display: block; }
+textarea.small { min-height: 60px; }
+</style>

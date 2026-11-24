@@ -1,0 +1,5 @@
+.page { position: fixed; inset: 0; overflow-y: auto; padding: calc(var(--header-h) + 32px) 24px 40px; background:
+  radial-gradient(ellipse at 10% -10%, rgba(255, 61, 139, 0.12), transparent 45%),
+  radial-gradient(ellipse at 100% 0%, rgba(139, 92, 246, 0.14), transparent 50%), var(--bg); }
+.page > * { max-width: 1200px; margin-left: auto; margin-right: auto; }
+@media (max-width: 640px) { .page { padding: calc(var(--header-h) + 28px) 12px 32px; } }

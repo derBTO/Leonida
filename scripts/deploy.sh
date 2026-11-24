@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# Baut Leonida lokal und spielt es per SSH auf das Hetzner-Webhosting ein.
+#
+#   scripts/deploy.sh            neue Release bauen, hochladen, migrieren, umschalten
+#   scripts/deploy.sh --rollback auf die vorige Release zurückschalten (ohne Datenbank-Rückbau)
+#   scripts/deploy.sh --dry-run  nur bauen, nichts hochladen
+#
+# Voraussetzungen lokal: git, php 8.3+, composer, node 20+, npm, rsync, ssh.
+# Zugangsdaten: deploy.env (Vorlage deploy.env.example). Ablauf: docs/INSTALLATION.md
+
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+MODE="deploy"
+case "${1:-}" in
+    --rollback) MODE="rollback" ;;
+    --dry-run) MODE="dry-run" ;;
+    "") ;;
+    *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 2 ;;
+esac
+
+CONFIG="$PROJECT_DIR/deploy.env"
+[[ -f "$CONFIG" ]] || { echo "FEHLER: $CONFIG fehlt (Vorlage: deploy.env.example)." >&2; exit 1; }
+# shellcheck source=/dev/null
+source "$CONFIG"
+: "${LEONIDA_SSH_HOST:?}" "${LEONIDA_SSH_USER:?}" "${LEONIDA_REMOTE_DIR:?}"
+PORT="${LEONIDA_SSH_PORT:-222}"
+RPHP="${LEONIDA_REMOTE_PHP:-php}"
+KEEP="${LEONIDA_KEEP_RELEASES:-5}"
+R="$LEONIDA_REMOTE_DIR"
+SSH=(ssh -p "$PORT" "$LEONIDA_SSH_USER@$LEONIDA_SSH_HOST")
+remote() { "${SSH[@]}" "set -e; $*"; }
+
+if [[ "$MODE" == "rollback" ]]; then
+    PREVIOUS="$(remote "cd '$R/releases' && ls -1 | sort | tail -n 2 | head -n 1")"
+    CURRENT="$(remote "basename \$(readlink '$R/current')")"
+    [[ -n "$PREVIOUS" && "$PREVIOUS" != "$CURRENT" ]] || { echo "Keine ältere Release vorhanden." >&2; exit 1; }
+    remote "ln -sfn 'releases/$PREVIOUS' '$R/current.tmp' && mv -T '$R/current.tmp' '$R/current'"
+    echo "Zurückgeschaltet: $CURRENT → $PREVIOUS (Datenbank unverändert)."
+    exit 0
+fi
+
+TOOLS=(git composer npm php)
+[[ "$MODE" == "deploy" ]] && TOOLS+=(rsync ssh)
+for tool in "${TOOLS[@]}"; do
+    command -v "$tool" >/dev/null || { echo "FEHLER: '$tool' fehlt lokal." >&2; exit 1; }
+done
+if [[ -n "$(git -C "$PROJECT_DIR" status --porcelain -- backend frontend)" ]]; then
+    echo "WARNUNG: backend/ oder frontend/ enthält nicht committete Änderungen – sie werden NICHT ausgeliefert." >&2
+fi
+
+RELEASE="$(date +%Y%m%d-%H%M%S)-$(git -C "$PROJECT_DIR" rev-parse --short HEAD)"
+BUILD="$(mktemp -d)/leonida-$RELEASE"
+mkdir -p "$BUILD"
+echo "==> Release $RELEASE bauen in $BUILD"
+git -C "$PROJECT_DIR" archive HEAD backend | tar -x -C "$BUILD" --strip-components=1
+git -C "$PROJECT_DIR" archive HEAD frontend | tar -x -C "$(dirname "$BUILD")"
+(cd "$(dirname "$BUILD")/frontend" && npm ci --no-audit --no-fund --silent && npx vite build --outDir "$BUILD/public/spa" --emptyOutDir >/dev/null)
+(cd "$BUILD" && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction --quiet)
+rm -rf "$BUILD/storage" "$BUILD/tests" "$BUILD/.env" "$BUILD/public/media" "$BUILD/public/map"
+echo "$RELEASE" > "$BUILD/RELEASE"
+
+if [[ "$MODE" == "dry-run" ]]; then
+    echo "==> Probelauf fertig: $BUILD"
+    exit 0
+fi
+
+echo "==> Hochladen nach $LEONIDA_SSH_HOST:$R/releases/$RELEASE"
+remote "mkdir -p '$R/releases' '$R/shared/storage/app' '$R/shared/storage/framework/cache/data' '$R/shared/storage/framework/sessions' \
+    '$R/shared/storage/framework/views' '$R/shared/storage/logs' '$R/shared/uploads' '$R/shared/map' '$R/shared/backups'"
+remote "test -f '$R/shared/.env'" || { echo "FEHLER: $R/shared/.env fehlt auf dem Server (siehe docs/INSTALLATION.md)." >&2; exit 1; }
+LINK_DEST=""
+PREV="$(remote "readlink -f '$R/current' 2>/dev/null || true")"
+[[ -n "$PREV" ]] && LINK_DEST="--link-dest=$PREV/"
+rsync -a --delete --exclude=.git ${LINK_DEST:+"$LINK_DEST"} -e "ssh -p $PORT" "$BUILD/" "$LEONIDA_SSH_USER@$LEONIDA_SSH_HOST:$R/releases/$RELEASE/"
+
+echo "==> Einrichten, migrieren, umschalten"
+remote "cd '$R/releases/$RELEASE' \
+    && ln -sfn '$R/shared/.env' .env \
+    && ln -sfn '$R/shared/storage' storage \
+    && $RPHP artisan migrate --force \
+    && $RPHP artisan leonida:bootstrap-admin \
+    && $RPHP artisan leonida:link \
+    && $RPHP artisan leonida:map-register \
+    && $RPHP artisan config:cache && $RPHP artisan route:cache && $RPHP artisan view:cache \
+    && ln -sfn 'releases/$RELEASE' '$R/current.tmp' && mv -T '$R/current.tmp' '$R/current'"
+
+echo "==> Alte Releases aufräumen (behalte $KEEP)"
+remote "cd '$R/releases' && ls -1 | sort | head -n -$KEEP | xargs -r rm -rf"
+echo "==> Fertig: https://leonida.derbto.de (Release $RELEASE)"

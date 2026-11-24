@@ -1,0 +1,9 @@
+.card { max-width: 560px; }
+.title { font-size: 34px; line-height: 1.05; }
+.subtitle { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 2px 0 12px; }
+.image { aspect-ratio: 16 / 9; border-radius: var(--radius-sm); overflow: hidden; background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.16), rgba(0, 0, 0, 0.25) 70%); border: 1px solid var(--line); }
+.props { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px 16px; margin: 14px 0 8px; }
+.props dt { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); }
+.props dd { margin: 0; font-weight: 500; }
+.stats { margin-top: 6px; }
+.notes { white-space: pre-wrap; color: var(--muted); margin-top: 14px; }

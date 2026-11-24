@@ -1,57 +1,55 @@
 # Leonida
 
-Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Privates Projekt, erreichbar unter **https://leonida.derbto.de**.
+Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Privates Projekt unter **https://leonida.derbto.de**.
 
-Aktueller Stand: **0.1 – Grundgerüst** (Karten-Import und Server-Prüfung fertig, Anwendung folgt). Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
+Aktuelle Version: **0.2**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
 
-## Überblick
+## Funktionen
 
-| Teil | Technik | Stand |
-|---|---|---|
-| Kartengrundlage | Kacheln von [gtadb.org](https://map.gtadb.org), lokal gehostet | fertig: Import, Versionierung, Upload |
-| Frontend | Vue 3, TypeScript, Vite, Leaflet | folgt |
-| Backend | Laravel 12, PHP 8.3+ | folgt |
-| Datenbank | PostgreSQL (Hetzner-Webhosting) | folgt |
-| Betrieb | Hetzner-Webhosting L/XL, Deployment per SSH | Prüfskript fertig |
+- Vollbild-Karte von Leonida (Kacheln von [gtadb.org](https://map.gtadb.org), lokal gehostet), umschaltbar zwischen Satellit und drei Community-Karten
+- Pins mit Loottypen (Fahrzeuge, Waffen, Drogen, Schmuck, Geld), Beträgen, Codes, Bildergalerie, Status und Respawn
+- Farbige Marker je Loottyp, kombinierter Ring bei mehreren Typen, Clustering beim Herauszoomen
+- Sidebar mit Suche, Loottyp-Filtern, Trefferzahl und Liste, optional nur im Kartenausschnitt
+- Waffen- und Fahrzeugkatalog mit Werten als Balken, Fahrzeug-Ratings, Fundorten und Direktlinks
+- Anlegen per Rechtsklick auf die Karte oder per „+“-Button auf Touchgeräten, Verschieben per Ziehen
+- Bilder per Datei, Drag-and-drop oder direkt aus der Zwischenablage; Sortieren, Beschreibungen, Lightbox
+- Öffentlich lesbar; Bearbeiten nur nach Anmeldung (Rollen Administrator und Editor)
+- Export und Import aller Daten als ZIP, nächtliches Datenbank-Backup
+
+## Technik
+
+| Teil | Technik |
+|---|---|
+| Frontend | Vue 3, TypeScript, Vite, Pinia, Leaflet + Leaflet.markercluster |
+| Backend | Laravel 12, PHP 8.3+ |
+| Datenbank | PostgreSQL (Hetzner-Webhosting) |
+| Betrieb | Hetzner-Webhosting L/XL, Deployment per SSH |
+| Entwicklung | Docker Compose oder lokales PHP + PostgreSQL |
 
 ## Verzeichnisse
 
 | Pfad | Inhalt |
 |---|---|
-| `scripts/map-import.sh` | holt die GTA-VI-Kacheln von gtadb.org als neue Kartenversion |
-| `scripts/map-upload.sh` | lädt die aktive Kartenversion auf das Webhosting |
-| `scripts/server-check.php` | prüft, ob das Webhosting alles für Leonida bietet |
-| `scripts/lib/` | Hilfsprogramme der Skripte |
-| `tests/scripts/` | Tests der Skripte |
-| `docs/` | Anleitungen und Entscheidungen |
+| `backend/` | Laravel-Anwendung: API, Datenbank-Migrationen, Tests |
+| `frontend/` | Vue-Anwendung |
+| `scripts/` | `map-import.sh`, `map-upload.sh`, `deploy.sh`, `server-check.php` |
+| `docs/` | Anleitungen, API-Beschreibung, Entscheidungen |
+| `docker/`, `docker-compose.yml` | lokale Entwicklungsumgebung |
 | `data/` | lokale Kartendaten, nicht in Git |
 
-## Kartendaten holen
+## Anleitungen
 
-Voraussetzungen: `git` und `python3` (auf dem Mac mit den Xcode Command Line Tools vorhanden).
+- [Installation auf dem Hetzner-Webhosting](docs/INSTALLATION.md)
+- [Lokale Entwicklung und Tests](docs/ENTWICKLUNG.md)
+- [Backup und Wiederherstellung](docs/BACKUP.md)
+- [Kartengrundlage aktualisieren](docs/KARTE-AKTUALISIEREN.md)
+- [API](docs/API.md)
 
-```
-scripts/map-import.sh --activate
-```
-
-Beim ersten Lauf werden ca. 320 MB (rund 58.000 Kacheln) nach `data/map/` geladen. Details, Updates und Upload: [docs/KARTE-AKTUALISIEREN.md](docs/KARTE-AKTUALISIEREN.md).
-
-## Webhosting prüfen
-
-`scripts/server-check.php` per SFTP in den Leonida-Ordner auf dem Server kopieren, dann per SSH:
+## Schnellstart lokal
 
 ```
-ssh -p 222 benutzer@wwwXXX.your-server.de
-cd leonida
-LEONIDA_DB_PASSWORD='…' php server-check.php --db-host=… --db-name=… --db-user=…
-```
-
-Hetzner nutzt für SSH Port 222. Die Ausgabe zeigt für jede Anforderung OK, WARNUNG oder FEHLER.
-
-## Tests
-
-```
-python3 -m unittest discover -s tests/scripts
+scripts/map-import.sh --activate   # Kartenkacheln holen (ca. 320 MB)
+docker compose up                  # http://localhost:5173, Anmeldung BTO / entwicklung-123
 ```
 
 ## Quellen und Lizenzen

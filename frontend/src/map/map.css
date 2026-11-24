@@ -1,0 +1,31 @@
+.leaflet-container { background: #0e1a24; font-family: var(--font); }
+.leaflet-control-attribution { background: rgba(11, 10, 18, 0.7) !important; color: var(--muted) !important; font-size: 10.5px; }
+.leaflet-control-attribution a { color: var(--text) !important; }
+.pin-marker-wrap, .pin-cluster-wrap { background: none; border: 0; }
+.pin-marker {
+  position: relative; width: 30px; height: 30px; border-radius: 50%; padding: 3px;
+  background: var(--ring); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6); transition: transform 0.12s;
+}
+.pin-marker .glyph {
+  display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; border-radius: 50%;
+  background: #121019; color: var(--glyph);
+}
+.pin-marker .glyph svg { width: 14px; height: 14px; }
+.pin-marker .more {
+  position: absolute; right: -5px; top: -5px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 8px;
+  background: #f2eff7; color: #121019; font: 700 10px/15px var(--font); text-align: center;
+}
+.pin-marker:hover { transform: scale(1.15); }
+.pin-marker.selected { transform: scale(1.3); box-shadow: 0 0 0 3px #fff, 0 0 18px rgba(255, 61, 139, 0.9); }
+.pin-marker.s-unconfirmed .glyph { outline: 1.5px dashed rgba(255, 255, 255, 0.55); outline-offset: -4px; }
+.pin-marker.s-gone { filter: grayscale(1) brightness(0.65); }
+.pin-cluster {
+  display: flex; align-items: center; justify-content: center; border-radius: 50%; padding: 4px;
+  background: var(--ring); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+.pin-cluster span {
+  display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; border-radius: 50%;
+  background: rgba(18, 16, 25, 0.95); color: #fff; font: 700 13px var(--font);
+}
+.leaflet-marker-draggable .pin-marker { animation: pulse 1s infinite alternate; }
+@keyframes pulse { to { box-shadow: 0 0 0 6px rgba(255, 138, 61, 0.45); } }

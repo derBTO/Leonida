@@ -1,0 +1,41 @@
+# Lokale Entwicklungsumgebung (nicht für den Betrieb):
+#   docker compose up      → Frontend http://localhost:5173, Backend http://localhost:8000
+# Anmeldung: BTO / entwicklung-123 (muss beim ersten Login geändert werden)
+# Kartenkacheln vorher mit scripts/map-import.sh --activate nach data/map holen.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: leonida
+      POSTGRES_USER: leonida
+      POSTGRES_PASSWORD: leonida
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  app:
+    build: docker/php
+    command: /app/docker/php/dev-start.sh
+    volumes:
+      - .:/app
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app/frontend
+    command: sh -c "npm install --no-audit --no-fund && npx vite --host 0.0.0.0"
+    environment:
+      LEONIDA_BACKEND: http://app:8000
+    volumes:
+      - .:/app
+    ports:
+      - "127.0.0.1:5173:5173"
+    depends_on:
+      - app
+
+volumes:
+  pgdata:

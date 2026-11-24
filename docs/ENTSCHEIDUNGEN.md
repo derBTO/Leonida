@@ -24,3 +24,12 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 24.11.2026 | Design | GTA-VI-Anmutung mit freien Schriften und eigenen Icons | keine geschützten Rockstar-Inhalte |
 | 24.11.2026 | „MODS“ im Referenzbild | nicht umgesetzt | nicht in den Anforderungen |
 | 24.11.2026 | Projektlizenz | keine Lizenzdatei, alle Rechte vorbehalten | privates Projekt; Drittlizenzen in `NOTICE.md` |
+| 24.11.2026 | API und Anmeldung | API unter `/api` im Web-Middleware-Stack: Session-Cookie, CSRF per `X-XSRF-TOKEN` | gleiche Domain wie das Frontend, kein Token im Browser-Speicher |
+| 24.11.2026 | Login-Drosselung | Laravel-RateLimiter (Cache-Tabelle) statt eigener Tabelle `login_attempts` | gleiche Wirkung, weniger Code |
+| 24.11.2026 | Loottyp-Felder | Felder zu nicht gewählten Loottypen werden beim Speichern geleert (Beträge, Waffen, Fahrzeuge) | Datensatz entspricht immer der Anzeige |
+| 24.11.2026 | Pin-Liste | `/api/pins` liefert alle Pins kompakt in einem Aufruf (mit ETag), Suche und Filter laufen im Browser | sofortige Reaktion auch bei tausenden Pins |
+| 24.11.2026 | Waffe/Fahrzeug löschen | mit Fundorten nur nach Bestätigung (`?force=1`), Zuordnungen werden entfernt | kein versehentliches Löschen |
+| 24.11.2026 | Auswahllisten | eine Tabelle `lookup_values` mit Kategorie; Fremdschlüssel über (id, Kategorie) | keine falsche Liste zuordenbar, zusammenführen in einer Transaktion |
+| 24.11.2026 | Export-Format | ZIP mit `data.json` (Format `leonida-export`, Version 1) und Bildern; Abgleich über UUIDs | unabhängig von Datenbank und IDs |
+| 24.11.2026 | Schriften und Icons | Inter, Barlow Condensed (OFL), Lucide (ISC), lokal ausgeliefert | keine externen Abrufe, einheitliche Symbole |
+| 24.11.2026 | API-Dokumentation | automatisch aus dem Code (Scramble), `/docs/api` nur angemeldet, Export nach `docs/openapi.json` | bleibt aktuell |
