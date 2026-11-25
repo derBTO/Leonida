@@ -1,5 +1,13 @@
 # Änderungsprotokoll
 
+## v0.9 – Rechte für Bearbeiter, Pins direkt aus der Spur (25.11.2026)
+
+- **Rechte**: Bearbeiter dürfen Pins und Spuren anlegen, aber nur ihre eigenen ändern, verschieben oder löschen (auch Bilder). Einträge anderer und solche ohne Ersteller (z. B. importierte Orte) sind für sie gesperrt. Den eigenen Fortschritt in Spuren hakt weiterhin jede Person ab.
+- **Katalog nur für Administratoren**: Waffen, Fahrzeuge und Auswahllisten anlegen, ändern und löschen dürfen nur Administratoren. Bearbeiter wählen vorhandene Einträge aus.
+- Die Oberfläche blendet nicht erlaubte Knöpfe aus; der Server prüft unabhängig davon (403 mit Hinweis).
+- **Pins aus dem Spur-Editor setzen**: „Auf Karte setzen“ bei einem Schritt öffnet die Karte mit Fadenkreuz, danach den Pin-Dialog (Hinweis, Titel vom Schritt) und kehrt mit zugeordnetem Pin in den Editor zurück.
+- Benutzermenü: **„Benutzer anlegen“** für Administratoren (springt direkt ins Formular). Rolle „Editor“ heißt jetzt „Bearbeiter“, mit Erklärung der Rechte.
+
 ## v0.8 – Spuren, Hinweise, „Nur meine“ (25.11.2026)
 
 - **Spuren**: Stationen in fester Reihenfolge (A → B → C → Loot). Jeder Schritt hat eine kurze Beschreibung, optional Details und optional einen Pin; Schritte ohne Ort („Auf den Anruf warten“) sind erlaubt. Schritte können **parallel** sein (2a/2b, Reihenfolge egal).

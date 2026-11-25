@@ -63,6 +63,7 @@ class TrailController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $trail = Trail::query()->findOrFail($id);
+        $this->ensureOwner($trail->created_by);
         $data = $this->validated($request);
         DB::transaction(function () use ($trail, $data) {
             $before = ['name' => $trail->name, 'steps' => $trail->steps()->count()];
@@ -79,6 +80,7 @@ class TrailController extends Controller
     public function destroy(int $id): JsonResponse
     {
         $trail = Trail::query()->findOrFail($id);
+        $this->ensureOwner($trail->created_by);
         $trail->delete();
         AuditLogger::log('delete', 'trail', $id, $trail->name);
 

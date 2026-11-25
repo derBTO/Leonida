@@ -9,7 +9,7 @@ class CatalogTest extends TestCase
 {
     public function test_weapon_with_lookups_and_stats(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $type = $this->postJson('/api/lookups/weapon_type', ['name' => 'Revolver'])->assertCreated()->json('item.id');
         $mode = $this->postJson('/api/lookups/fire_mode', ['name' => 'Double-Action'])->json('item.id');
         $weapon = $this->postJson('/api/weapons', [
@@ -23,7 +23,7 @@ class CatalogTest extends TestCase
 
     public function test_unknown_values_stay_null_and_zero_stays_zero(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $item = $this->postJson('/api/vehicles', ['name' => 'Unbekannt', 'stats' => ['speed' => 0]])->assertCreated()->json('item');
         $this->assertSame(0, $item['stats']['speed']);
         $this->assertNull($item['stats']['acceleration']);
@@ -40,7 +40,7 @@ class CatalogTest extends TestCase
 
     public function test_stat_and_rating_ranges_are_enforced(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $this->postJson('/api/weapons', ['name' => 'X', 'stats' => ['damage' => 10.5]])->assertJsonValidationErrors('stats.damage');
         $this->postJson('/api/weapons', ['name' => 'X', 'stats' => ['damage' => 2.55]])->assertJsonValidationErrors('stats.damage');
         $this->postJson('/api/vehicles', ['name' => 'X', 'rating_on_road' => 1001])->assertJsonValidationErrors('rating_on_road');
@@ -52,14 +52,14 @@ class CatalogTest extends TestCase
 
     public function test_lookup_of_wrong_category_is_rejected(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $maker = $this->postJson('/api/lookups/vehicle_manufacturer', ['name' => 'Vapid'])->json('item.id');
         $this->postJson('/api/weapons', ['name' => 'X', 'brand_id' => $maker])->assertJsonValidationErrors('brand_id');
     }
 
     public function test_locations_and_delete_protection(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $vehicle = $this->postJson('/api/vehicles', ['name' => 'Dinka Blista'])->json('item.id');
         $pin = $this->postJson('/api/pins', ['title' => 'Parkhaus', 'x' => 5, 'y' => 6, 'loot_types' => ['vehicles'], 'vehicle_ids' => [$vehicle]])->json('pin.id');
         $this->getJson("/api/vehicles/$vehicle")->assertJsonPath('item.locations.0.id', $pin);
@@ -72,7 +72,7 @@ class CatalogTest extends TestCase
 
     public function test_main_image_upload_and_replace(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $id = $this->postJson('/api/weapons', ['name' => 'Bild-Test'])->json('item.id');
         $first = $this->post("/api/weapons/$id/image", ['file' => $this->jpeg()], ['Accept' => 'application/json'])->assertOk()->json('item.image');
         $this->assertStringEndsWith('.webp', $first['url']);
@@ -83,7 +83,7 @@ class CatalogTest extends TestCase
 
     public function test_legendary_flag_distinguishes_unknown_and_no(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $unknown = $this->postJson('/api/weapons', ['name' => 'Pistole'])->assertCreated()->json('item');
         $this->assertNull($unknown['is_legendary']);
         $no = $this->postJson('/api/weapons', ['name' => 'Revolver', 'is_legendary' => false])->json('item');

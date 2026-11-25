@@ -11,6 +11,12 @@ export const useSession = defineStore('session', () => {
   const isAdmin = computed(() => user.value?.role === 'admin')
   /** Schreiben ist erst nach Änderung des Initialpassworts erlaubt (serverseitig ebenso). */
   const canEdit = computed(() => !!user.value && !user.value.must_change_password)
+  /** Ändern/Löschen: Admin alles, alle anderen nur selbst Angelegtes (serverseitig ebenso). */
+  function canModify(createdById: number | null | undefined): boolean {
+    return canEdit.value && (isAdmin.value || (createdById != null && createdById === user.value?.id))
+  }
+  /** Waffen, Fahrzeuge und Auswahllisten pflegt nur der Administrator. */
+  const canEditCatalog = computed(() => canEdit.value && isAdmin.value)
 
   async function load() {
     meta.value = await api.get<Meta>('/api/meta')
@@ -37,5 +43,5 @@ export const useSession = defineStore('session', () => {
     return meta.value?.enums[group].find((o) => o.value === value)?.label ?? value
   }
 
-  return { meta, user, loggedIn, isAdmin, canEdit, load, login, logout, changePassword, label }
+  return { meta, user, loggedIn, isAdmin, canEdit, canModify, canEditCatalog, load, login, logout, changePassword, label }
 })

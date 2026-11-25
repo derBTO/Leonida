@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { KeyRound, LogIn, LogOut, Settings, User } from 'lucide-vue-next'
+import { KeyRound, LogIn, LogOut, Settings, User, UserPlus } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useSession } from '../stores/session'
@@ -36,6 +36,7 @@ async function logout() {
       <div v-else class="menu-wrap">
         <button class="btn ghost sm" type="button" :aria-expanded="menuOpen" @click="menuOpen = !menuOpen"><User :size="15" /> <span class="hide-sm">{{ session.user!.username }}</span></button>
         <div v-if="menuOpen" class="menu panel" @click="menuOpen = false">
+          <RouterLink v-if="session.isAdmin" :to="{ path: '/admin', query: { neu: '' } }"><UserPlus :size="15" /> Benutzer anlegen</RouterLink>
           <RouterLink v-if="session.isAdmin" to="/admin"><Settings :size="15" /> Verwaltung</RouterLink>
           <button type="button" @click="ui.passwordOpen = true"><KeyRound :size="15" /> Passwort ändern</button>
           <RouterLink to="/quellen">Quellen &amp; Lizenzen</RouterLink>

@@ -27,6 +27,19 @@ const placing = ref(false)
 const moving = ref<PinIndexItem | null>(null)
 const moveTarget = ref<{ x: number; y: number } | null>(null)
 const detailKey = ref(0)
+/** Neuer Pin für einen Schritt im Spur-Editor (Fadenkreuz, danach zurück in den Editor) */
+const stepPlacing = computed(() => !!trails.draft && !trails.draft.resume)
+function backToTrail() {
+  if (!trails.draft) return
+  trails.draft.resume = true
+  ui.pinEditor = null
+  router.push(trails.draft.returnPath)
+}
+function confirmStepPlacing() {
+  const c = mapRef.value!.center()
+  openEditor(null, c.x, c.y, 'hint')
+  if (ui.pinEditor) ui.pinEditor.title = trails.draftStep?.title ?? ''
+}
 
 onMounted(() => {
   pins.fetchAll().catch(ui.error)
@@ -72,6 +85,10 @@ function openEditor(pinId: number | null, x = 0, y = 0, kind: PinKind = 'loot') 
 
 function onSaved(pin: Pin) {
   ui.pinEditor = null
+  if (stepPlacing.value && trails.draftStep) {
+    trails.draftStep.pin_id = pin.id
+    return backToTrail()
+  }
   detailKey.value++
   if (selectedId.value !== pin.id) router.push(`/pin/${pin.id}`)
 }
@@ -139,7 +156,15 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
       <div class="faint small">x {{ menu.x.toFixed(1) }} · y {{ menu.y.toFixed(1) }}</div>
     </div>
 
-    <template v-if="placing">
+    <template v-if="stepPlacing && !ui.pinEditor">
+      <div class="crosshair" aria-hidden="true"><Crosshair :size="44" /></div>
+      <div class="bar panel">
+        <span>Ort für Schritt „{{ trails.draftStep?.title }}“ unter das Fadenkreuz schieben</span>
+        <button class="btn" type="button" @click="backToTrail"><X :size="16" /> Zurück zur Spur</button>
+        <button class="btn primary" type="button" @click="confirmStepPlacing"><Check :size="16" /> Hier setzen</button>
+      </div>
+    </template>
+    <template v-else-if="placing">
       <div class="crosshair" aria-hidden="true"><Crosshair :size="44" /></div>
       <div class="bar panel">
         <span>Karte unter das Fadenkreuz schieben</span>
@@ -152,10 +177,10 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
       <button class="btn" type="button" @click="moving = null">Abbrechen</button>
       <button class="btn primary" type="button" :disabled="!moveTarget" @click="saveMove">Position speichern</button>
     </div>
-    <button v-else-if="session.loggedIn" class="fab" type="button" aria-label="Neuen Pin anlegen" title="Neuer Pin (Touch)" @click="startPlacing"><Plus :size="26" /></button>
+    <button v-else-if="session.loggedIn && !stepPlacing" class="fab" type="button" aria-label="Neuen Pin anlegen" title="Neuer Pin (Touch)" @click="startPlacing"><Plus :size="26" /></button>
 
-    <TrailBar v-if="trails.active && !placing && !moving" />
-    <PinEditor v-if="ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" @close="ui.pinEditor = null" @saved="onSaved" />
+    <TrailBar v-if="trails.active && !placing && !moving && !stepPlacing" />
+    <PinEditor v-if="ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" :title="ui.pinEditor.title" @close="ui.pinEditor = null" @saved="onSaved" />
   </div>
 </template>
 

@@ -22,6 +22,8 @@ const router = useRouter()
 const trail = ref<Trail | null>(null)
 const error = ref<string | null>(null)
 const editing = ref(false)
+const draft = trails.draft?.resume && trails.draft.trailId === Number(props.id) ? trails.draft : null
+if (draft) editing.value = true
 
 async function load() {
   error.value = null
@@ -132,7 +134,7 @@ const pinKind = (s: TrailStep) => (s.pin?.kind === 'hint' ? 'Hinweis' : s.pin?.k
           </ol>
           <p v-if="!trail.steps.length" class="empty">Noch keine Schritte.</p>
 
-          <div v-if="session.canEdit" class="actions">
+          <div v-if="session.canModify(trail.created_by_id)" class="actions">
             <button class="btn" type="button" @click="editing = true"><Pencil :size="15" /> Bearbeiten</button>
             <button class="btn danger" type="button" @click="remove"><Trash2 :size="15" /> Löschen</button>
           </div>
@@ -143,7 +145,7 @@ const pinKind = (s: TrailStep) => (s.pin?.kind === 'hint' ? 'Hinweis' : s.pin?.k
         </div>
       </template>
     </div>
-    <TrailForm v-if="editing && trail" :trail="trail" @close="editing = false" @saved="saved" />
+    <TrailForm v-if="editing && trail" :trail="trail" :draft="draft" @close="editing = false" @saved="saved" />
   </div>
 </template>
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSession } from '../stores/session'
 import { Plus, X } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import type { Vehicle, VehicleSummary, Weapon, WeaponSummary } from '../api/types'
@@ -11,6 +12,7 @@ import WeaponForm from './WeaponForm.vue'
 
 type Item = WeaponSummary | VehicleSummary
 /** Mehrfachauswahl aus dem Waffen- oder Fahrzeugkatalog, mit Neuanlage direkt im Dialog. */
+const session = useSession()
 const props = defineProps<{ kind: 'weapons' | 'vehicles'; modelValue: Item[] }>()
 const emit = defineEmits<{ 'update:modelValue': [Item[]] }>()
 const catalog = useCatalog()
@@ -57,12 +59,12 @@ async function created(item: Weapon | Vehicle) {
       </li>
     </ul>
     <div class="search">
-      <input class="input" :placeholder="`${label} suchen oder neu anlegen …`" v-model="query" @focus="open = true" @blur="closeLater" />
+      <input class="input" :placeholder="session.canEditCatalog ? `${label} suchen oder neu anlegen …` : `${label} suchen …`" v-model="query" @focus="open = true" @blur="closeLater" />
       <ul v-if="open && (options.length || query.trim())" class="menu panel scroll">
         <li v-for="item in options" :key="item.id" @mousedown.prevent="add(item)">
           <MediaImage :media="item.image" thumb :alt="item.name" class="thumb" /> {{ item.name }}<LegendaryStar v-if="'is_legendary' in item && item.is_legendary" :size="13" />
         </li>
-        <li v-if="query.trim() && !exact" class="create" @mousedown.prevent="creating = query.trim()">
+        <li v-if="query.trim() && !exact && session.canEditCatalog" class="create" @mousedown.prevent="creating = query.trim()">
           <Plus :size="14" /> „{{ query.trim() }}“ als neue {{ kind === 'weapons' ? 'Waffe' : 'Fahrzeug' }} anlegen
         </li>
       </ul>

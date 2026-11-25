@@ -98,7 +98,7 @@ defineExpose({ reload: load })
           <span class="badge">Respawn: {{ session.label('respawn', pin.respawn) }}</span>
         </div>
 
-        <div v-if="session.canEdit" class="actions">
+        <div v-if="session.canModify(pin.created_by_id)" class="actions">
           <button class="btn sm" type="button" @click="emit('edit', pin.id)"><Pencil :size="14" /> Bearbeiten</button>
           <button class="btn sm" type="button" @click="emit('move', pin)"><Move :size="14" /> Verschieben</button>
           <button class="btn sm danger" type="button" @click="remove"><Trash2 :size="14" /> Löschen</button>

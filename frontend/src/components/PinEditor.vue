@@ -15,7 +15,7 @@ import ImageManager from './ImageManager.vue'
 import Modal from './Modal.vue'
 
 /** Anlegen und Bearbeiten eines Pins. Felder je Loottyp werden dynamisch eingeblendet. */
-const props = defineProps<{ pinId: number | null; x: number; y: number; kind?: PinKind }>()
+const props = defineProps<{ pinId: number | null; x: number; y: number; kind?: PinKind; title?: string }>()
 const emit = defineEmits<{ close: []; saved: [Pin] }>()
 const ui = useUi()
 const pins = usePins()
@@ -29,7 +29,7 @@ const manager = ref<InstanceType<typeof ImageManager> | null>(null)
 const form = reactive({
   kind: (props.kind ?? 'loot') as PinKind,
   poi_type: null as PoiType | null,
-  title: '',
+  title: props.title ?? '',
   description: '',
   x: props.x,
   y: props.y,

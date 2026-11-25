@@ -26,17 +26,17 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | GET | `/api/pins` | kompakte Liste aller Pins für die Karte (mit ETag) | öffentlich |
 | GET | `/api/pins/search?q=&kind=&loot[]=&poi[]=&bbox=` | IDs passender Pins (gleiche Regeln wie im Browser) | öffentlich |
 | GET | `/api/pins/{id}` | Pin mit Waffen, Fahrzeugen, Codes, Bildern | öffentlich |
-| POST / PUT / DELETE | `/api/pins` · `/api/pins/{id}` | Pin anlegen / ändern / löschen | Editor |
-| PATCH | `/api/pins/{id}/position` | Pin verschieben | Editor |
-| POST | `/api/pins/{id}/images` | Bild hochladen (`multipart/form-data`: `file`, `caption`) | Editor |
-| PUT | `/api/pins/{id}/images/order` | Reihenfolge (`ids`) | Editor |
-| PATCH / DELETE | `/api/pin-images/{id}` | Beschreibung ändern / Bild löschen | Editor |
+| POST / PUT / DELETE | `/api/pins` · `/api/pins/{id}` | Pin anlegen / ändern / löschen | angemeldet; ändern nur Ersteller oder Admin |
+| PATCH | `/api/pins/{id}/position` | Pin verschieben | angemeldet; ändern nur Ersteller oder Admin |
+| POST | `/api/pins/{id}/images` | Bild hochladen (`multipart/form-data`: `file`, `caption`) | angemeldet; ändern nur Ersteller oder Admin |
+| PUT | `/api/pins/{id}/images/order` | Reihenfolge (`ids`) | angemeldet; ändern nur Ersteller oder Admin |
+| PATCH / DELETE | `/api/pin-images/{id}` | Beschreibung ändern / Bild löschen | angemeldet; ändern nur Ersteller oder Admin |
 | GET | `/api/weapons` · `/api/vehicles` | Übersicht mit Anzahl Fundorte, Filter `q`, Lookup-IDs | öffentlich |
 | GET | `/api/weapons/{id}` · `/api/vehicles/{id}` | Detail inkl. Fundorte | öffentlich |
-| POST / PUT / DELETE | `/api/weapons…` · `/api/vehicles…` | anlegen / ändern / löschen (`?force=1`, wenn Fundorte zugeordnet sind) | Editor |
-| POST / DELETE | `/api/weapons/{id}/image` · `/api/vehicles/{id}/image` | Hauptbild setzen / entfernen | Editor |
+| POST / PUT / DELETE | `/api/weapons…` · `/api/vehicles…` | anlegen / ändern / löschen (`?force=1`, wenn Fundorte zugeordnet sind) | Admin |
+| POST / DELETE | `/api/weapons/{id}/image` · `/api/vehicles/{id}/image` | Hauptbild setzen / entfernen | Admin |
 | GET | `/api/lookups/{kategorie}` | Werte einer Auswahlliste (`?usage=1` mit Verwendungszahl) | öffentlich |
-| POST | `/api/lookups/{kategorie}` | Wert anlegen oder vorhandenen liefern (Groß-/Kleinschreibung egal) | Editor |
+| POST | `/api/lookups/{kategorie}` | Wert anlegen oder vorhandenen liefern (Groß-/Kleinschreibung egal) | Admin |
 | PATCH / DELETE | `/api/lookup-values/{id}` | umbenennen / unbenutzten Wert löschen | Admin |
 | POST | `/api/lookup-values/{id}/merge` | in `target_id` zusammenführen | Admin |
 | GET / POST / PATCH / DELETE | `/api/users…` | Benutzerverwaltung | Admin |
@@ -46,7 +46,7 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | GET | `/api/admin/catalog-template/{weapons|vehicles}` | CSV-Vorlage | Admin |
 | GET | `/api/trails` | Spuren (`q`, `author`); mit eigenem Fortschritt, wenn angemeldet | öffentlich |
 | GET | `/api/trails/{id}` | Spur mit Schritten | öffentlich |
-| POST / PUT / DELETE | `/api/trails…` | Spur anlegen, ändern (Schritte als Ganzes, `id` behält Fortschritt, `parallel`), löschen | angemeldet |
+| POST / PUT / DELETE | `/api/trails…` | Spur anlegen, ändern (Schritte als Ganzes, `id` behält Fortschritt, `parallel`), löschen | angemeldet; ändern nur Ersteller oder Admin |
 | PUT | `/api/trails/{id}/steps/{step}/progress` | eigenen Fortschritt setzen (`done`) | angemeldet |
 | DELETE | `/api/trails/{id}/progress` | eigenen Fortschritt zurücksetzen | angemeldet |
 | GET | `/api/audit` | letzte 200 Änderungen | angemeldet |

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Download, Trash2, Upload, UserPlus } from 'lucide-vue-next'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { api, ApiError } from '../api/client'
 import type { AuditEntry, LookupCategory, LookupValue, User } from '../api/types'
 import { formatDate } from '../lib/format'
@@ -10,6 +11,7 @@ import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
 
 const session = useSession()
+const route = useRoute()
 const ui = useUi()
 const catalog = useCatalog()
 const pins = usePins()
@@ -18,6 +20,7 @@ const tab = ref<'users' | 'lookups' | 'data' | 'audit'>('users')
 // ---------------------------------------------------------------- Benutzer
 const users = ref<User[]>([])
 const newUser = ref({ username: '', password: '', role: 'editor' })
+const newUserInput = ref<HTMLInputElement | null>(null)
 const userErrors = ref<Record<string, string[]>>({})
 async function loadUsers() {
   users.value = (await api.get<{ items: User[] }>('/api/users')).items
@@ -185,7 +188,15 @@ watch(tab, async (t) => {
     ui.error(e)
   }
 })
-onMounted(() => loadUsers().catch(ui.error))
+onMounted(async () => {
+  await loadUsers().catch(ui.error)
+  // Aufruf aus dem Benutzermenü („Benutzer anlegen“): direkt ins Formular
+  if (route.query.neu !== undefined) {
+    await nextTick()
+    newUserInput.value?.scrollIntoView({ block: 'center' })
+    newUserInput.value?.focus()
+  }
+})
 </script>
 
 <template>
@@ -203,7 +214,7 @@ onMounted(() => loadUsers().catch(ui.error))
           <tbody>
             <tr v-for="u in users" :key="u.id">
               <td>{{ u.username }} <span v-if="u.must_change_password" class="badge warn">Passwort ändern</span></td>
-              <td><select class="input sm" :value="u.role" :disabled="u.id === session.user?.id" @change="patchUser(u, { role: ($event.target as HTMLSelectElement).value })"><option value="admin">Administrator</option><option value="editor">Editor</option></select></td>
+              <td><select class="input sm" :value="u.role" :disabled="u.id === session.user?.id" @change="patchUser(u, { role: ($event.target as HTMLSelectElement).value })"><option value="admin">Administrator</option><option value="editor">Bearbeiter</option></select></td>
               <td><input type="checkbox" :checked="u.is_active" :disabled="u.id === session.user?.id" @change="patchUser(u, { is_active: ($event.target as HTMLInputElement).checked })" /></td>
               <td class="muted">{{ formatDate(u.last_login_at) }}</td>
               <td class="right">
@@ -214,13 +225,17 @@ onMounted(() => loadUsers().catch(ui.error))
           </tbody>
         </table>
         <form class="new" @submit.prevent="createUser">
-          <div class="field"><label>Benutzername</label><input class="input" v-model="newUser.username" required />
+          <div class="field"><label>Benutzername</label><input ref="newUserInput" class="input" v-model="newUser.username" required />
             <div v-if="userErrors.username" class="error-text">{{ userErrors.username[0] }}</div></div>
           <div class="field"><label>Startpasswort</label><input class="input" type="text" v-model="newUser.password" required autocomplete="off" />
             <div v-if="userErrors.password" class="error-text">{{ userErrors.password[0] }}</div></div>
-          <div class="field"><label>Rolle</label><select class="input" v-model="newUser.role"><option value="editor">Editor</option><option value="admin">Administrator</option></select></div>
+          <div class="field"><label>Rolle</label><select class="input" v-model="newUser.role"><option value="editor">Bearbeiter</option><option value="admin">Administrator</option></select></div>
           <button class="btn primary" type="submit"><UserPlus :size="16" /> Anlegen</button>
         </form>
+        <p class="faint roles-info">
+          <strong>Bearbeiter</strong> legen Pins und Spuren an und dürfen nur ihre eigenen ändern oder löschen. Waffen und Fahrzeuge können sie zuordnen, aber nicht anlegen oder ändern.
+          <strong>Administratoren</strong> dürfen alles. Neue Benutzer müssen ihr Startpasswort bei der ersten Anmeldung ändern.
+        </p>
       </section>
 
       <section v-if="tab === 'lookups'" class="panel box">
@@ -346,6 +361,7 @@ h2 { font-size: 22px; margin-bottom: 6px; }
 .merge { display: flex; gap: 6px; }
 .new { display: grid; grid-template-columns: 1fr 1fr 160px auto; gap: 10px; align-items: end; margin-top: 16px; }
 .cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.roles-info { font-size: 13px; margin: 12px 0 0; }
 .import { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .import .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .csv-report { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }

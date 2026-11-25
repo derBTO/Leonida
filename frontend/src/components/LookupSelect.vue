@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSession } from '../stores/session'
 import { ChevronDown, Plus, X } from 'lucide-vue-next'
 import { computed, onMounted, ref } from 'vue'
 import type { LookupCategory, LookupValue } from '../api/types'
@@ -9,6 +10,7 @@ import { useUi } from '../stores/ui'
  * Durchsuchbares Dropdown für dynamische Auswahllisten. Fehlt ein Wert, kann er direkt
  * angelegt werden; Dubletten (auch in anderer Schreibweise) erkennt der Server.
  */
+const session = useSession()
 const props = defineProps<{ category: LookupCategory; label: string; modelValue: LookupValue | null; error?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [LookupValue | null] }>()
 const catalog = useCatalog()
@@ -28,7 +30,7 @@ const options = computed(() => {
   return q ? all.filter((v) => v.name.toLowerCase().includes(q)) : all
 })
 const exact = computed(() => (catalog.lookups[props.category] ?? []).find((v) => key(v.name) === key(query.value)))
-const canCreate = computed(() => query.value.trim() !== '' && !exact.value)
+const canCreate = computed(() => query.value.trim() !== '' && !exact.value && session.canEditCatalog)
 
 function pick(v: LookupValue | null) {
   emit('update:modelValue', v)

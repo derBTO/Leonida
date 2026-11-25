@@ -72,7 +72,7 @@ const statusLabel = (l: Location) => session.label('pin_status', l.status)
         <div class="panel card-box">
           <WeaponCard v-if="isWeapons" :weapon="item as Weapon" />
           <VehicleCard v-else :vehicle="item as Vehicle" />
-          <div v-if="session.canEdit" class="actions">
+          <div v-if="session.canEditCatalog" class="actions">
             <button class="btn" type="button" @click="editing = true"><Pencil :size="15" /> Bearbeiten</button>
             <button class="btn danger" type="button" @click="remove"><Trash2 :size="15" /> Löschen</button>
           </div>

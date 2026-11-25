@@ -1,33 +1,40 @@
 <script setup lang="ts">
-import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, MapPinPlus, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { api, ApiError } from '../api/client'
 import type { Trail } from '../api/types'
+import { useRoute, useRouter } from 'vue-router'
 import { usePins } from '../stores/pins'
+import { useTrails, type TrailDraft, type TrailDraftStep } from '../stores/trails'
 import { useUi } from '../stores/ui'
 import Modal from './Modal.vue'
 import PinPicker from './PinPicker.vue'
 
 /** Spur anlegen/bearbeiten: Name, Beschreibung und geordnete Schritte (optional parallel). */
-const props = defineProps<{ trail?: Trail | null }>()
+const props = defineProps<{ trail?: Trail | null; draft?: TrailDraft | null }>()
 const emit = defineEmits<{ close: []; saved: [Trail] }>()
 const ui = useUi()
 const pins = usePins()
+const trails = useTrails()
+const route = useRoute()
+const router = useRouter()
 const busy = ref(false)
 const errors = ref<Record<string, string[]>>({})
 
-interface StepRow { key: number; id: number | null; title: string; description: string; pin_id: number | null; parallel: boolean }
-let seq = 0
+type StepRow = TrailDraftStep
+let seq = Math.max(0, ...(props.draft?.steps.map((s) => s.key) ?? []))
 const row = (o: Partial<StepRow> = {}): StepRow => ({ key: ++seq, id: null, title: '', description: '', pin_id: null, parallel: false, ...o })
 
-const form = reactive({
+const fromTrail = () => ({
   name: props.trail?.name ?? '',
   description: props.trail?.description ?? '',
   steps: props.trail
     ? props.trail.steps.map((s, i, all) => row({ id: s.id, title: s.title, description: s.description ?? '', pin_id: s.pin?.id ?? null, parallel: i > 0 && all[i - 1].position === s.position }))
     : [row(), row()],
 })
-const initial = JSON.stringify(form)
+const form = reactive(props.draft ? { name: props.draft.name, description: props.draft.description, steps: props.draft.steps } : fromTrail())
+// Nach dem Pin-Setzen gilt der Entwurf als ungespeicherte Änderung
+const initial = props.draft ? '' : JSON.stringify(form)
 const dirty = computed(() => JSON.stringify(form) !== initial)
 onMounted(() => { if (!pins.loaded) pins.fetchAll().catch(ui.error) })
 
@@ -55,6 +62,26 @@ function remove(i: number) {
 }
 const err = (k: string) => errors.value[k]?.[0]
 
+function close() {
+  trails.draft = null
+  emit('close')
+}
+
+/** Für diesen Schritt einen neuen Pin auf der Karte setzen; der Editor öffnet sich danach wieder. */
+function placeOnMap(s: StepRow) {
+  if (!s.title.trim()) return ui.error('Bitte zuerst beschreiben, was in diesem Schritt passiert.')
+  trails.draft = {
+    trailId: props.trail?.id ?? null,
+    name: form.name,
+    description: form.description,
+    steps: form.steps.map((x) => ({ ...x })),
+    stepKey: s.key,
+    returnPath: route.path,
+    resume: false,
+  }
+  router.push('/')
+}
+
 async function save() {
   busy.value = true
   errors.value = {}
@@ -68,6 +95,7 @@ async function save() {
       ? (await api.put<{ item: Trail }>(`/api/trails/${props.trail.id}`, payload)).item
       : (await api.post<{ item: Trail }>('/api/trails', payload)).item
     ui.toast(props.trail ? 'Spur gespeichert.' : 'Spur angelegt.', 'ok')
+    trails.draft = null
     emit('saved', trail)
   } catch (e) {
     if (e instanceof ApiError && e.status === 422) errors.value = e.errors
@@ -79,7 +107,7 @@ async function save() {
 </script>
 
 <template>
-  <Modal :title="trail ? 'Spur bearbeiten' : 'Neue Spur'" width="820px" :dirty="dirty" @close="emit('close')">
+  <Modal :title="trail ? 'Spur bearbeiten' : 'Neue Spur'" width="820px" :dirty="dirty" @close="close">
     <form id="trail-form" @submit.prevent="save">
       <div class="field">
         <label for="tf-name">Name *</label>
@@ -92,14 +120,17 @@ async function save() {
       </div>
 
       <div class="section-title">Schritte</div>
-      <p class="faint info">Reihenfolge von oben nach unten. „Parallel“ = gleiche Nummer wie der Schritt darüber (Reihenfolge egal). Ein Schritt ohne Pin ist erlaubt, z. B. „Auf Anruf warten“.</p>
+      <p class="faint info">Pin fehlt noch? „Auf Karte setzen“ öffnet die Karte, danach geht es hier weiter. Reihenfolge von oben nach unten. „Parallel“ = gleiche Nummer wie der Schritt darüber (Reihenfolge egal). Ein Schritt ohne Pin ist erlaubt, z. B. „Auf Anruf warten“.</p>
       <ol class="steps">
         <li v-for="(s, i) in form.steps" :key="s.key" class="step" :class="{ parallel: s.parallel && i > 0 }">
           <div class="num">{{ numbers[i] }}</div>
           <div class="fields">
             <input class="input" v-model="s.title" maxlength="200" required :placeholder="i === form.steps.length - 1 ? 'z. B. Loot im Versteck holen' : 'Was passiert hier? z. B. Moses treffen'" :aria-label="`Schritt ${numbers[i]}: Beschreibung`" />
             <div v-if="err(`steps.${i}.title`)" class="error-text">{{ err(`steps.${i}.title`) }}</div>
-            <PinPicker :id="`tf-pin-${s.key}`" v-model="s.pin_id" />
+            <div class="pin-row">
+              <PinPicker :id="`tf-pin-${s.key}`" v-model="s.pin_id" class="grow" />
+              <button v-if="!s.pin_id" class="btn" type="button" title="Neuen Pin auf der Karte setzen und hier eintragen" @click="placeOnMap(s)"><MapPinPlus :size="15" /> Auf Karte setzen</button>
+            </div>
             <div v-if="err(`steps.${i}.pin_id`)" class="error-text">{{ err(`steps.${i}.pin_id`) }}</div>
             <textarea class="input small" v-model="s.description" maxlength="5000" placeholder="Details (optional)" :aria-label="`Schritt ${numbers[i]}: Details`" />
             <label v-if="i > 0" class="par"><input type="checkbox" v-model="s.parallel" /> parallel zu Schritt {{ numbers[i - 1] }}</label>
@@ -114,7 +145,7 @@ async function save() {
       <button class="btn" type="button" @click="form.steps.push(row())"><Plus :size="15" /> Schritt hinzufügen</button>
     </form>
     <template #footer>
-      <button class="btn" type="button" @click="emit('close')">Abbrechen</button>
+      <button class="btn" type="button" @click="close">Abbrechen</button>
       <button class="btn primary" type="submit" form="trail-form" :disabled="busy">{{ busy ? 'Speichere …' : 'Speichern' }}</button>
     </template>
   </Modal>
@@ -130,6 +161,8 @@ textarea.small { min-height: 40px; }
 .num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--grad); color: #160b12; font-weight: 800; font-size: 13px; }
 .fields { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .tools { display: flex; flex-direction: column; gap: 2px; }
+.pin-row { display: flex; gap: 6px; align-items: flex-start; }
+.pin-row .grow { flex: 1; min-width: 0; }
 .par { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; }
 .par input { accent-color: var(--pink); }
 </style>

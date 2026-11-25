@@ -85,6 +85,7 @@ class PinController extends Controller
 
     public function update(Request $request, Pin $pin): JsonResponse
     {
+        $this->ensureOwner($pin->created_by);
         $data = $this->validatePin($request);
         DB::transaction(function () use ($pin, $data) {
             $before = $pin->only(['title', 'x', 'y', 'status', 'respawn']);
@@ -103,6 +104,7 @@ class PinController extends Controller
 
     public function move(Request $request, Pin $pin): JsonResponse
     {
+        $this->ensureOwner($pin->created_by);
         $data = $request->validate([
             'x' => ['required', 'numeric', 'between:-16384,16384'],
             'y' => ['required', 'numeric', 'between:-16384,16384'],
@@ -121,6 +123,7 @@ class PinController extends Controller
 
     public function destroy(Pin $pin, ImageService $images): JsonResponse
     {
+        $this->ensureOwner($pin->created_by);
         $mediaIds = $pin->images()->pluck('media_id')->all();
         $title = $pin->title;
         $id = $pin->id;

@@ -6,6 +6,23 @@ import { load, save } from '../lib/storage'
 import { useSession } from './session'
 import { useUi } from './ui'
 
+/** Schritt im Spur-Editor (auch Entwurf beim Pin-Setzen) */
+export interface TrailDraftStep { key: number; id: number | null; title: string; description: string; pin_id: number | null; parallel: boolean }
+
+/**
+ * Entwurf einer Spur, während für einen Schritt ein neuer Pin auf der Karte gesetzt wird.
+ * resume = false: Karte zeigt das Fadenkreuz; true: zurück im Editor, dort wieder öffnen.
+ */
+export interface TrailDraft {
+  trailId: number | null
+  name: string
+  description: string
+  steps: TrailDraftStep[]
+  stepKey: number
+  returnPath: string
+  resume: boolean
+}
+
 /**
  * Aktive Spur auf der Karte: nummerierte Schritte, Verbindungslinie und Schritt-Navigation.
  * Die Auswahl bleibt im Browser gespeichert; der Fortschritt liegt auf dem Server (pro Person).
@@ -25,6 +42,9 @@ export const useTrails = defineStore('trails', () => {
   const version = ref(0)
   /** Wunsch an die Karte, den Ausschnitt auf die Spur zu setzen (Zähler) */
   const fitRequest = ref(0)
+  /** Spur-Entwurf beim Setzen eines neuen Pins für einen Schritt */
+  const draft = ref<TrailDraft | null>(null)
+  const draftStep = computed(() => draft.value?.steps.find((s) => s.key === draft.value!.stepKey) ?? null)
 
   const persist = () => save('trail', { id: activeId.value, spoiler: spoiler.value })
 
@@ -104,5 +124,5 @@ export const useTrails = defineStore('trails', () => {
     version.value++
   }
 
-  return { fitRequest, active, activeId, stepIndex, spoiler, revealed, version, pinIds, openUpTo, isHidden, activate, restore, clear, setSpoiler, reveal, setDone, reload }
+  return { draft, draftStep, fitRequest, active, activeId, stepIndex, spoiler, revealed, version, pinIds, openUpTo, isHidden, activate, restore, clear, setSpoiler, reveal, setDone, reload }
 })

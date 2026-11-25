@@ -23,6 +23,9 @@ const onlyMine = ref(prefs.mine)
 const onlyOpen = ref(prefs.open)
 watch([onlyMine, onlyOpen], () => savePref('trails-page', { mine: onlyMine.value, open: onlyOpen.value }))
 const creating = ref(false)
+// Zurück vom Pin-Setzen: Editor mit dem Entwurf wieder öffnen
+const draft = trails.draft?.resume && trails.draft.trailId === null ? trails.draft : null
+if (draft) creating.value = true
 
 async function load() {
   try {
@@ -75,7 +78,7 @@ function created(t: Trail) {
         <div v-if="session.loggedIn && t.steps_total" class="faint small">{{ t.steps_done === t.steps_total ? 'Erledigt' : `${t.steps_done} von ${t.steps_total} erledigt` }}</div>
       </RouterLink>
     </div>
-    <TrailForm v-if="creating" @close="creating = false" @saved="created" />
+    <TrailForm v-if="creating" :draft="draft" @close="creating = false" @saved="created" />
   </div>
 </template>
 

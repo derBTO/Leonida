@@ -101,7 +101,7 @@ class PinTest extends TestCase
 
     public function test_editing_a_weapon_shows_in_linked_pins(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $w = $this->weapon('Alter Name');
         $id = $this->postJson('/api/pins', $this->payload(['loot_types' => ['weapons'], 'weapon_ids' => [$w->id]]))->json('pin.id');
         $this->putJson("/api/weapons/{$w->id}", ['name' => 'Neuer Name'])->assertOk();

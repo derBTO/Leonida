@@ -17,7 +17,8 @@ use Illuminate\Support\Facades\Route;
 /*
 | Die API liegt im "web"-Middleware-Stack: gleiche Domain, Session-Cookie und CSRF-Schutz
 | (Header X-XSRF-TOKEN aus dem Cookie XSRF-TOKEN). Lesen ist öffentlich, Schreiben braucht
-| Anmeldung, ein aktives Konto und ein geändertes Initialpasswort.
+| Anmeldung, ein aktives Konto und ein geändertes Initialpasswort. Bearbeiter dürfen Pins und
+| Spuren anlegen, aber nur eigene ändern/löschen (Controller::ensureOwner); Katalog nur Admin.
 */
 Route::prefix('api')->group(function () {
     Route::get('meta', [MetaController::class, 'meta']);
@@ -50,23 +51,24 @@ Route::prefix('api')->group(function () {
         Route::patch('pin-images/{image}', [PinImageController::class, 'update'])->whereNumber('image');
         Route::delete('pin-images/{image}', [PinImageController::class, 'destroy'])->whereNumber('image');
 
-        foreach (['weapons' => WeaponController::class, 'vehicles' => VehicleController::class] as $path => $controller) {
-            Route::post($path, [$controller, 'store']);
-            Route::put("$path/{id}", [$controller, 'update'])->whereNumber('id');
-            Route::delete("$path/{id}", [$controller, 'destroy'])->whereNumber('id');
-            Route::post("$path/{id}/image", [$controller, 'uploadImage'])->whereNumber('id');
-            Route::delete("$path/{id}/image", [$controller, 'deleteImage'])->whereNumber('id');
-        }
-
         Route::post('trails', [TrailController::class, 'store']);
         Route::put('trails/{id}', [TrailController::class, 'update'])->whereNumber('id');
         Route::delete('trails/{id}', [TrailController::class, 'destroy'])->whereNumber('id');
         Route::put('trails/{id}/steps/{step}/progress', [TrailController::class, 'progress'])->whereNumber(['id', 'step']);
         Route::delete('trails/{id}/progress', [TrailController::class, 'resetProgress'])->whereNumber('id');
 
-        Route::post('lookups/{category}', [LookupController::class, 'store']);
-
+        // Waffen, Fahrzeuge und Auswahllisten pflegt nur der Administrator
         Route::middleware('role:admin')->group(function () {
+            foreach (['weapons' => WeaponController::class, 'vehicles' => VehicleController::class] as $path => $controller) {
+                Route::post($path, [$controller, 'store']);
+                Route::put("$path/{id}", [$controller, 'update'])->whereNumber('id');
+                Route::delete("$path/{id}", [$controller, 'destroy'])->whereNumber('id');
+                Route::post("$path/{id}/image", [$controller, 'uploadImage'])->whereNumber('id');
+                Route::delete("$path/{id}/image", [$controller, 'deleteImage'])->whereNumber('id');
+            }
+
+            Route::post('lookups/{category}', [LookupController::class, 'store']);
+
             Route::patch('lookup-values/{value}', [LookupController::class, 'update'])->whereNumber('value');
             Route::post('lookup-values/{value}/merge', [LookupController::class, 'merge'])->whereNumber('value');
             Route::delete('lookup-values/{value}', [LookupController::class, 'destroy'])->whereNumber('value');

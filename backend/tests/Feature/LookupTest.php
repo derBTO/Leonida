@@ -10,7 +10,7 @@ class LookupTest extends TestCase
 {
     public function test_duplicates_are_prevented_case_insensitively(): void
     {
-        $this->actingAs($this->editor());
+        $this->actingAs($this->admin());
         $a = $this->postJson('/api/lookups/weapon_brand', ['name' => 'Vom Feuer'])->assertCreated()->json('item');
         $b = $this->postJson('/api/lookups/weapon_brand', ['name' => '  vom   FEUER '])->assertOk()->json();
         $this->assertSame($a['id'], $b['item']['id']);

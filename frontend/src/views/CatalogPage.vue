@@ -75,7 +75,7 @@ function created(item: Weapon | Vehicle) {
         </select>
         <label v-if="session.loggedIn" class="legend-toggle"><input type="checkbox" v-model="onlyMine" /> Nur meine</label>
         <label v-if="isWeapons" class="legend-toggle"><input type="checkbox" v-model="onlyLegendary" /> Nur legendäre <LegendaryStar :size="14" /></label>
-        <button v-if="session.canEdit" class="btn primary" type="button" @click="creating = true"><Plus :size="16" /> {{ isWeapons ? 'Neue Waffe' : 'Neues Fahrzeug' }}</button>
+        <button v-if="session.canEditCatalog" class="btn primary" type="button" @click="creating = true"><Plus :size="16" /> {{ isWeapons ? 'Neue Waffe' : 'Neues Fahrzeug' }}</button>
       </div>
     </div>
     <div class="muted count">{{ items.length }} Einträge</div>

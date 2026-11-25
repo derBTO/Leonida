@@ -4,7 +4,7 @@ import { load, save } from '../lib/storage'
 
 export interface Toast { id: number; text: string; kind: 'info' | 'error' | 'ok' }
 
-export interface PinEditorState { pinId: number | null; x: number; y: number; kind?: 'loot' | 'poi' | 'hint' }
+export interface PinEditorState { pinId: number | null; x: number; y: number; kind?: 'loot' | 'poi' | 'hint'; title?: string }
 
 export const useUi = defineStore('ui', () => {
   const stored = load('ui', { sidebarOpen: true })

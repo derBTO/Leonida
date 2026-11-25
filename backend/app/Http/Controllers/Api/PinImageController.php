@@ -16,6 +16,7 @@ class PinImageController extends Controller
 {
     public function store(Request $request, Pin $pin, ImageService $images): JsonResponse
     {
+        $this->ensureOwner($pin->created_by);
         $request->validate([
             'file' => ['required', 'file'],
             'caption' => ['nullable', 'string', 'max:2000'],
@@ -37,6 +38,7 @@ class PinImageController extends Controller
 
     public function update(Request $request, PinImage $image): JsonResponse
     {
+        $this->ensureOwner($image->pin->created_by);
         $data = $request->validate(['caption' => ['nullable', 'string', 'max:2000']]);
         $image->update(['caption' => $this->clean($data['caption'] ?? null)]);
         $image->pin->update(['updated_by' => Auth::id()]);
@@ -46,6 +48,7 @@ class PinImageController extends Controller
 
     public function reorder(Request $request, Pin $pin): JsonResponse
     {
+        $this->ensureOwner($pin->created_by);
         $data = $request->validate(['ids' => ['required', 'array'], 'ids.*' => ['integer', 'distinct']]);
         $existing = $pin->images()->pluck('id')->sort()->values()->all();
         $given = collect($data['ids'])->sort()->values()->all();
@@ -63,6 +66,7 @@ class PinImageController extends Controller
 
     public function destroy(PinImage $image, ImageService $images): JsonResponse
     {
+        $this->ensureOwner($image->pin->created_by);
         $mediaId = $image->media_id;
         $pin = $image->pin;
         $image->delete();
