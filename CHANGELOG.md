@@ -1,5 +1,12 @@
 # Änderungsprotokoll
 
+## v0.9.5 – Vorbereitung 1.0 (25.11.2026)
+
+- **`php artisan leonida:check`**: prüft Konfiguration (`APP_DEBUG`, `APP_KEY`, `APP_URL`), PHP und Erweiterungen, Datenbank und offene Migrationen, aktiven Administrator, Schreibrechte, Karte, Document Root sowie Alter und Protokoll der letzten Sicherung. Läuft automatisch am Ende von `deploy.sh`.
+- **Browser-Tests** mit Playwright (`npm run e2e`): Gast-Ansicht und gtadb-Schalter, Rechte der Bearbeiter, Hinweis mit Code anlegen, Spur mit „Auf Karte setzen“ und Fortschritt pro Person, Ersteller-Filter, Benutzer anlegen über das Menü. Eigene Testdatenbank `leonida_e2e` mit `leonida:e2e-seed`.
+- **Kurzanleitung für Bearbeiter** (`docs/ANLEITUNG.md`); README auf aktuellem Stand (Pin-Arten, Spuren, Rollen); Entwicklungs- und Installationsdoku ergänzt.
+- Code-Stil einheitlich (Laravel Pint), keine bekannten Sicherheitslücken in den Abhängigkeiten (`composer audit`, `npm audit`).
+
 ## v0.9.4 – Backups auf Hetzner (25.11.2026)
 
 - **Fehler behoben:** Auf Hetzner entstand kein einziges Backup, weil dort nur `pg_dump` 15 installiert ist, die Datenbank aber Version 17 hat (`server version mismatch`).

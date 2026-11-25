@@ -3,7 +3,9 @@
 namespace Tests\Feature;
 
 use App\Models\Trail;
+use App\Models\Weapon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class TrailTest extends TestCase
@@ -126,11 +128,11 @@ class TrailTest extends TestCase
         $bob = $this->editor();
         $this->actingAs($alice);
         $mine = $this->pin('Von Alice');
-        \App\Models\Weapon::query()->create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'name' => 'Alices Waffe', 'created_by' => $alice->id]);
+        Weapon::query()->create(['uuid' => (string) Str::uuid(), 'name' => 'Alices Waffe', 'created_by' => $alice->id]);
         $this->postJson('/api/trails', ['name' => 'Alices Spur', 'steps' => []])->assertCreated();
         $this->actingAs($bob);
         $this->pin('Von Bob');
-        \App\Models\Weapon::query()->create(['uuid' => (string) \Illuminate\Support\Str::uuid(), 'name' => 'Bobs Waffe', 'created_by' => $bob->id]);
+        Weapon::query()->create(['uuid' => (string) Str::uuid(), 'name' => 'Bobs Waffe', 'created_by' => $bob->id]);
 
         $this->assertSame([$mine], $this->getJson("/api/pins/search?author={$alice->id}")->json('ids'));
         $this->assertSame(['Alices Waffe'], array_column($this->getJson("/api/weapons?author={$alice->id}")->json('items'), 'name'));

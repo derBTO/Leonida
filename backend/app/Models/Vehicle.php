@@ -36,12 +36,35 @@ class Vehicle extends Model
         ];
     }
 
-    public function image(): BelongsTo { return $this->belongsTo(Media::class, 'image_media_id'); }
-    public function manufacturer(): BelongsTo { return $this->belongsTo(LookupValue::class, 'manufacturer_id'); }
-    public function vehicleClass(): BelongsTo { return $this->belongsTo(LookupValue::class, 'class_id'); }
-    public function style(): BelongsTo { return $this->belongsTo(LookupValue::class, 'style_id'); }
-    public function createdBy(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
-    public function updatedBy(): BelongsTo { return $this->belongsTo(User::class, 'updated_by'); }
+    public function image(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'image_media_id');
+    }
+
+    public function manufacturer(): BelongsTo
+    {
+        return $this->belongsTo(LookupValue::class, 'manufacturer_id');
+    }
+
+    public function vehicleClass(): BelongsTo
+    {
+        return $this->belongsTo(LookupValue::class, 'class_id');
+    }
+
+    public function style(): BelongsTo
+    {
+        return $this->belongsTo(LookupValue::class, 'style_id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     public function pins(): BelongsToMany
     {

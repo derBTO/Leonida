@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\LookupValue;
 use App\Rules\StatValue;
 use App\Services\AuditLogger;
 use App\Services\ImageService;

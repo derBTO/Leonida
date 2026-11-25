@@ -17,9 +17,15 @@ class Trail extends Model
         return $this->hasMany(TrailStep::class)->orderBy('sort_order')->orderBy('id');
     }
 
-    public function createdBy(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
-    public function updatedBy(): BelongsTo { return $this->belongsTo(User::class, 'updated_by'); }
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     /** @return array<int, true> erledigte Schritt-IDs des Benutzers */
     public static function doneSteps(?int $userId, array $stepIds): array

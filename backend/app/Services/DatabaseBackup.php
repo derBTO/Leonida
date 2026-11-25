@@ -266,8 +266,8 @@ class DatabaseBackup
     private function resetSequences(array $tables): void
     {
         foreach ($tables as $table) {
-            foreach (DB::select("SELECT column_name, pg_get_serial_sequence(?, column_name) AS seq FROM information_schema.columns
-                WHERE table_schema = current_schema() AND table_name = ?", ["\"$table\"", $table]) as $c) {
+            foreach (DB::select('SELECT column_name, pg_get_serial_sequence(?, column_name) AS seq FROM information_schema.columns
+                WHERE table_schema = current_schema() AND table_name = ?', ["\"$table\"", $table]) as $c) {
                 if ($c->seq) {
                     DB::statement("SELECT setval(?, COALESCE((SELECT max(\"{$c->column_name}\") FROM \"$table\"), 0) + 1, false)", [$c->seq]);
                 }

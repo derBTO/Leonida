@@ -111,6 +111,9 @@ remote "cd '$R/releases/$RELEASE' \
     && rsync -a --delete --exclude=/media --exclude=/map --exclude=/index.php --exclude=/index.web.php '$R/current/public/' '$PUB/' \
     && cp '$R/current/public/index.web.php' '$PUB/index.php.tmp' && mv '$PUB/index.php.tmp' '$PUB/index.php'"
 
+echo "==> Prüfen"
+remote "cd '$R/current' && $RPHP artisan leonida:check" || echo "WARNUNG: leonida:check meldet Probleme (siehe Tabelle oben)." >&2
+
 echo "==> Alte Releases aufräumen (behalte $KEEP)"
 remote "cd '$R/releases' && ls -1 | sort | head -n -$KEEP | xargs -r rm -rf"
 echo "==> Fertig: https://leonida.derbto.de (Release $RELEASE)"

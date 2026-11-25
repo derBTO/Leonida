@@ -41,7 +41,7 @@ class ImageService
         if (! $info || ! in_array($mime, $config['allowed_mimes'], true)) {
             $fail('Erlaubt sind nur JPEG-, PNG- und WebP-Bilder.');
         }
-        if ($info[0] * $info[1] > $config['max_pixels']) {
+        if ($config['max_pixels'] < $info[0] * $info[1]) {
             $fail('Das Bild hat zu viele Pixel.');
         }
 

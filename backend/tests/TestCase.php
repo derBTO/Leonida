@@ -6,6 +6,7 @@ use App\Enums\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
 
 abstract class TestCase extends BaseTestCase
@@ -51,13 +52,13 @@ abstract class TestCase extends BaseTestCase
     }
 
     /** Ein echtes kleines JPEG als Upload. */
-    protected function jpeg(int $w = 64, int $h = 48, string $name = 'bild.jpg'): \Illuminate\Http\UploadedFile
+    protected function jpeg(int $w = 64, int $h = 48, string $name = 'bild.jpg'): UploadedFile
     {
         $img = imagecreatetruecolor($w, $h);
         imagefilledrectangle($img, 0, 0, $w, $h, imagecolorallocate($img, 200, 40, 120));
         $path = tempnam(sys_get_temp_dir(), 'img');
         imagejpeg($img, $path);
 
-        return new \Illuminate\Http\UploadedFile($path, $name, 'image/jpeg', null, true);
+        return new UploadedFile($path, $name, 'image/jpeg', null, true);
     }
 }

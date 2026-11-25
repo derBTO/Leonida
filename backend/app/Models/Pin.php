@@ -41,10 +41,25 @@ class Pin extends Model
         return $this->belongsToMany(Vehicle::class, 'pin_vehicles')->withPivot('sort_order')->orderByPivot('sort_order');
     }
 
-    public function codes(): HasMany { return $this->hasMany(PinCode::class)->orderBy('sort_order')->orderBy('id'); }
-    public function images(): HasMany { return $this->hasMany(PinImage::class)->orderBy('sort_order')->orderBy('id'); }
-    public function createdBy(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
-    public function updatedBy(): BelongsTo { return $this->belongsTo(User::class, 'updated_by'); }
+    public function codes(): HasMany
+    {
+        return $this->hasMany(PinCode::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(PinImage::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     /** @return list<string> */
     public function lootTypes(): array

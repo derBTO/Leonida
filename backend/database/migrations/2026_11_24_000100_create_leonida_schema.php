@@ -214,7 +214,7 @@ return new class extends Migration
                 DB::statement("CREATE INDEX $name ON $definition");
             }
             DB::statement('RELEASE SAVEPOINT trgm');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             DB::statement('ROLLBACK TO SAVEPOINT trgm');
             logger()->warning('pg_trgm nicht verfügbar, Suche läuft ohne Trigramm-Index: '.$e->getMessage());
             foreach (['pins' => 'title', 'weapons' => 'name', 'vehicles' => 'name'] as $table => $column) {

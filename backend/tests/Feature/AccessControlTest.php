@@ -2,7 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Models\LookupValue;
 use App\Models\Pin;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /** Jede schreibende Route verlangt eine Anmeldung, Admin-Routen die Admin-Rolle. */
@@ -20,7 +22,7 @@ class AccessControlTest extends TestCase
         ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('writeRoutes')]
+    #[DataProvider('writeRoutes')]
     public function test_guest_gets_401(string $method, string $uri): void
     {
         $this->json($method, $uri, [])->assertStatus(401);
@@ -28,7 +30,7 @@ class AccessControlTest extends TestCase
 
     public function test_editor_cannot_use_admin_routes(): void
     {
-        $value = \App\Models\LookupValue::query()->create(['category' => 'caliber', 'name' => '9mm', 'name_key' => '9mm']);
+        $value = LookupValue::query()->create(['category' => 'caliber', 'name' => '9mm', 'name_key' => '9mm']);
         $this->actingAs($this->editor());
         $this->getJson('/api/users')->assertStatus(403);
         $this->getJson('/api/admin/export')->assertStatus(403);

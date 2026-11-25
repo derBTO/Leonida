@@ -24,13 +24,40 @@ class Weapon extends Model
         return array_fill_keys(self::STATS, 'float') + ['magazine_size' => 'integer', 'is_legendary' => 'boolean'];
     }
 
-    public function image(): BelongsTo { return $this->belongsTo(Media::class, 'image_media_id'); }
-    public function weaponType(): BelongsTo { return $this->belongsTo(LookupValue::class, 'weapon_type_id'); }
-    public function fireMode(): BelongsTo { return $this->belongsTo(LookupValue::class, 'fire_mode_id'); }
-    public function brand(): BelongsTo { return $this->belongsTo(LookupValue::class, 'brand_id'); }
-    public function caliber(): BelongsTo { return $this->belongsTo(LookupValue::class, 'caliber_id'); }
-    public function createdBy(): BelongsTo { return $this->belongsTo(User::class, 'created_by'); }
-    public function updatedBy(): BelongsTo { return $this->belongsTo(User::class, 'updated_by'); }
+    public function image(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'image_media_id');
+    }
+
+    public function weaponType(): BelongsTo
+    {
+        return $this->belongsTo(LookupValue::class, 'weapon_type_id');
+    }
+
+    public function fireMode(): BelongsTo
+    {
+        return $this->belongsTo(LookupValue::class, 'fire_mode_id');
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(LookupValue::class, 'brand_id');
+    }
+
+    public function caliber(): BelongsTo
+    {
+        return $this->belongsTo(LookupValue::class, 'caliber_id');
+    }
+
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
 
     public function pins(): BelongsToMany
     {

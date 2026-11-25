@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Enums\LootType;
 use App\Enums\PinKind;
-use App\Enums\PoiType;
 use App\Enums\PinStatus;
+use App\Enums\PoiType;
 use App\Enums\RespawnStatus;
 use App\Http\Controllers\Controller;
 use App\Models\MapVersion;

@@ -38,12 +38,24 @@ npm run dev                       # Frontend auf :5173 mit Proxy auf :8000
 
 | Bereich | Befehl | Inhalt |
 |---|---|---|
-| Backend | `cd backend && php artisan test` | 75 Tests: Rechte, Validierung, NULL ≠ 0, Suche, Bilder, Export/Import, Benutzer |
+| Backend | `cd backend && php artisan test` | über 110 Tests: Rechte und Eigentum, Validierung, NULL ≠ 0, Suche, Bilder, Spuren, Export/Import, Backup/Restore, CSV-Import, Installationsprüfung |
 | Frontend | `cd frontend && npm test` | Such- und Filterregeln, Kachel-Geometrie |
+| Browser | `cd frontend && npm run e2e` | durchgängige Abläufe im echten Browser (siehe unten) |
 | Typprüfung | `cd frontend && npm run typecheck` | TypeScript/Vue |
 | Skripte | `python3 -m unittest discover -s tests/scripts` | Karten-Manifest, Koordinatenvergleich |
 
 Die Backend-Tests brauchen eine PostgreSQL-Datenbank `leonida_test` (Zugang in `backend/phpunit.xml`).
+
+### Browser-Tests (Playwright)
+
+`npm run e2e` baut das Frontend, startet über `scripts/e2e-server.sh` ein Backend auf Port 8010 mit eigener Datenbank `leonida_e2e` (wird bei jedem Lauf geleert und mit `php artisan leonida:e2e-seed` gefüllt) und prüft:
+
+- Gäste: Karte, gtadb-Schalter, kein Ersteller-Filter
+- Bearbeiter: fremde Pins und Waffen nicht änderbar, eigenen Hinweis mit Code anlegen
+- Spur anlegen, Pin direkt aus dem Editor auf der Karte setzen, Fortschritt pro Person
+- Administrator: Ersteller-Filter, Benutzer über das Menü anlegen, fremde Pins bearbeiten
+
+Einmalig den Browser holen: `npx playwright install chromium` (oder vorhandenes Chrome: `E2E_CHROME=/Pfad/zu/chrome npm run e2e`). Benötigt lokales PHP und PostgreSQL wie unter „Ohne Docker“; die Datenbank-Zugangsdaten kommen aus `backend/.env`. Testbenutzer: `e2e-admin`, `e2e-alice`, `e2e-bob`, Passwort `e2e-passwort-123` (nur in der Testdatenbank).
 
 ## Aufbau
 

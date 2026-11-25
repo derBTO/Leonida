@@ -11,10 +11,25 @@ use Illuminate\Validation\Rule;
 
 class VehicleController extends CatalogController
 {
-    protected function modelClass(): string { return Vehicle::class; }
-    protected function entity(): string { return 'vehicle'; }
-    protected function pivotTable(): string { return 'pin_vehicles'; }
-    protected function pivotKey(): string { return 'vehicle_id'; }
+    protected function modelClass(): string
+    {
+        return Vehicle::class;
+    }
+
+    protected function entity(): string
+    {
+        return 'vehicle';
+    }
+
+    protected function pivotTable(): string
+    {
+        return 'pin_vehicles';
+    }
+
+    protected function pivotKey(): string
+    {
+        return 'vehicle_id';
+    }
 
     protected function rules(): array
     {

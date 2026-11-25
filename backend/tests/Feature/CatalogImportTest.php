@@ -6,6 +6,7 @@ use App\Models\LookupValue;
 use App\Models\Vehicle;
 use App\Models\Weapon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class CatalogImportTest extends TestCase
@@ -15,7 +16,7 @@ class CatalogImportTest extends TestCase
         return UploadedFile::fake()->createWithContent('import.csv', $content);
     }
 
-    private function import(string $kind, string $content, array $options = []): \Illuminate\Testing\TestResponse
+    private function import(string $kind, string $content, array $options = []): TestResponse
     {
         return $this->post("/api/admin/catalog-import/$kind", ['file' => $this->csv($content)] + $options, ['Accept' => 'application/json']);
     }

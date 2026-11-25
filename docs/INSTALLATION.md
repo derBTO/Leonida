@@ -101,6 +101,14 @@ Hetzner hat nur `pg_dump` 15, die Datenbank ist Version 17; deshalb sichert Leon
 
 Alternative bei minütlichen Cronjobs: `cd /usr/home/derbto/leonida/current && /usr/bin/php artisan schedule:run` jede Minute; der Laravel-Scheduler startet das Backup dann um 03:30 Uhr.
 
+## 8. Installation prüfen
+
+```bash
+ssh hetzner 'cd leonida/current && php artisan leonida:check'
+```
+
+Prüft Konfiguration (`APP_DEBUG` aus, `APP_KEY`), Datenbank und Migrationen, Administrator, Schreibrechte, Kartenversion und das Alter der letzten Sicherung. `deploy.sh` ruft den Befehl nach jedem Deploy auf; „Problem“-Zeilen sollten behoben werden, „Warnung“ ist ein Hinweis.
+
 ## Aktualisieren
 
 | Was | Befehl |

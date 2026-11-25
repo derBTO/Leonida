@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Pin;
+use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 class PoiTest extends TestCase
@@ -94,7 +95,7 @@ class PoiTest extends TestCase
         $this->postJson('/api/pins', $this->poi(['poi_type' => 'harbor']))->assertCreated();
         $zip = tempnam(sys_get_temp_dir(), 'e').'.zip';
         copy($this->get('/api/admin/export')->baseResponse->getFile()->getPathname(), $zip);
-        $this->post('/api/admin/import', ['file' => new \Illuminate\Http\UploadedFile($zip, 'e.zip', null, null, true), 'mode' => 'replace'], ['Accept' => 'application/json'])->assertOk();
+        $this->post('/api/admin/import', ['file' => new UploadedFile($zip, 'e.zip', null, null, true), 'mode' => 'replace'], ['Accept' => 'application/json'])->assertOk();
         $this->assertSame('harbor', Pin::query()->first()->poi_type->value);
     }
 

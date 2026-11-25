@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\User;
 use App\Services\DatabaseBackup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
@@ -67,7 +68,7 @@ class BackupTest extends TestCase
         $this->assertEquals($before, $this->snapshot());
 
         // Sequenzen stehen hinter den wiederhergestellten IDs
-        $this->actingAs(\App\Models\User::query()->where('role', 'admin')->first());
+        $this->actingAs(User::query()->where('role', 'admin')->first());
         $new = $this->postJson('/api/pins', ['title' => 'Neu', 'x' => 0, 'y' => 0])->assertCreated()->json('pin.id');
         $this->assertGreaterThan(max(array_column($before['pins'], 'id')), $new);
     }

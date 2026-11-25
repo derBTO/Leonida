@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Pin;
 use Tests\TestCase;
 
 /** Bearbeiter dürfen nur Eigenes ändern/löschen und den Katalog nicht pflegen; Admin darf alles. */
@@ -49,7 +50,7 @@ class OwnershipTest extends TestCase
     {
         $this->actingAs($this->admin());
         $id = $this->pin();
-        \App\Models\Pin::query()->whereKey($id)->update(['created_by' => null]);
+        Pin::query()->whereKey($id)->update(['created_by' => null]);
         $this->actingAs($this->editor());
         $this->deleteJson("/api/pins/$id")->assertForbidden();
     }

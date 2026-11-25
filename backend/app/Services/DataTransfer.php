@@ -10,6 +10,7 @@ use App\Models\Trail;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\Weapon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
@@ -35,7 +36,7 @@ class DataTransfer
         $versions = MapVersion::query()->pluck('version', 'id');
 
         $catalog = function (string $class) use ($name, $lookupName) {
-            return $class::query()->orderBy('id')->get()->map(function (\Illuminate\Database\Eloquent\Model $item) use ($class, $name, $lookupName) {
+            return $class::query()->orderBy('id')->get()->map(function (Model $item) use ($class, $name, $lookupName) {
                 $row = ['uuid' => $item->uuid, 'name' => $item->name, 'image_media_id' => $item->image_media_id, 'notes' => $item->notes];
                 foreach ($class::LOOKUPS as $column => $category) {
                     $row[$column] = $item->$column ? ['category' => $category, 'name' => $lookupName[$item->$column]] : null;
@@ -43,8 +44,7 @@ class DataTransfer
                 foreach ($class::STATS as $stat) {
                     $row[$stat] = $item->$stat;
                 }
-                foreach (array_diff(array_keys($item->getAttributes()), array_keys($row), ['id', 'created_by', 'updated_by', 'created_at', 'updated_at'])
-                    as $key) {
+                foreach (array_diff(array_keys($item->getAttributes()), array_keys($row), ['id', 'created_by', 'updated_by', 'created_at', 'updated_at']) as $key) {
                     if (! str_ends_with($key, '_cat')) {
                         $value = $item->$key;
                         $row[$key] = $value instanceof \BackedEnum ? $value->value : $value;
