@@ -1,6 +1,6 @@
 # Backup und Wiederherstellung
 
-Alle eigenen Daten liegen außerhalb des Codes: die Datenbank (PostgreSQL) und die Bilder in `shared/uploads`. Kartenkacheln lassen sich jederzeit neu importieren und müssen nicht gesichert werden.
+Alle eigenen Daten liegen außerhalb des Codes: die Datenbank (PostgreSQL) und die Bilder in `<Document Root>/media`. Kartenkacheln lassen sich jederzeit neu importieren und müssen nicht gesichert werden.
 
 ## Was es gibt
 
@@ -8,7 +8,7 @@ Alle eigenen Daten liegen außerhalb des Codes: die Datenbank (PostgreSQL) und d
 |---|---|---|
 | Hetzner | gesamtes Webhosting inkl. Datenbank | automatisch jede Nacht, 14 Tage, Wiederherstellung über konsoleH |
 | `leonida:backup` | Datenbank-Dump (`pg_dump`, Custom-Format) | Cronjob 03:30 Uhr nach `shared/backups/`, 14 Stück |
-| Bilder spiegeln | `shared/uploads` | `rsync` auf den Mac, siehe unten |
+| Bilder spiegeln | `public_html/derbto.de/leonida/media` | `rsync` auf den Mac, siehe unten |
 | Export in der Oberfläche | Pins, Waffen, Fahrzeuge, Auswahllisten, Bilder als ZIP | *Verwaltung → Export & Import* |
 
 Benutzerkonten sind nur im Datenbank-Dump enthalten, nicht im ZIP-Export.
@@ -30,7 +30,7 @@ rsync -av -e "ssh -p 222" benutzer@wwwXXX.your-server.de:leonida/shared/backups/
 ## Bilder sichern
 
 ```
-rsync -av -e "ssh -p 222" benutzer@wwwXXX.your-server.de:leonida/shared/uploads/ ~/LeonidaBackup/uploads/
+rsync -av -e "ssh -p 222" benutzer@wwwXXX.your-server.de:public_html/derbto.de/leonida/media/ ~/LeonidaBackup/uploads/
 ```
 
 Dateinamen enthalten eine zufällige ID und ändern sich nie. Weitere Läufe übertragen daher nur neue Bilder.
@@ -50,7 +50,7 @@ php artisan up
 **Bilder**:
 
 ```
-rsync -av -e "ssh -p 222" ~/LeonidaBackup/uploads/ benutzer@wwwXXX.your-server.de:leonida/shared/uploads/
+rsync -av -e "ssh -p 222" ~/LeonidaBackup/uploads/ benutzer@wwwXXX.your-server.de:public_html/derbto.de/leonida/media/
 ```
 
 **Aus dem ZIP-Export**: *Verwaltung → Export & Import*, Datei wählen, erst „Probelauf“, dann „Importieren“.

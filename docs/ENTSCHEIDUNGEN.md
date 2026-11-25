@@ -33,3 +33,4 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 24.11.2026 | Export-Format | ZIP mit `data.json` (Format `leonida-export`, Version 1) und Bildern; Abgleich über UUIDs | unabhängig von Datenbank und IDs |
 | 24.11.2026 | Schriften und Icons | Inter, Barlow Condensed (OFL), Lucide (ISC), lokal ausgeliefert | keine externen Abrufe, einheitliche Symbole |
 | 24.11.2026 | API-Dokumentation | automatisch aus dem Code (Scramble), `/docs/api` nur angemeldet, Export nach `docs/openapi.json` | bleibt aktuell |
+| 25.11.2026 | Server-Layout | Code, `.env` und Backups im Home; nur `index.php`, Frontend, Bilder und Kacheln im Document Root `public_html/derbto.de/leonida` | Hetzner-Webserver darf `/usr/home` nicht betreten; Zugangsdaten liegen damit sicher außerhalb des Webs |

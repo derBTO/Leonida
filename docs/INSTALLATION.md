@@ -2,23 +2,29 @@
 
 Leonida läuft auf einem Hetzner-Webhosting **L oder XL** (SSH nötig). Gebaut wird auf dem Mac, auf dem Server läuft nur PHP mit PostgreSQL.
 
+Der Webserver von Hetzner darf das Home-Verzeichnis (`/usr/home/<benutzer>`) nicht betreten. Deshalb liegen nur die öffentlichen Dateien im Webverzeichnis, Code und Zugangsdaten im Home:
+
 ```
-~/leonida/                      (auf dem Server, Pfad frei wählbar)
-├─ releases/<datum>-<commit>/   hochgeladene Versionen
-├─ current → releases/…         Document Root der Subdomain: current/public
-└─ shared/                      bleibt bei Updates erhalten
-   ├─ .env                      Zugangsdaten
-   ├─ storage/                  Logs, Sessions, Cache
-   ├─ uploads/                  Bilder
-   ├─ map/                      Kartenkacheln je Version, map/current → aktive
-   └─ backups/                  nächtliche Datenbank-Dumps
+/usr/home/derbto/leonida/              nicht vom Web erreichbar
+├─ releases/<datum>-<commit>/          hochgeladene Versionen
+├─ current → releases/…                aktive Version
+└─ shared/                             bleibt bei Updates erhalten (700)
+   ├─ .env                             Zugangsdaten (600)
+   ├─ storage/                         Logs, Sessions, Cache
+   └─ backups/                         nächtliche Datenbank-Dumps
+
+/usr/www/users/derbto/derbto.de/leonida/   Document Root der Subdomain (= public_html/derbto.de/leonida)
+├─ index.php                           Startdatei, lädt die Anwendung aus …/leonida/current
+├─ .htaccess, spa/, favicon.svg …      bei jedem Deployment aus der Release kopiert
+├─ media/                              hochgeladene Bilder
+└─ map/                                Kartenkacheln je Version, map/current → aktive
 ```
 
 ## 1. Voraussetzungen auf dem Mac
 
 - Git, PHP 8.3+, Composer, Node.js 20+ (z. B. `brew install php composer node`)
 - SSH-Schlüssel; den öffentlichen Schlüssel in konsoleH unter *Einstellungen → SSH-Schlüssel* hinterlegen
-- `deploy.env` aus `deploy.env.example` anlegen und ausfüllen (Host, Benutzer, Port 222, absoluter Zielpfad)
+- `deploy.env` aus `deploy.env.example` anlegen und ausfüllen (Host bzw. Eintrag aus `~/.ssh/config`, Benutzer, Port 222, `LEONIDA_REMOTE_DIR` im Home, `LEONIDA_PUBLIC_DIR` = Document Root)
 
 Absoluten Pfad herausfinden: `ssh -p 222 benutzer@wwwXXX.your-server.de pwd` und `/leonida` anhängen.
 
@@ -39,7 +45,9 @@ Absoluten Pfad herausfinden: `ssh -p 222 benutzer@wwwXXX.your-server.de pwd` und
    - `APP_KEY`: lokal `cd backend && php artisan key:generate --show` und den Wert eintragen
    - `DB_*`: Datenbankzugang
    - `LEONIDA_ADMIN_INITIAL_PASSWORD`: Startpasswort für **BTO** (mind. 10 Zeichen)
-   - `LEONIDA_UPLOAD_DIR`, `LEONIDA_MAP_DIR`, `LEONIDA_BACKUP_DIR`: absolute Pfade unter `shared/`
+   - `LEONIDA_PUBLIC_DIR`: Document Root (`/usr/www/users/derbto/derbto.de/leonida`)
+   - `LEONIDA_UPLOAD_DIR`, `LEONIDA_MAP_DIR`: `<Document Root>/media` und `<Document Root>/map`
+   - `LEONIDA_BACKUP_DIR`: `/usr/home/derbto/leonida/shared/backups`
    ```
    chmod 600 ~/leonida/shared/.env
    ```
@@ -59,9 +67,9 @@ Das überträgt einmalig ca. 320 MB (58.000 Dateien) und dauert je nach Leitung 
 scripts/deploy.sh
 ```
 
-Das Skript baut Frontend und Backend aus dem **letzten Commit**, lädt eine neue Release hoch, verlinkt `.env` und `storage`, führt die Datenbank-Migrationen aus, legt beim ersten Mal den Administrator **BTO** an, hängt `/media` und `/map` ein und schaltet `current` um.
+Das Skript baut Frontend und Backend aus dem **letzten Commit** (fehlen PHP/Composer/Node lokal, über Docker), lädt eine neue Release ins Home hoch, verlinkt `.env` und `storage`, führt die Datenbank-Migrationen aus, legt beim ersten Mal den Administrator **BTO** an, schaltet `current` um und kopiert die öffentlichen Dateien samt `index.php` in den Document Root. `media/` und `map/` im Document Root bleiben dabei unangetastet.
 
-Danach in konsoleH den **Document Root** der Subdomain auf `leonida/current/public` setzen (nur beim ersten Mal).
+Der Document Root der Subdomain ist der von Hetzner angelegte Ordner `public_html/derbto.de/leonida`. Er muss ein echter Ordner sein, kein Symlink.
 
 ## 5. Erste Anmeldung
 
@@ -96,7 +104,8 @@ Migrationen werden bei jedem Deployment automatisch ausgeführt. Vor größeren 
 |---|---|
 | Weiße Seite / Fehler 500 | `shared/storage/logs/laravel-<datum>.log` |
 | „Frontend noch nicht gebaut“ | Deployment lief nicht vollständig, erneut `scripts/deploy.sh` |
-| Karte leer | `shared/map/current/manifest.json` vorhanden? `php artisan leonida:link` erneut ausführen |
-| Bilder fehlen | Folgt Apache Symlinks? `public/media` muss auf `shared/uploads` zeigen |
+| 403 Forbidden | Document Root ist ein Symlink oder zeigt ins Home – der Webserver darf `/usr/home` nicht betreten |
+| Karte leer | `<Document Root>/map/current/manifest.json` vorhanden? |
+| Bilder fehlen | `<Document Root>/media` vorhanden und `LEONIDA_UPLOAD_DIR` zeigt dorthin? |
 | Upload „zu groß“ | PHP-Einstellungen der Subdomain (Schritt 2.4) |
 | Anmeldung gesperrt | Nach 5 Fehlversuchen pro Minute bzw. 30 pro Stunde wird kurz gesperrt; Wartezeit steht in der Meldung |

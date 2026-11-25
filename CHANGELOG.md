@@ -1,5 +1,13 @@
 # Änderungsprotokoll
 
+## v0.3 – Live auf leonida.derbto.de (25.11.2026)
+
+- Erstes Deployment auf dem Hetzner-Webhosting (PHP 8.4, PostgreSQL 17).
+- Server-Layout angepasst: öffentliche Dateien im Document Root, Code und `.env` im Home (der Webserver darf das Home nicht betreten).
+- `deploy.sh`: Build über Docker, wenn PHP/Composer/Node lokal fehlen; kein `view:cache`; Rollback kopiert auch die öffentlichen Dateien zurück.
+- `map-upload.sh`: lädt in `<Document Root>/map`, nur rsync-Optionen, die auch macOS kennt.
+- Doku für Installation und Backup auf den echten Aufbau aktualisiert.
+
 ## v0.2 – Erste vollständige Version (25.11.2026)
 
 **Karte und Pins**
