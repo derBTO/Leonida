@@ -69,5 +69,8 @@ describe('Pin-Filter', () => {
     expect(matches(imported, f())).toBe(false)
     expect(matches(imported, f({ showGtadb: true }))).toBe(true)
     expect(matches(pin({ k: 'poi', p: 'gas_station' }), f())).toBe(true)
+    // unabhängig vom Ersteller-Filter
+    expect(matches(imported, f({ showGtadb: true, author: 7 }))).toBe(true)
+    expect(matches(imported, f({ showGtadb: false, author: 7 }))).toBe(false)
   })
 })

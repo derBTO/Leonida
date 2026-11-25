@@ -1,5 +1,9 @@
 # Änderungsprotokoll
 
+## v0.9.3 – gtadb-Orte unabhängig vom Ersteller (25.11.2026)
+
+- Der Schalter „Orte von gtadb.org zeigen“ wirkt jetzt unabhängig vom Ersteller-Filter: z. B. „Meine“ + gtadb zeigt die eigenen Pins und zusätzlich alle gtadb-Orte.
+
 ## v0.9.2 – Korrektur gtadb-Kennzeichnung (25.11.2026)
 
 - Alle bis dahin vorhandenen Pins werden einmalig als gtadb-Orte gekennzeichnet. Die Erkennung über die UUID aus v0.9.1 hatte auf dem Server nicht gegriffen, sodass der Schalter „Orte von gtadb.org zeigen“ dort wirkungslos war.
