@@ -78,7 +78,16 @@ Der Document Root der Subdomain ist der von Hetzner angelegte Ordner `public_htm
 3. `LEONIDA_ADMIN_INITIAL_PASSWORD` in `shared/.env` wieder leeren.
 4. Weitere Benutzer unter *Verwaltung → Benutzer* anlegen.
 
-## 6. Cronjob für Backups
+## 6. Orte aus gtadb.org übernehmen (optional, einmalig)
+
+```
+ssh hetzner 'cd leonida/current && php artisan leonida:import-gtadb-pois'           # Vorschau
+ssh hetzner 'cd leonida/current && php artisan leonida:import-gtadb-pois --apply'   # anlegen
+```
+
+Erneute Läufe (z. B. nach einem Karten-Update) legen nur neu hinzugekommene Orte an.
+
+## 7. Cronjob für Backups
 
 In konsoleH einen Cronjob anlegen, jede Minute:
 

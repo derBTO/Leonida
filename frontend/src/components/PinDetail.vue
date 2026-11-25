@@ -6,11 +6,13 @@ import { api } from '../api/client'
 import type { Pin } from '../api/types'
 import { formatDate, formatUsd } from '../lib/format'
 import { LOOT, sortLoot } from '../lib/lootTypes'
+import { POI } from '../lib/poiTypes'
 import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
 import Gallery from './Gallery.vue'
 import MediaImage from './MediaImage.vue'
+import RichText from './RichText.vue'
 
 const props = defineProps<{ pinId: number; reloadKey?: number }>()
 const emit = defineEmits<{ close: []; edit: [number]; move: [Pin]; deleted: [] }>()
@@ -44,11 +46,11 @@ async function copy(text: string, key: string) {
 const link = () => `${window.location.origin}/pin/${props.pinId}`
 
 async function remove() {
-  if (!pin.value || !window.confirm(`Pin „${pin.value.title}“ wirklich löschen? Bilder werden ebenfalls gelöscht.`)) return
+  if (!pin.value || !window.confirm(`${pin.value.kind === 'poi' ? 'Ort' : 'Pin'} „${pin.value.title}“ wirklich löschen? Bilder werden ebenfalls gelöscht.`)) return
   try {
     await api.delete(`/api/pins/${pin.value.id}`)
     await pins.refresh()
-    ui.toast('Pin gelöscht.', 'ok')
+    ui.toast('Gelöscht.', 'ok')
     emit('deleted')
   } catch (e) {
     ui.error(e)
@@ -61,7 +63,10 @@ defineExpose({ reload: load })
 <template>
   <aside class="detail panel" aria-label="Pin-Details">
     <header>
-      <div v-if="pin" class="types">
+      <div v-if="pin && pin.kind === 'poi'" class="types">
+        <span class="type" :style="{ '--c': POI[pin.poi_type ?? 'poi'].color }"><span class="sq" v-html="POI[pin.poi_type ?? 'poi'].svg" />{{ POI[pin.poi_type ?? 'poi'].label }}</span>
+      </div>
+      <div v-else-if="pin" class="types">
         <span v-for="t in sortLoot(pin.loot_types)" :key="t" class="type" :style="{ '--c': LOOT[t].color }"><span v-html="LOOT[t].svg" />{{ LOOT[t].label }}</span>
       </div>
       <button class="btn ghost icon" type="button" aria-label="Schließen" @click="emit('close')"><X :size="18" /></button>
@@ -71,7 +76,7 @@ defineExpose({ reload: load })
       <div v-else-if="!pin" class="muted">Lade …</div>
       <template v-else>
         <h2 class="title">{{ pin.title }}</h2>
-        <div class="badges">
+        <div v-if="pin.kind === 'loot'" class="badges">
           <span class="badge" :class="statusClass[pin.status]">{{ session.label('pin_status', pin.status) }}</span>
           <span class="badge">Respawn: {{ session.label('respawn', pin.respawn) }}</span>
         </div>
@@ -82,8 +87,8 @@ defineExpose({ reload: load })
           <button class="btn sm danger" type="button" @click="remove"><Trash2 :size="14" /> Löschen</button>
         </div>
 
-        <p v-if="pin.description" class="desc">{{ pin.description }}</p>
-        <div v-if="pin.requirements" class="req"><span class="label">Voraussetzungen / Hinweise</span><p>{{ pin.requirements }}</p></div>
+        <p v-if="pin.description" class="desc"><RichText :text="pin.description" /></p>
+        <div v-if="pin.requirements" class="req"><span class="label">Voraussetzungen / Hinweise</span><p><RichText :text="pin.requirements" /></p></div>
 
         <div v-if="pin.drugs_value_usd !== null || pin.jewelry_value_usd !== null || pin.cash_usd !== null" class="values">
           <div v-if="pin.loot_types.includes('drugs')"><span class="label">Drogen</span><strong>{{ formatUsd(pin.drugs_value_usd) }}</strong></div>
@@ -142,6 +147,8 @@ header { display: flex; align-items: center; justify-content: space-between; pad
 .types { display: flex; flex-wrap: wrap; gap: 10px; }
 .type { display: inline-flex; align-items: center; gap: 5px; color: var(--c); font-family: var(--font-display); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; }
 .type :deep(svg) { width: 15px; height: 15px; }
+.sq { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; background: var(--c); color: #fff; }
+.sq :deep(svg) { width: 13px; height: 13px; }
 .body { padding: 4px 16px 16px; flex: 1; }
 .title { font-size: 30px; line-height: 1.05; }
 .badges { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }

@@ -1,5 +1,15 @@
 # Änderungsprotokoll
 
+## v0.4 – Orte (POIs) (25.11.2026)
+
+- Neue Pin-Art **Ort (POI)** mit 21 Kategorien (POI Allgemein, Photo, Ammu-Nation, Bar, Tankstelle, Lebensmittel, Kleidung, Tattoo, Garage, Auto-Tuning, Frisör, Pay & Spray, Autowerkstatt, Flughafen, Hafen, Militär, Restaurant, Wohnung, Rennen, Bus- und Bahnhaltestelle). Orte haben nur Name, Beschreibung und Bilder.
+- Marker als abgerundete Quadrate in der Kategoriefarbe, graue Kategorien kleiner; eigene Cluster getrennt von Loot.
+- Sidebar: Umschalter Alles / Loot / Orte, aufklappbare Kategorie-Filter mit Anzahl. Loot-Filter wirken nur auf Loot, Kategorie-Filter nur auf Orte.
+- Rechtsklick-Menü: „Neuer Loot-Pin hier“ und „Neuer Ort (POI) hier“; im Dialog lässt sich die Art umschalten.
+- `php artisan leonida:import-gtadb-pois`: übernimmt markierte Orte aus den gtadb.org-Landmarken (aktuell 159), mit Quellenlink; erneute Läufe legen nur neue Orte an.
+- Links in Beschreibungen sind klickbar.
+- API: Felder `kind`, `poi_type`; Suche mit `kind` und `poi[]`; Export/Import enthält Orte.
+
 ## v0.3 – Live auf leonida.derbto.de (25.11.2026)
 
 - Erstes Deployment auf dem Hetzner-Webhosting (PHP 8.4, PostgreSQL 17).

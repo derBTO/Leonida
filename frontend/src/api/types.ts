@@ -1,6 +1,29 @@
 export type LootType = 'vehicles' | 'weapons' | 'drugs' | 'jewelry' | 'cash'
 export type PinStatus = 'unconfirmed' | 'confirmed' | 'gone'
 export type RespawnStatus = 'unknown' | 'once' | 'recurring'
+export type PinKind = 'loot' | 'poi'
+export type PoiType =
+  | 'poi'
+  | 'photo'
+  | 'ammunation'
+  | 'bar'
+  | 'gas_station'
+  | 'groceries'
+  | 'clothing'
+  | 'tattoo'
+  | 'garage'
+  | 'tuning'
+  | 'barber'
+  | 'pay_and_spray'
+  | 'workshop'
+  | 'airport'
+  | 'harbor'
+  | 'military'
+  | 'restaurant'
+  | 'apartment'
+  | 'race'
+  | 'bus_stop'
+  | 'train_stop'
 export type LookupCategory =
   | 'weapon_type' | 'fire_mode' | 'weapon_brand' | 'caliber'
   | 'vehicle_manufacturer' | 'vehicle_class' | 'vehicle_style'
@@ -19,7 +42,7 @@ export interface Option { value: string; label: string }
 
 export interface Meta {
   user: User | null
-  enums: Record<'loot_type' | 'respawn' | 'pin_status' | 'drivetrain' | 'security' | 'tracker' | 'access' | 'lookup_category', Option[]>
+  enums: Record<'loot_type' | 'poi_type' | 'respawn' | 'pin_status' | 'drivetrain' | 'security' | 'tracker' | 'access' | 'lookup_category', Option[]>
   limits: { upload_max_mb: number; password_min_length: number }
   map: { manifest_url: string; tiles_url: string; version: string | null }
 }
@@ -27,6 +50,8 @@ export interface Meta {
 /** Kompakter Pin aus /api/pins (Feldnamen kurz gehalten). */
 export interface PinIndexItem {
   id: number
+  k: PinKind
+  p: PoiType | null
   t: string
   x: number
   y: number
@@ -103,6 +128,8 @@ export interface Vehicle extends VehicleSummary {
 export interface Pin {
   id: number
   uuid: string
+  kind: PinKind
+  poi_type: PoiType | null
   title: string
   description: string | null
   x: number

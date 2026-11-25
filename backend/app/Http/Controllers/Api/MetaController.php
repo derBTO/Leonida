@@ -6,6 +6,7 @@ use App\Enums\Drivetrain;
 use App\Enums\LookupCategory;
 use App\Enums\LootType;
 use App\Enums\PinStatus;
+use App\Enums\PoiType;
 use App\Enums\RespawnStatus;
 use App\Enums\Tracker;
 use App\Enums\VehicleAccess;
@@ -27,6 +28,7 @@ class MetaController extends Controller
                 'loot_type' => LootType::options(),
                 'respawn' => RespawnStatus::options(),
                 'pin_status' => PinStatus::options(),
+                'poi_type' => PoiType::options(),
                 'drivetrain' => Drivetrain::options(),
                 'security' => VehicleSecurity::options(),
                 'tracker' => Tracker::options(),

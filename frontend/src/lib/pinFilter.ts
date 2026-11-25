@@ -1,19 +1,23 @@
-import type { LootType, PinIndexItem } from '../api/types'
+import type { LootType, PinIndexItem, PoiType } from '../api/types'
 
 /**
  * Such- und Filterregeln für Karte und Sidebar. Identisch mit der Server-Suche
  * (backend/app/Services/PinIndex.php):
  * - Groß-/Kleinschreibung egal, alle Suchwörter müssen vorkommen.
  * - Durchsucht Titel, Beschreibung, Waffen-, Fahrzeugnamen, Codes und Code-Bezeichnungen.
- * - Loottypen: mindestens einer der gewählten (ODER); 'none' = Pins ohne Loottyp.
+ * - Loottypen: mindestens einer der gewählten (ODER); 'none' = Pins ohne Loottyp. Nur für Loot-Pins.
+ * - Art: Loot, Orte oder beides; POI-Kategorien (ODER) gelten nur für Orte.
  */
+export type KindMode = 'both' | 'loot' | 'poi'
 export type LootFilter = LootType | 'none'
 
 export interface Bounds { west: number; south: number; east: number; north: number }
 
 export interface FilterState {
   q: string
+  mode: KindMode
   loot: LootFilter[]
+  poi: PoiType[]
   showGone: boolean
 }
 
@@ -32,10 +36,16 @@ function haystack(p: PinIndexItem): string {
 }
 
 export function matches(p: PinIndexItem, f: FilterState): boolean {
-  if (!f.showGone && p.s === 'gone') return false
-  if (f.loot.length > 0) {
-    const ok = f.loot.some((t) => (t === 'none' ? p.l.length === 0 : p.l.includes(t)))
-    if (!ok) return false
+  if (p.k === 'poi') {
+    if (f.mode === 'loot') return false
+    if (f.poi.length > 0 && (!p.p || !f.poi.includes(p.p))) return false
+  } else {
+    if (f.mode === 'poi') return false
+    if (!f.showGone && p.s === 'gone') return false
+    if (f.loot.length > 0) {
+      const ok = f.loot.some((t) => (t === 'none' ? p.l.length === 0 : p.l.includes(t)))
+      if (!ok) return false
+    }
   }
   const words = terms(f.q)
   if (words.length === 0) return true

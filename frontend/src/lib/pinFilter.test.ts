@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 import type { PinIndexItem } from '../api/types'
 import { inBounds, matches, sortByTitle, type FilterState } from './pinFilter'
 
-const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], ...o })
-const f = (o: Partial<FilterState> = {}): FilterState => ({ q: '', loot: [], showGone: true, ...o })
+const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, k: 'loot', p: null, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], ...o })
+const f = (o: Partial<FilterState> = {}): FilterState => ({ q: '', mode: 'both', loot: [], poi: [], showGone: true, ...o })
 
 describe('Pin-Filter', () => {
   it('sucht ohne Rücksicht auf Groß-/Kleinschreibung in allen Feldern', () => {
@@ -37,5 +37,17 @@ describe('Pin-Filter', () => {
     expect(inBounds(pin({ x: 15, y: 5 }), { west: 0, south: 0, east: 10, north: 10 })).toBe(false)
     const sorted = sortByTitle([pin({ id: 1, t: 'Zoo' }), pin({ id: 2, t: 'ärztehaus' }), pin({ id: 3, t: 'Bank 10' }), pin({ id: 4, t: 'Bank 9' })])
     expect(sorted.map((p) => p.t)).toEqual(['ärztehaus', 'Bank 9', 'Bank 10', 'Zoo'])
+  })
+
+  it('trennt Loot und Orte und filtert POI-Kategorien', () => {
+    const loot = pin({ l: ['cash'] })
+    const gas = pin({ k: 'poi', p: 'gas_station', t: 'Tankstelle' })
+    const bar = pin({ k: 'poi', p: 'bar', t: 'Bar' })
+    const all = [loot, gas, bar]
+    expect(all.map((p) => matches(p, f({ mode: 'loot' })))).toEqual([true, false, false])
+    expect(all.map((p) => matches(p, f({ mode: 'poi' })))).toEqual([false, true, true])
+    expect(all.map((p) => matches(p, f({ poi: ['bar'] })))).toEqual([true, false, true])
+    expect(all.map((p) => matches(p, f({ loot: ['weapons'] })))).toEqual([false, true, true])
+    expect(matches(gas, f({ q: 'tank' }))).toBe(true)
   })
 })

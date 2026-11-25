@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Check, Crosshair, MapPin, Plus, X } from 'lucide-vue-next'
+import { Check, Crosshair, Landmark, MapPin, Plus, X } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api/client'
-import type { Pin, PinIndexItem } from '../api/types'
+import type { Pin, PinIndexItem, PinKind } from '../api/types'
 import PinDetail from '../components/PinDetail.vue'
 import PinEditor from '../components/PinEditor.vue'
 import Sidebar from '../components/Sidebar.vue'
@@ -42,14 +42,14 @@ function closeDetail() {
   router.push('/')
 }
 
-function openEditor(pinId: number | null, x = 0, y = 0) {
+function openEditor(pinId: number | null, x = 0, y = 0, kind: PinKind = 'loot') {
   if (!session.canEdit) {
     if (!session.loggedIn) ui.loginOpen = true
     else ui.passwordOpen = true
     return
   }
   menu.value = null
-  ui.pinEditor = { pinId, x, y }
+  ui.pinEditor = { pinId, x, y, kind }
 }
 
 function onSaved(pin: Pin) {
@@ -114,7 +114,8 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
     <PinDetail v-if="selectedId && !moving" :pin-id="selectedId" :reload-key="detailKey" @close="closeDetail" @edit="openEditor($event)" @move="startMove" @deleted="closeDetail" />
 
     <div v-if="menu" class="ctx panel" :style="{ left: `${menu.clientX}px`, top: `${menu.clientY}px` }" @mouseleave="menu = null">
-      <button type="button" @click="openEditor(null, menu.x, menu.y)"><MapPin :size="15" /> Neuer Pin hier</button>
+      <button type="button" @click="openEditor(null, menu.x, menu.y)"><MapPin :size="15" /> Neuer Loot-Pin hier</button>
+      <button type="button" @click="openEditor(null, menu.x, menu.y, 'poi')"><Landmark :size="15" /> Neuer Ort (POI) hier</button>
       <button type="button" @click="copyCoords"><Crosshair :size="15" /> Koordinaten kopieren</button>
       <div class="faint small">x {{ menu.x.toFixed(1) }} · y {{ menu.y.toFixed(1) }}</div>
     </div>
@@ -134,7 +135,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
     </div>
     <button v-else-if="session.loggedIn" class="fab" type="button" aria-label="Neuen Pin anlegen" title="Neuer Pin (Touch)" @click="startPlacing"><Plus :size="26" /></button>
 
-    <PinEditor v-if="ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" @close="ui.pinEditor = null" @saved="onSaved" />
+    <PinEditor v-if="ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" @close="ui.pinEditor = null" @saved="onSaved" />
   </div>
 </template>
 

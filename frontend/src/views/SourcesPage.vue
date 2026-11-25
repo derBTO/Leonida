@@ -30,6 +30,7 @@ onMounted(async () => {
         Genutzte Tile-Sets: <em>day</em> sowie die Community-Karten <em>yanis V18</em>, <em>yanis V15</em> und <em>dupzor V51</em> mit den
         Detail-Overlays von <em>aiwe</em>, <em>martipk</em> und <em>rickrick</em>. Die Kacheln werden unverändert und lokal ausgeliefert.
       </p>
+      <p>Ein Teil der Orte (POIs) wie Tankstellen, Haltestellen und Geschäfte wurde aus den Landmarken-Daten von gtadb.org übernommen (CC BY 4.0, „GTA VI Landmarks Data — https://map.gtadb.org“). Die Beschreibung jedes übernommenen Orts verlinkt auf den Originaleintrag.</p>
       <p v-if="manifest" class="muted">Aktueller Kartenstand: {{ manifest.version }} (gtadb.org-Commit {{ manifest.source.commit.slice(0, 7) }}).</p>
       <h2>Spiel</h2>
       <p>Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Dies ist ein privates Fanprojekt ohne Verbindung zu diesen Unternehmen.</p>

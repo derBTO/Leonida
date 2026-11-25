@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { api, ApiError } from '../api/client'
-import type { GalleryImage, LootType, Pin, PinCode, PinStatus, RespawnStatus, VehicleSummary, WeaponSummary } from '../api/types'
+import type { GalleryImage, LootType, Pin, PinCode, PinKind, PinStatus, PoiType, RespawnStatus, VehicleSummary, WeaponSummary } from '../api/types'
 import { formatNumber, parseUsd } from '../lib/format'
 import { LOOT, LOOT_ORDER } from '../lib/lootTypes'
+import { POI, POI_ORDER } from '../lib/poiTypes'
 import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
@@ -14,7 +15,7 @@ import ImageManager from './ImageManager.vue'
 import Modal from './Modal.vue'
 
 /** Anlegen und Bearbeiten eines Pins. Felder je Loottyp werden dynamisch eingeblendet. */
-const props = defineProps<{ pinId: number | null; x: number; y: number }>()
+const props = defineProps<{ pinId: number | null; x: number; y: number; kind?: PinKind }>()
 const emit = defineEmits<{ close: []; saved: [Pin] }>()
 const ui = useUi()
 const pins = usePins()
@@ -26,6 +27,8 @@ const images = ref<GalleryImage[]>([])
 const manager = ref<InstanceType<typeof ImageManager> | null>(null)
 
 const form = reactive({
+  kind: (props.kind ?? 'loot') as PinKind,
+  poi_type: null as PoiType | null,
   title: '',
   description: '',
   x: props.x,
@@ -50,6 +53,7 @@ onMounted(async () => {
     try {
       const pin = (await api.get<{ pin: Pin }>(`/api/pins/${props.pinId}`)).pin
       Object.assign(form, {
+        kind: pin.kind, poi_type: pin.poi_type,
         title: pin.title, description: pin.description ?? '', x: pin.x, y: pin.y, loot_types: pin.loot_types,
         weapons: pin.weapons, vehicles: pin.vehicles, drugs: money(pin.drugs_value_usd), jewelry: money(pin.jewelry_value_usd),
         cash: money(pin.cash_usd), codes: pin.codes.map((c) => ({ ...c })), requirements: pin.requirements ?? '',
@@ -72,13 +76,19 @@ function toggle(t: LootType) {
 const err = (k: string) => errors.value[k]?.[0]
 const usdError = (s: string) => (Number.isNaN(parseUsd(s)) ? 'Nur ganze Dollar-Beträge' : undefined)
 
+const isPoi = computed(() => form.kind === 'poi')
+const heading = computed(() => (props.pinId ? (isPoi.value ? 'Ort bearbeiten' : 'Pin bearbeiten') : isPoi.value ? 'Neuer Ort' : 'Neuer Pin'))
+
 async function save() {
-  for (const [k, v] of [['drugs', form.drugs], ['jewelry', form.jewelry], ['cash', form.cash]] as const) {
+  if (isPoi.value && !form.poi_type) return ui.error('Bitte eine Kategorie für den Ort wählen.')
+  if (!isPoi.value) for (const [k, v] of [['drugs', form.drugs], ['jewelry', form.jewelry], ['cash', form.cash]] as const) {
     if (usdError(v)) return ui.error(`Ungültiger Betrag bei ${LOOT[k].label}.`)
   }
   busy.value = true
   errors.value = {}
   const payload = {
+    kind: form.kind,
+    poi_type: isPoi.value ? form.poi_type : null,
     title: form.title,
     description: form.description,
     x: form.x,
@@ -103,7 +113,7 @@ async function save() {
       pin = (await api.get<{ pin: Pin }>(`/api/pins/${pin.id}`)).pin
     }
     await pins.refresh()
-    ui.toast(props.pinId ? 'Pin gespeichert.' : 'Pin angelegt.', 'ok')
+    ui.toast(props.pinId ? 'Gespeichert.' : isPoi.value ? 'Ort angelegt.' : 'Pin angelegt.', 'ok')
     initial = JSON.stringify(form)
     emit('saved', pin)
   } catch (e) {
@@ -116,16 +126,34 @@ async function save() {
 </script>
 
 <template>
-  <Modal :title="pinId ? 'Pin bearbeiten' : 'Neuer Pin'" width="760px" :dirty="dirty" @close="emit('close')">
+  <Modal :title="heading" width="760px" :dirty="dirty" @close="emit('close')">
     <div v-if="loading" class="muted">Lade …</div>
     <form v-else id="pin-form" @submit.prevent="save">
+      <div class="kinds" role="radiogroup" aria-label="Art">
+        <button type="button" role="radio" :aria-checked="!isPoi" :class="{ on: !isPoi }" @click="form.kind = 'loot'">Loot-Fundort</button>
+        <button type="button" role="radio" :aria-checked="isPoi" :class="{ on: isPoi }" @click="form.kind = 'poi'">Ort (POI)</button>
+      </div>
       <div class="field">
-        <label for="pe-title">Titel *</label>
-        <input id="pe-title" class="input" v-model="form.title" maxlength="150" required placeholder="z. B. Safe im Motel" />
+        <label for="pe-title">{{ isPoi ? 'Name *' : 'Titel *' }}</label>
+        <input id="pe-title" class="input" v-model="form.title" maxlength="150" required :placeholder="isPoi ? 'z. B. Ammu-Nation Port Gellhorn' : 'z. B. Safe im Motel'" />
         <div v-if="err('title')" class="error-text">{{ err('title') }}</div>
       </div>
       <div class="coords faint">Position: x {{ form.x.toFixed(1) }}, y {{ form.y.toFixed(1) }}</div>
 
+      <template v-if="isPoi">
+        <div class="section-title">Kategorie *</div>
+        <div class="poi-grid">
+          <button v-for="t in POI_ORDER" :key="t" type="button" class="poi-opt" :class="{ on: form.poi_type === t }" :style="{ '--c': POI[t].color }" :aria-pressed="form.poi_type === t" @click="form.poi_type = t">
+            <span class="sq" v-html="POI[t].svg" />{{ POI[t].label }}
+          </button>
+        </div>
+        <div v-if="err('poi_type')" class="error-text">{{ err('poi_type') }}</div>
+        <div class="field block">
+          <label for="pe-desc-poi">Beschreibung</label>
+          <textarea id="pe-desc-poi" class="input" v-model="form.description" maxlength="20000" />
+        </div>
+      </template>
+      <template v-else>
       <div class="section-title">Loottypen</div>
       <div class="chips">
         <button v-for="t in LOOT_ORDER" :key="t" type="button" class="chip" :class="{ on: has(t) }" :style="{ '--c': LOOT[t].color }" :aria-pressed="has(t)" @click="toggle(t)">
@@ -174,6 +202,7 @@ async function save() {
 
       <div class="section-title">Codes</div>
       <CodesEditor v-model="form.codes" :errors="errors" />
+      </template>
 
       <div class="section-title">Bilder</div>
       <ImageManager ref="manager" :pin-id="pinId" :images="images" @changed="images = $event" />
@@ -191,4 +220,12 @@ async function save() {
 .block { margin-top: 14px; }
 .block > .label { margin-bottom: 6px; display: block; }
 textarea.small { min-height: 60px; }
+.kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; margin-bottom: 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: rgba(0,0,0,0.25); }
+.kinds button { height: 34px; border: 0; border-radius: 6px; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.kinds button.on { background: rgba(255,255,255,0.1); color: var(--text); box-shadow: inset 0 -2px 0 var(--pink); }
+.poi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.poi-opt { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.03); cursor: pointer; text-align: left; font-size: 13px; }
+.poi-opt.on { border-color: var(--c); background: color-mix(in srgb, var(--c) 20%, transparent); }
+.sq { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 5px; background: var(--c); color: #fff; flex: none; }
+.sq :deep(svg) { width: 14px; height: 14px; }
 </style>

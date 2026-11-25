@@ -24,7 +24,7 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | POST | `/api/auth/login` · `/api/auth/logout` | Anmelden / Abmelden | öffentlich |
 | POST | `/api/auth/password` | eigenes Passwort ändern | angemeldet |
 | GET | `/api/pins` | kompakte Liste aller Pins für die Karte (mit ETag) | öffentlich |
-| GET | `/api/pins/search?q=&loot[]=&bbox=` | IDs passender Pins (gleiche Regeln wie im Browser) | öffentlich |
+| GET | `/api/pins/search?q=&kind=&loot[]=&poi[]=&bbox=` | IDs passender Pins (gleiche Regeln wie im Browser) | öffentlich |
 | GET | `/api/pins/{id}` | Pin mit Waffen, Fahrzeugen, Codes, Bildern | öffentlich |
 | POST / PUT / DELETE | `/api/pins` · `/api/pins/{id}` | Pin anlegen / ändern / löschen | Editor |
 | PATCH | `/api/pins/{id}/position` | Pin verschieben | Editor |
@@ -53,6 +53,8 @@ Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `calib
 | Waffen- und Fahrzeugwerte (`stats.*`) | 0–10, höchstens eine Nachkommastelle, oder `null` |
 | `rating_on_road`, `rating_off_road` | ganze Zahl 0–1000 oder `null` |
 | `drugs_value_usd`, `jewelry_value_usd`, `cash_usd` | ganze Zahl ≥ 0 oder `null`; wird geleert, wenn der Loottyp nicht gewählt ist |
+| `kind` | `loot` (Standard) oder `poi`. Orte haben nur `title`, `description`, Bilder und Position; Loot-Felder, Codes und Status werden ignoriert |
+| `poi_type` | Pflicht bei `kind=poi`: `poi`, `photo`, `ammunation`, `bar`, `gas_station`, `groceries`, `clothing`, `tattoo`, `garage`, `tuning`, `barber`, `pay_and_spray`, `workshop`, `airport`, `harbor`, `military`, `restaurant`, `apartment`, `race`, `bus_stop`, `train_stop` |
 | `loot_types` | `vehicles`, `weapons`, `drugs`, `jewelry`, `cash` |
 | `respawn` | `unknown`, `once`, `recurring` |
 | `status` | `unconfirmed`, `confirmed`, `gone` |
@@ -69,7 +71,7 @@ Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `calib
 `GET /api/pins` liefert alle Pins in einem Aufruf, damit Karte und Sidebar ohne weitere Anfragen filtern können:
 
 ```json
-{ "pins": [ { "id": 1, "t": "Safe im Motel", "x": -2056.0, "y": 1000.0, "l": ["cash", "weapons"], "s": "unconfirmed",
+{ "pins": [ { "id": 1, "k": "loot", "p": null, "t": "Safe im Motel", "x": -2056.0, "y": 1000.0, "l": ["cash", "weapons"], "s": "unconfirmed",
               "d": "Beschreibung", "w": ["Donnies H&L .38"], "v": [], "c": ["Safe 0042"] } ] }
 ```
 

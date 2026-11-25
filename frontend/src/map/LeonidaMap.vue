@@ -11,7 +11,7 @@ import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
 import { fromLatLng, LeonidaCRS, toLatLng } from './crs'
 import './map.css'
-import { clusterIcon, pinIcon } from './markers'
+import { clusterIcon, markerIcon, poiClusterIcon } from './markers'
 import { TILE_SET_LABELS, tilePath } from './tiles'
 
 const props = defineProps<{ selectedId: number | null; movingPin: PinIndexItem | null }>()
@@ -34,6 +34,8 @@ const overlays = ref(view.overlays)
 
 let tiles: L.TileLayer | null = null
 let cluster: L.MarkerClusterGroup | null = null
+let poiCluster: L.MarkerClusterGroup | null = null
+const groupOf = (p: PinIndexItem) => (p.k === 'poi' ? poiCluster! : cluster!)
 let moveMarker: L.Marker | null = null
 const markers = new Map<number, L.Marker & { pin?: PinIndexItem }>()
 
@@ -75,39 +77,43 @@ function buildTiles() {
 }
 
 function syncMarkers(list: PinIndexItem[]) {
-  if (!cluster) return
-  const wanted = new Set(list.map((p) => p.id))
-  const remove: L.Layer[] = []
+  if (!cluster || !poiCluster) return
+  const byId = new Map(list.map((p) => [p.id, p]))
   for (const [id, m] of markers) {
-    if (!wanted.has(id)) {
-      remove.push(m)
+    const next = byId.get(id)
+    // entfernen, wenn weggefiltert oder die Art gewechselt hat (anderer Cluster)
+    if (!next || next.k !== m.pin!.k) {
+      groupOf(m.pin!).removeLayer(m)
       markers.delete(id)
     }
   }
-  cluster.removeLayers(remove)
-  const add: L.Layer[] = []
+  const add: { loot: L.Layer[]; poi: L.Layer[] } = { loot: [], poi: [] }
   for (const p of list) {
     if (props.movingPin?.id === p.id) continue
     const existing = markers.get(p.id)
     if (existing) {
       const prev = existing.pin!
       if (prev.x !== p.x || prev.y !== p.y) existing.setLatLng(toLatLng(p.x, p.y))
-      if (prev.s !== p.s || prev.l.join() !== p.l.join() || prev.t !== p.t) {
+      if (prev.s !== p.s || prev.l.join() !== p.l.join() || prev.t !== p.t || prev.p !== p.p) {
         existing.pin = p
-        existing.setIcon(pinIcon(p, p.id === props.selectedId))
+        existing.setIcon(markerIcon(p, p.id === props.selectedId))
         existing.options.title = p.t
-        cluster.refreshClusters(existing)
+        groupOf(p).refreshClusters(existing)
       }
       existing.pin = p
       continue
     }
-    const marker = L.marker(toLatLng(p.x, p.y), { icon: pinIcon(p, p.id === props.selectedId), title: p.t, keyboard: true, riseOnHover: true }) as L.Marker & { pin?: PinIndexItem }
+    const marker = L.marker(toLatLng(p.x, p.y), {
+      icon: markerIcon(p, p.id === props.selectedId), title: p.t, keyboard: true, riseOnHover: true,
+      zIndexOffset: p.k === 'poi' ? -100 : 0,
+    }) as L.Marker & { pin?: PinIndexItem }
     marker.pin = p
     marker.on('click', () => emit('select', p.id))
     markers.set(p.id, marker)
-    add.push(marker)
+    add[p.k === 'poi' ? 'poi' : 'loot'].push(marker)
   }
-  cluster.addLayers(add)
+  cluster.addLayers(add.loot)
+  poiCluster.addLayers(add.poi)
 }
 
 onMounted(async () => {
@@ -137,6 +143,15 @@ onMounted(async () => {
     iconCreateFunction: clusterIcon,
   })
   m.addLayer(cluster)
+  poiCluster = L.markerClusterGroup({
+    chunkedLoading: true,
+    maxClusterRadius: (z: number) => (z >= 5 ? 24 : 45),
+    disableClusteringAtZoom: 6,
+    showCoverageOnHover: false,
+    spiderfyOnMaxZoom: true,
+    iconCreateFunction: poiClusterIcon,
+  })
+  m.addLayer(poiCluster)
   m.on('moveend zoomend', persist)
   m.on('contextmenu', (e: L.LeafletMouseEvent) => {
     const c = fromLatLng(e.latlng)
@@ -163,23 +178,23 @@ watch([tileSet, overlays], buildTiles)
 watch(() => props.selectedId, (id, old) => {
   for (const pid of [old, id]) {
     const mk = pid ? markers.get(pid) : undefined
-    if (mk?.pin) mk.setIcon(pinIcon(mk.pin, pid === id))
+    if (mk?.pin) mk.setIcon(markerIcon(mk.pin, pid === id))
   }
 })
 
 /** Verschieben: Marker aus dem Cluster lösen und ziehbar machen. */
 watch(() => props.movingPin, (pin, old) => {
-  if (!map.value || !cluster) return
+  if (!map.value || !cluster || !poiCluster) return
   moveMarker?.remove()
   moveMarker = null
   if (old) {
     const mk = markers.get(old.id)
-    if (mk) cluster.addLayer(mk)
+    if (mk) groupOf(mk.pin!).addLayer(mk)
   }
   if (pin) {
     const mk = markers.get(pin.id)
-    if (mk) cluster.removeLayer(mk)
-    moveMarker = L.marker(toLatLng(pin.x, pin.y), { icon: pinIcon(pin, true), draggable: true, autoPan: true, zIndexOffset: 1000 })
+    if (mk) groupOf(mk.pin!).removeLayer(mk)
+    moveMarker = L.marker(toLatLng(pin.x, pin.y), { icon: markerIcon(pin, true), draggable: true, autoPan: true, zIndexOffset: 1000 })
     moveMarker.on('dragend', () => emit('moved', fromLatLng(moveMarker!.getLatLng())))
     moveMarker.addTo(map.value)
     map.value.panTo(moveMarker.getLatLng())

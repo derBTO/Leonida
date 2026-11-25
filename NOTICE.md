@@ -10,6 +10,10 @@
 - Änderungen durch Leonida: Die Kacheln werden unverändert übernommen. Hinzugefügt wird nur eine `manifest.json` mit Kachelbereichen und Prüfsummen. Die Zuordnung der Kachelbereiche stammt aus `maps/maps.js` von gtadb.org (Code unter MIT-Lizenz, Copyright (C) 2025-2026 GTADB.ORG); Leonida übernimmt daraus nur die Umrechnungsformel, keinen Code.
 - Die Lizenzdatei von gtadb.org (`LICENSE-DATA`) liegt jeder importierten Kartenversion bei.
 
+## Orte (POIs) – gtadb.org-Landmarken
+
+Ein Teil der Orte wurde aus `map/data/6/landmarks.json` von gtadb.org übernommen (CC BY 4.0, „GTA VI Landmarks Data (CC BY 4.0) — https://map.gtadb.org“). Übernommen werden Name, Position und reales Vorbild; jede Beschreibung verlinkt auf den Originaleintrag. Kategorien wurden aus den gtadb-Tags abgeleitet.
+
 ## Grand Theft Auto VI
 
 Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Leonida ist ein privates Fanprojekt ohne Verbindung zu diesen Unternehmen und verwendet keine Logos, Schriften oder Grafiken aus dem Spiel.

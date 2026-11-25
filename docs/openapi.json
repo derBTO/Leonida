@@ -858,6 +858,10 @@
                                                     "type": "array",
                                                     "items": {}
                                                 },
+                                                "poi_type": {
+                                                    "type": "array",
+                                                    "items": {}
+                                                },
                                                 "drivetrain": {
                                                     "type": "array",
                                                     "items": {}
@@ -883,6 +887,7 @@
                                                 "loot_type",
                                                 "respawn",
                                                 "pin_status",
+                                                "poi_type",
                                                 "drivetrain",
                                                 "security",
                                                 "tracker",
@@ -1064,6 +1069,43 @@
                                                 "uuid": {
                                                     "type": "string"
                                                 },
+                                                "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "loot",
+                                                        "poi"
+                                                    ]
+                                                },
+                                                "poi_type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "poi",
+                                                        "photo",
+                                                        "ammunation",
+                                                        "bar",
+                                                        "gas_station",
+                                                        "groceries",
+                                                        "clothing",
+                                                        "tattoo",
+                                                        "garage",
+                                                        "tuning",
+                                                        "barber",
+                                                        "pay_and_spray",
+                                                        "workshop",
+                                                        "airport",
+                                                        "harbor",
+                                                        "military",
+                                                        "restaurant",
+                                                        "apartment",
+                                                        "race",
+                                                        "bus_stop",
+                                                        "train_stop",
+                                                        null
+                                                    ]
+                                                },
                                                 "title": {
                                                     "type": "string"
                                                 },
@@ -1166,6 +1208,8 @@
                                             "required": [
                                                 "id",
                                                 "uuid",
+                                                "kind",
+                                                "poi_type",
                                                 "title",
                                                 "description",
                                                 "x",
@@ -1238,6 +1282,33 @@
                                     "cash",
                                     "none"
                                 ]
+                            }
+                        }
+                    },
+                    {
+                        "name": "kind",
+                        "in": "query",
+                        "schema": {
+                            "anyOf": [
+                                {
+                                    "$ref": "#/components/schemas/PinKind"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "poi[]",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "array",
+                                "null"
+                            ],
+                            "items": {
+                                "$ref": "#/components/schemas/PoiType"
                             }
                         }
                     },
@@ -1315,6 +1386,43 @@
                                                 "uuid": {
                                                     "type": "string"
                                                 },
+                                                "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "loot",
+                                                        "poi"
+                                                    ]
+                                                },
+                                                "poi_type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "poi",
+                                                        "photo",
+                                                        "ammunation",
+                                                        "bar",
+                                                        "gas_station",
+                                                        "groceries",
+                                                        "clothing",
+                                                        "tattoo",
+                                                        "garage",
+                                                        "tuning",
+                                                        "barber",
+                                                        "pay_and_spray",
+                                                        "workshop",
+                                                        "airport",
+                                                        "harbor",
+                                                        "military",
+                                                        "restaurant",
+                                                        "apartment",
+                                                        "race",
+                                                        "bus_stop",
+                                                        "train_stop",
+                                                        null
+                                                    ]
+                                                },
                                                 "title": {
                                                     "type": "string"
                                                 },
@@ -1417,6 +1525,8 @@
                                             "required": [
                                                 "id",
                                                 "uuid",
+                                                "kind",
+                                                "poi_type",
                                                 "title",
                                                 "description",
                                                 "x",
@@ -1484,6 +1594,43 @@
                                                 "uuid": {
                                                     "type": "string"
                                                 },
+                                                "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "loot",
+                                                        "poi"
+                                                    ]
+                                                },
+                                                "poi_type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "poi",
+                                                        "photo",
+                                                        "ammunation",
+                                                        "bar",
+                                                        "gas_station",
+                                                        "groceries",
+                                                        "clothing",
+                                                        "tattoo",
+                                                        "garage",
+                                                        "tuning",
+                                                        "barber",
+                                                        "pay_and_spray",
+                                                        "workshop",
+                                                        "airport",
+                                                        "harbor",
+                                                        "military",
+                                                        "restaurant",
+                                                        "apartment",
+                                                        "race",
+                                                        "bus_stop",
+                                                        "train_stop",
+                                                        null
+                                                    ]
+                                                },
                                                 "title": {
                                                     "type": "string"
                                                 },
@@ -1586,6 +1733,8 @@
                                             "required": [
                                                 "id",
                                                 "uuid",
+                                                "kind",
+                                                "poi_type",
                                                 "title",
                                                 "description",
                                                 "x",
@@ -1727,6 +1876,43 @@
                                                 "uuid": {
                                                     "type": "string"
                                                 },
+                                                "kind": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "loot",
+                                                        "poi"
+                                                    ]
+                                                },
+                                                "poi_type": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ],
+                                                    "enum": [
+                                                        "poi",
+                                                        "photo",
+                                                        "ammunation",
+                                                        "bar",
+                                                        "gas_station",
+                                                        "groceries",
+                                                        "clothing",
+                                                        "tattoo",
+                                                        "garage",
+                                                        "tuning",
+                                                        "barber",
+                                                        "pay_and_spray",
+                                                        "workshop",
+                                                        "airport",
+                                                        "harbor",
+                                                        "military",
+                                                        "restaurant",
+                                                        "apartment",
+                                                        "race",
+                                                        "bus_stop",
+                                                        "train_stop",
+                                                        null
+                                                    ]
+                                                },
                                                 "title": {
                                                     "type": "string"
                                                 },
@@ -1829,6 +2015,8 @@
                                             "required": [
                                                 "id",
                                                 "uuid",
+                                                "kind",
+                                                "poi_type",
                                                 "title",
                                                 "description",
                                                 "x",
@@ -3106,6 +3294,43 @@
     },
     "components": {
         "schemas": {
+            "PinKind": {
+                "type": "string",
+                "description": "Art eines Pins: Fundort mit Loot oder Ort (POI)\n",
+                "enum": [
+                    "loot",
+                    "poi"
+                ],
+                "title": "PinKind"
+            },
+            "PoiType": {
+                "type": "string",
+                "description": "Kategorie eines Orts (POI). Farben und Symbole: frontend/src/lib/poiTypes.ts\n",
+                "enum": [
+                    "poi",
+                    "photo",
+                    "ammunation",
+                    "bar",
+                    "gas_station",
+                    "groceries",
+                    "clothing",
+                    "tattoo",
+                    "garage",
+                    "tuning",
+                    "barber",
+                    "pay_and_spray",
+                    "workshop",
+                    "airport",
+                    "harbor",
+                    "military",
+                    "restaurant",
+                    "apartment",
+                    "race",
+                    "bus_stop",
+                    "train_stop"
+                ],
+                "title": "PoiType"
+            },
             "Role": {
                 "type": "string",
                 "description": "Benutzerrolle\n",

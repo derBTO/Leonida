@@ -10,7 +10,7 @@ export const usePins = defineStore('pins', () => {
   let etag: string | null = null
 
   const filter = reactive<FilterState & { viewportOnly: boolean }>(
-    load('filter', { q: '', loot: [], showGone: true, viewportOnly: false }),
+    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, viewportOnly: false }),
   )
   watch(filter, () => save('filter', filter), { deep: true })
 
@@ -36,6 +36,8 @@ export const usePins = defineStore('pins', () => {
 
   function resetFilter() {
     filter.q = ''
+    filter.mode = 'both'
+    filter.poi = []
     filter.loot = []
     filter.showGone = true
   }

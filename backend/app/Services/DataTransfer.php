@@ -60,6 +60,8 @@ class DataTransfer
 
         $pins = Pin::query()->with(['weapons:id,uuid', 'vehicles:id,uuid', 'codes', 'images'])->orderBy('id')->get()->map(fn (Pin $p) => [
             'uuid' => $p->uuid,
+            'kind' => $p->kind->value,
+            'poi_type' => $p->poi_type?->value,
             'title' => $p->title,
             'description' => $p->description,
             'x' => $p->x,
@@ -240,6 +242,7 @@ class DataTransfer
                 $pin ? $count['updated']++ : $count['created']++;
                 $pin ??= new Pin(['uuid' => $row['uuid']]);
                 $pin->fill([
+                    'kind' => $row['kind'] ?? 'loot', 'poi_type' => $row['poi_type'] ?? null,
                     'title' => $row['title'], 'description' => $row['description'] ?? null, 'x' => $row['x'], 'y' => $row['y'],
                     'map_version_id' => isset($row['map_version']) ? ($versions[$row['map_version']] ?? null) : null,
                     'requirements' => $row['requirements'] ?? null,

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\PinKind;
 use App\Enums\PinStatus;
+use App\Enums\PoiType;
 use App\Enums\RespawnStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,6 +25,8 @@ class Pin extends Model
             'jewelry_value_usd' => 'integer',
             'cash_usd' => 'integer',
             'respawn' => RespawnStatus::class,
+            'kind' => PinKind::class,
+            'poi_type' => PoiType::class,
             'status' => PinStatus::class,
         ];
     }
@@ -62,6 +66,8 @@ class Pin extends Model
         return [
             'id' => $this->id,
             'uuid' => $this->uuid,
+            'kind' => $this->kind->value,
+            'poi_type' => $this->poi_type?->value,
             'title' => $this->title,
             'description' => $this->description,
             'x' => $this->x,

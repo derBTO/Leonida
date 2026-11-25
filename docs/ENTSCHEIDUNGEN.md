@@ -34,3 +34,6 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 24.11.2026 | Schriften und Icons | Inter, Barlow Condensed (OFL), Lucide (ISC), lokal ausgeliefert | keine externen Abrufe, einheitliche Symbole |
 | 24.11.2026 | API-Dokumentation | automatisch aus dem Code (Scramble), `/docs/api` nur angemeldet, Export nach `docs/openapi.json` | bleibt aktuell |
 | 25.11.2026 | Server-Layout | Code, `.env` und Backups im Home; nur `index.php`, Frontend, Bilder und Kacheln im Document Root `public_html/derbto.de/leonida` | Hetzner-Webserver darf `/usr/home` nicht betreten; Zugangsdaten liegen damit sicher außerhalb des Webs |
+| 25.11.2026 | Orte (POIs) | eigene Pin-Art mit genau einer Kategorie, ohne Loot, Codes und Status; feste Kategorienliste im Code (Enum + Farben/Symbole im Frontend) | Wunsch BTO; serverseitig prüfbar, neue Kategorie = eine Zeile |
+| 25.11.2026 | POI-Symbole | Lucide-Symbole statt Spiel-Icons | Spiel-Icons sind geschützt; einheitlich mit dem Rest |
+| 25.11.2026 | POI-Import | einmaliger Import der markierten gtadb.org-Landmarken (CC BY 4.0) mit fester UUID je Landmarke | schneller Grundbestand, wiederholbar ohne Dubletten |

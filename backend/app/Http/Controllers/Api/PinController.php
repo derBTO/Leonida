@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\LootType;
+use App\Enums\PinKind;
+use App\Enums\PoiType;
 use App\Enums\PinStatus;
 use App\Enums\RespawnStatus;
 use App\Http\Controllers\Controller;
@@ -47,10 +49,13 @@ class PinController extends Controller
             'q' => ['nullable', 'string', 'max:200'],
             'loot' => ['nullable', 'array'],
             'loot.*' => [Rule::in([...LootType::values(), 'none'])],
+            'kind' => ['nullable', Rule::enum(PinKind::class)],
+            'poi' => ['nullable', 'array'],
+            'poi.*' => [Rule::enum(PoiType::class)],
             'bbox' => ['nullable', 'regex:/^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/'],
         ]);
 
-        return response()->json(['ids' => PinIndex::search($data['q'] ?? null, $data['loot'] ?? [], $data['bbox'] ?? null)]);
+        return response()->json(['ids' => PinIndex::search($data['q'] ?? null, $data['loot'] ?? [], $data['bbox'] ?? null, $data['kind'] ?? null, $data['poi'] ?? [])]);
     }
 
     public function show(Pin $pin): JsonResponse
@@ -132,11 +137,13 @@ class PinController extends Controller
         $money = ['nullable', 'integer', 'min:0', 'max:2000000000'];
 
         return $request->validate([
+            'kind' => ['nullable', Rule::enum(PinKind::class)],
+            'poi_type' => ['nullable', 'required_if:kind,poi', Rule::enum(PoiType::class)],
             'title' => ['required', 'string', 'max:150', 'regex:/\S/u'],
             'description' => ['nullable', 'string', 'max:20000'],
             'x' => ['required', 'numeric', 'between:-16384,16384'],
             'y' => ['required', 'numeric', 'between:-16384,16384'],
-            'loot_types' => ['present', 'array'],
+            'loot_types' => ['nullable', 'array'],
             'loot_types.*' => ['distinct', Rule::enum(LootType::class)],
             'weapon_ids' => ['nullable', 'array', 'max:100'],
             'weapon_ids.*' => ['distinct', 'integer', 'exists:weapons,id'],
@@ -157,6 +164,7 @@ class PinController extends Controller
             'title.regex' => 'Der Titel darf nicht leer sein.',
             'codes.*.code.required' => 'Jeder Code braucht einen Wert.',
             'codes.*.code.string' => 'Codes müssen als Text gesendet werden.',
+            'poi_type.required_if' => 'Bitte eine Kategorie für den Ort wählen.',
         ]);
     }
 
@@ -166,10 +174,29 @@ class PinController extends Controller
      */
     private function attributes(array $data): array
     {
-        $types = $data['loot_types'];
         $blank = fn ($v) => is_string($v) && trim($v) === '' ? null : $v;
+        if (($data['kind'] ?? 'loot') === PinKind::Poi->value) {
+            // Orte haben nur Name, Beschreibung, Bilder und Position
+            return [
+                'kind' => PinKind::Poi->value,
+                'poi_type' => $data['poi_type'],
+                'title' => trim($data['title']),
+                'description' => $blank($data['description'] ?? null),
+                'x' => round((float) $data['x'], 2),
+                'y' => round((float) $data['y'], 2),
+                'requirements' => null,
+                'drugs_value_usd' => null,
+                'jewelry_value_usd' => null,
+                'cash_usd' => null,
+                'respawn' => RespawnStatus::Unknown->value,
+                'status' => PinStatus::Confirmed->value,
+            ];
+        }
+        $types = $data['loot_types'] ?? [];
 
         return [
+            'kind' => PinKind::Loot->value,
+            'poi_type' => null,
             'title' => trim($data['title']),
             'description' => $blank($data['description'] ?? null),
             'x' => round((float) $data['x'], 2),
@@ -185,7 +212,11 @@ class PinController extends Controller
 
     private function syncRelations(Pin $pin, array $data): void
     {
-        $types = $data['loot_types'];
+        $isPoi = ($data['kind'] ?? 'loot') === PinKind::Poi->value;
+        $types = $isPoi ? [] : ($data['loot_types'] ?? []);
+        if ($isPoi) {
+            $data['codes'] = [];
+        }
         $pin->syncLootTypes($types);
         $order = fn (array $ids) => collect($ids)->values()->mapWithKeys(fn ($id, $i) => [$id => ['sort_order' => $i]])->all();
         $pin->weapons()->sync(in_array('weapons', $types, true) ? $order($data['weapon_ids'] ?? []) : []);
