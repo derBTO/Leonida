@@ -92,10 +92,10 @@ Erneute Läufe (z. B. nach einem Karten-Update) legen nur neu hinzugekommene Ort
 Einmal ein kleines Skript im Home anlegen (bleibt bei jedem Deploy gleich):
 
 ```bash
-ssh hetzner 'printf "%s\n" "#!/bin/sh" "cd /usr/home/derbto/leonida/current && /usr/bin/php artisan leonida:backup >> /usr/home/derbto/leonida/shared/storage/logs/backup.log 2>&1" > ~/leonida/cron-backup.sh && chmod 700 ~/leonida/cron-backup.sh && ~/leonida/cron-backup.sh && tail -1 ~/leonida/shared/storage/logs/backup.log'
+ssh hetzner 'printf "%s\n" "#!/bin/sh" "cd /usr/home/derbto/leonida/current && /usr/bin/php artisan leonida:backup >> /usr/home/derbto/leonida/shared/storage/logs/backup.log 2>&1" > ~/leonida/cron-backup.sh && chmod 705 ~/leonida/cron-backup.sh && ~/leonida/cron-backup.sh && tail -1 ~/leonida/shared/storage/logs/backup.log'
 ```
 
-Dann in konsoleH unter *Cronjobs → Hinzufügen* einen täglichen Job um 03:30 Uhr mit dem Skript `/usr/home/derbto/leonida/cron-backup.sh` anlegen. Es sichert die Datenbank nach `shared/backups/` (14 Stück werden aufbewahrt) und schreibt Erfolg oder Fehler in `shared/storage/logs/backup.log`.
+Dann in konsoleH unter *Cronjobs → Hinzufügen* anlegen: Interpreter „Anderer Interpreter/Direktaufruf“, Skript `/usr/home/derbto/leonida/cron-backup.sh`, manuell Minute 30, Stunde 03:00, sonst „jeden“ (Zusammenfassung `30 03 * * *`). Hetzner verlangt mindestens die Rechte 705 auf dem Skript. Es sichert die Datenbank nach `shared/backups/` (14 Stück werden aufbewahrt) und schreibt Erfolg oder Fehler in `shared/storage/logs/backup.log`.
 
 Hetzner hat nur `pg_dump` 15, die Datenbank ist Version 17; deshalb sichert Leonida dort automatisch per PHP (`*.json.gz`). Prüfen am nächsten Tag: `ssh hetzner 'ls -lh ~/leonida/shared/backups; tail -3 ~/leonida/shared/storage/logs/backup.log'`.
 
