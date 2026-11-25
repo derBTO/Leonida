@@ -11,6 +11,7 @@ import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
 import Gallery from './Gallery.vue'
+import LegendaryStar from './LegendaryStar.vue'
 import MediaImage from './MediaImage.vue'
 import RichText from './RichText.vue'
 
@@ -107,7 +108,7 @@ defineExpose({ reload: load })
           <div class="section-title">Waffen</div>
           <RouterLink v-for="w in pin.weapons" :key="w.id" :to="`/waffen/${w.id}`" class="item">
             <MediaImage :media="w.image" thumb :alt="w.name" class="thumb" />
-            <span><strong>{{ w.name }}</strong><small class="muted">{{ w.weapon_type?.name }}</small></span>
+            <span><strong>{{ w.name }}<LegendaryStar v-if="w.is_legendary" :size="14" /></strong><small class="muted">{{ w.weapon_type?.name }}</small></span>
           </RouterLink>
         </template>
 
@@ -163,6 +164,7 @@ header { display: flex; align-items: center; justify-content: space-between; pad
 .item { display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 8px; text-decoration: none; }
 .item:hover { background: var(--panel-hover); }
 .item span { display: flex; flex-direction: column; }
+.item strong { display: inline-flex; align-items: center; }
 .thumb { width: 72px !important; height: 40px !important; border-radius: 5px; flex: none; background: rgba(0,0,0,0.3); }
 .code { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .code > div { display: flex; flex-direction: column; }

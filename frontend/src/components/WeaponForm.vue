@@ -4,6 +4,7 @@ import { api, ApiError } from '../api/client'
 import type { LookupValue, Weapon, WeaponStats } from '../api/types'
 import { useCatalog } from '../stores/catalog'
 import { useUi } from '../stores/ui'
+import EnumSelect from './EnumSelect.vue'
 import ImageField from './ImageField.vue'
 import LookupSelect from './LookupSelect.vue'
 import Modal from './Modal.vue'
@@ -21,6 +22,7 @@ const form = reactive({
   brand: (w?.brand ?? null) as LookupValue | null,
   caliber: (w?.caliber ?? null) as LookupValue | null,
   magazine_size: w?.magazine_size?.toString() ?? '',
+  legendary: (w?.is_legendary === null || w?.is_legendary === undefined ? null : w.is_legendary ? 'yes' : 'no') as string | null,
   stats: { ...(w?.stats ?? { damage: null, accuracy: null, handling: null, range: null }) } as WeaponStats,
   notes: w?.notes ?? '',
 })
@@ -41,6 +43,7 @@ async function save() {
     brand_id: form.brand?.id ?? null,
     caliber_id: form.caliber?.id ?? null,
     magazine_size: form.magazine_size.trim() === '' ? null : Number(form.magazine_size),
+    is_legendary: form.legendary === null ? null : form.legendary === 'yes',
     stats: form.stats,
     notes: form.notes,
   }
@@ -92,6 +95,7 @@ async function removeImage() {
           <input id="wf-mag" class="input" inputmode="numeric" pattern="\d*" placeholder="unbekannt" v-model="form.magazine_size" />
           <div v-if="err('magazine_size')" class="error-text">{{ err('magazine_size') }}</div>
         </div>
+        <EnumSelect label="Legendär / Unique" :options="[{ value: 'yes', label: 'Ja ★' }, { value: 'no', label: 'Nein' }]" v-model="form.legendary" />
       </div>
       <div class="section-title">Werte (0–10, leer = unbekannt)</div>
       <StatEditor label="Schaden" v-model="form.stats.damage" :error="err('stats.damage')" />

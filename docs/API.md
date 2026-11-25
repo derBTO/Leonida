@@ -63,6 +63,7 @@ Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `calib
 | `tracker` | `none`, `standard`, `advanced`, `military` |
 | `access` | `key`, `keyless` |
 | `registrable` | `true`, `false`, `null` |
+| `is_legendary` (Waffen) | `true` (legendär/unique), `false`, `null` (unbekannt) |
 | `codes[].code` | Text (führende Nullen bleiben erhalten), max. 100 Zeichen |
 | `x`, `y` | Spielmeter, −16384 bis 16384 |
 

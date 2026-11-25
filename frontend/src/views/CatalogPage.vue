@@ -3,6 +3,7 @@ import { MapPin, Plus, Search } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import type { LookupCategory, Vehicle, VehicleSummary, Weapon, WeaponSummary } from '../api/types'
+import LegendaryStar from '../components/LegendaryStar.vue'
 import MediaImage from '../components/MediaImage.vue'
 import VehicleForm from '../components/VehicleForm.vue'
 import WeaponForm from '../components/WeaponForm.vue'
@@ -19,6 +20,7 @@ const ui = useUi()
 const router = useRouter()
 const q = ref('')
 const group = ref<number | ''>('')
+const onlyLegendary = ref(false)
 const creating = ref(false)
 const isWeapons = computed(() => props.kind === 'weapons')
 const groupCategory = computed<LookupCategory>(() => (isWeapons.value ? 'weapon_type' : 'vehicle_class'))
@@ -33,7 +35,7 @@ async function load() {
   }
 }
 onMounted(load)
-watch(() => props.kind, () => { q.value = ''; group.value = ''; load() })
+watch(() => props.kind, () => { q.value = ''; group.value = ''; onlyLegendary.value = false; load() })
 
 const items = computed<(WeaponSummary | VehicleSummary)[]>(() => {
   const all = ((isWeapons.value ? catalog.weapons : catalog.vehicles) ?? []) as (WeaponSummary | VehicleSummary)[]
@@ -41,6 +43,7 @@ const items = computed<(WeaponSummary | VehicleSummary)[]>(() => {
   return all.filter((i) => {
     const groupId = 'weapon_type' in i ? i.weapon_type?.id : (i as VehicleSummary).vehicle_class?.id
     if (group.value !== '' && groupId !== group.value) return false
+    if (onlyLegendary.value && !('weapon_type' in i && i.is_legendary)) return false
     const text = [i.name, 'weapon_type' in i ? i.weapon_type?.name : (i as VehicleSummary).manufacturer?.name, 'vehicle_class' in i ? i.vehicle_class?.name : ''].join(' ').toLowerCase()
     return words.every((w) => text.includes(w))
   })
@@ -68,6 +71,7 @@ function created(item: Weapon | Vehicle) {
           <option value="">{{ isWeapons ? 'Alle Waffentypen' : 'Alle Klassen' }}</option>
           <option v-for="v in catalog.lookups[groupCategory] ?? []" :key="v.id" :value="v.id">{{ v.name }}</option>
         </select>
+        <label v-if="isWeapons" class="legend-toggle"><input type="checkbox" v-model="onlyLegendary" /> Nur legendäre <LegendaryStar :size="14" /></label>
         <button v-if="session.canEdit" class="btn primary" type="button" @click="creating = true"><Plus :size="16" /> {{ isWeapons ? 'Neue Waffe' : 'Neues Fahrzeug' }}</button>
       </div>
     </div>
@@ -76,7 +80,7 @@ function created(item: Weapon | Vehicle) {
       <RouterLink v-for="i in items" :key="i.id" :to="`${base}/${i.id}`" class="tile panel">
         <div class="img"><MediaImage :media="i.image" thumb :alt="i.name" /></div>
         <div class="info">
-          <h3>{{ i.name }}</h3>
+          <h3>{{ i.name }}<LegendaryStar v-if="'is_legendary' in i && i.is_legendary" :size="16" /></h3>
           <div class="sub">{{ sub(i) }}</div>
           <div class="mini">
             <div v-for="[label, v] in mainStats(i)" :key="label"><span>{{ label }}</span><b>{{ formatStat(v) }}</b><i><em :style="{ width: `${(v ?? 0) * 10}%` }" /></i></div>
@@ -100,6 +104,8 @@ function created(item: Weapon | Vehicle) {
 .search .icon { position: absolute; left: 10px; top: 11px; color: var(--faint); }
 .search .input { padding-left: 32px; width: 240px; }
 .sel { width: 200px; }
+.legend-toggle { display: flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; padding: 0 4px; }
+.legend-toggle input { accent-color: #facc15; }
 .count { margin: 8px 0 14px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; }
 .tile { text-decoration: none; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.15s, box-shadow 0.15s; }

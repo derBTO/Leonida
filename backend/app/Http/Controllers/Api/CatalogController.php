@@ -31,6 +31,9 @@ abstract class CatalogController extends Controller
     /** Zusätzliche Validierungsregeln je Katalog. */
     abstract protected function rules(): array;
 
+    /** Zusätzliche Filter der Übersicht je Katalog. */
+    protected function filter(Builder $query, Request $request): void {}
+
     protected function query(): Builder
     {
         $class = $this->modelClass();
@@ -51,6 +54,7 @@ abstract class CatalogController extends Controller
                 $query->where($column, (int) $request->query($column));
             }
         }
+        $this->filter($query, $request);
         $counts = DB::table($this->pivotTable())->select($this->pivotKey(), DB::raw('count(*) as n'))
             ->groupBy($this->pivotKey())->pluck('n', $this->pivotKey());
 

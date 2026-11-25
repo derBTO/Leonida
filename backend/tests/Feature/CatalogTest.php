@@ -80,4 +80,23 @@ class CatalogTest extends TestCase
         $this->assertNotSame($first['id'], $second['id']);
         $this->assertFileDoesNotExist(config('leonida.upload_dir').'/'.substr($first['url'], strlen('/media/')));
     }
+
+    public function test_legendary_flag_distinguishes_unknown_and_no(): void
+    {
+        $this->actingAs($this->editor());
+        $unknown = $this->postJson('/api/weapons', ['name' => 'Pistole'])->assertCreated()->json('item');
+        $this->assertNull($unknown['is_legendary']);
+        $no = $this->postJson('/api/weapons', ['name' => 'Revolver', 'is_legendary' => false])->json('item');
+        $this->assertFalse($no['is_legendary']);
+        $gold = $this->postJson('/api/weapons', ['name' => 'Goldene Deagle', 'is_legendary' => true])->json('item');
+        $this->assertTrue($gold['is_legendary']);
+        $this->postJson('/api/weapons', ['name' => 'X', 'is_legendary' => 'vielleicht'])->assertJsonValidationErrors('is_legendary');
+
+        $this->assertSame(['Goldene Deagle'], array_column($this->getJson('/api/weapons?legendary=1')->json('items'), 'name'));
+        $this->assertCount(3, $this->getJson('/api/weapons')->json('items'));
+        $this->assertTrue($this->getJson('/api/weapons')->json('items.0.is_legendary'));
+
+        $pin = $this->postJson('/api/pins', ['title' => 'Versteck', 'x' => 0, 'y' => 0, 'loot_types' => ['weapons'], 'weapon_ids' => [$gold['id']]])->json('pin.id');
+        $this->assertTrue($this->getJson("/api/pins/$pin")->json('pin.weapons.0.is_legendary'));
+    }
 }

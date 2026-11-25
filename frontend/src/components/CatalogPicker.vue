@@ -4,6 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import type { Vehicle, VehicleSummary, Weapon, WeaponSummary } from '../api/types'
 import { useCatalog } from '../stores/catalog'
 import { useUi } from '../stores/ui'
+import LegendaryStar from './LegendaryStar.vue'
 import MediaImage from './MediaImage.vue'
 import VehicleForm from './VehicleForm.vue'
 import WeaponForm from './WeaponForm.vue'
@@ -51,7 +52,7 @@ async function created(item: Weapon | Vehicle) {
     <ul v-if="modelValue.length" class="chosen">
       <li v-for="item in modelValue" :key="item.id">
         <MediaImage :media="item.image" thumb :alt="item.name" class="thumb" />
-        <span class="name">{{ item.name }}</span>
+        <span class="name">{{ item.name }}<LegendaryStar v-if="'is_legendary' in item && item.is_legendary" :size="13" /></span>
         <button type="button" class="btn ghost sm icon" :aria-label="`${item.name} entfernen`" @click="remove(item.id)"><X :size="14" /></button>
       </li>
     </ul>
@@ -59,7 +60,7 @@ async function created(item: Weapon | Vehicle) {
       <input class="input" :placeholder="`${label} suchen oder neu anlegen …`" v-model="query" @focus="open = true" @blur="closeLater" />
       <ul v-if="open && (options.length || query.trim())" class="menu panel scroll">
         <li v-for="item in options" :key="item.id" @mousedown.prevent="add(item)">
-          <MediaImage :media="item.image" thumb :alt="item.name" class="thumb" /> {{ item.name }}
+          <MediaImage :media="item.image" thumb :alt="item.name" class="thumb" /> {{ item.name }}<LegendaryStar v-if="'is_legendary' in item && item.is_legendary" :size="13" />
         </li>
         <li v-if="query.trim() && !exact" class="create" @mousedown.prevent="creating = query.trim()">
           <Plus :size="14" /> „{{ query.trim() }}“ als neue {{ kind === 'weapons' ? 'Waffe' : 'Fahrzeug' }} anlegen

@@ -76,6 +76,8 @@ export interface Location { id: number; title: string; x: number; y: number; sta
 export interface WeaponSummary {
   id: number
   name: string
+  /** true = legendär/unique, false = nein, null = unbekannt */
+  is_legendary: boolean | null
   image: MediaRef | null
   weapon_type: LookupValue | null
   stats: WeaponStats

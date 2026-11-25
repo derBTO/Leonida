@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Weapon } from '../api/types'
+import LegendaryStar from './LegendaryStar.vue'
 import MediaImage from './MediaImage.vue'
 import StatBar from './StatBar.vue'
 
@@ -10,7 +11,7 @@ const name = (v: { name: string } | null) => v?.name ?? '–'
 
 <template>
   <article class="card">
-    <h1 class="title">{{ weapon.name }}</h1>
+    <h1 class="title">{{ weapon.name }}<LegendaryStar v-if="weapon.is_legendary" :size="26" /></h1>
     <div class="subtitle">{{ [weapon.weapon_type?.name, weapon.fire_mode?.name].filter(Boolean).join(' · ') || 'Typ unbekannt' }}</div>
     <div class="image"><MediaImage :media="weapon.image" :alt="weapon.name" /></div>
     <dl class="props">
@@ -19,6 +20,7 @@ const name = (v: { name: string } | null) => v?.name ?? '–'
       <div><dt>Marke</dt><dd>{{ name(weapon.brand) }}</dd></div>
       <div><dt>Kaliber</dt><dd>{{ name(weapon.caliber) }}</dd></div>
       <div><dt>Magazin</dt><dd>{{ weapon.magazine_size ?? '–' }}</dd></div>
+      <div><dt>Legendär / Unique</dt><dd>{{ weapon.is_legendary === null ? '–' : weapon.is_legendary ? 'Ja' : 'Nein' }}</dd></div>
     </dl>
     <div class="stats">
       <StatBar label="Schaden" :value="weapon.stats.damage" />

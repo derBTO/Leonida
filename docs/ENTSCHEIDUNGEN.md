@@ -38,4 +38,5 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | POI-Symbole | Lucide-Symbole statt Spiel-Icons | Spiel-Icons sind geschützt; einheitlich mit dem Rest |
 | 25.11.2026 | POI-Import | einmaliger Import der markierten gtadb.org-Landmarken (CC BY 4.0) mit fester UUID je Landmarke | schneller Grundbestand, wiederholbar ohne Dubletten |
 | 25.11.2026 | Karte | Nur noch die Satellitenkarte `day`, Community-Karten und Ebenen-Auswahl entfernt | Wunsch BTO; Satellit reicht, ca. 90 MB statt 320 MB |
+| 25.11.2026 | Legendäre Waffen | Feld `is_legendary` mit Ja/Nein/unbekannt, Anzeige als gelber Stern | Wunsch BTO; Stern statt Pistole, weil die Pistole schon Ammu-Nation kennzeichnet |
 | 25.11.2026 | Ammu-Nation-Symbol | eigene Pistole im Lucide-Stil statt Zielscheibe | Wunsch BTO; Lucide hat kein Waffen-Symbol |

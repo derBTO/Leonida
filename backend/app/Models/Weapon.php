@@ -21,7 +21,7 @@ class Weapon extends Model
 
     protected function casts(): array
     {
-        return array_fill_keys(self::STATS, 'float') + ['magazine_size' => 'integer'];
+        return array_fill_keys(self::STATS, 'float') + ['magazine_size' => 'integer', 'is_legendary' => 'boolean'];
     }
 
     public function image(): BelongsTo { return $this->belongsTo(Media::class, 'image_media_id'); }
@@ -44,6 +44,7 @@ class Weapon extends Model
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'is_legendary' => $this->is_legendary,
             'image' => $this->image?->toApi(),
             'weapon_type' => $this->weaponType?->toApi(),
             'stats' => $this->only(self::STATS),
@@ -56,6 +57,7 @@ class Weapon extends Model
             'id' => $this->id,
             'uuid' => $this->uuid,
             'name' => $this->name,
+            'is_legendary' => $this->is_legendary,
             'image' => $this->image?->toApi(),
             'weapon_type' => $this->weaponType?->toApi(),
             'fire_mode' => $this->fireMode?->toApi(),

@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## v0.6 – Legendäre Waffen (25.11.2026)
+
+- Neues Waffenfeld **Legendär / Unique** (Ja, Nein oder unbekannt). Legendäre Waffen tragen einen gelben Stern hinter dem Namen: auf der Waffenkarte, in der Übersicht, im Pin und in der Waffenauswahl.
+- Waffenübersicht mit Filter „Nur legendäre“; API: `?legendary=1`.
+
 ## v0.5 – Aufräumen Karte (25.11.2026)
 
 - Community-Karten und Ebenen-Auswahl entfernt, Leonida zeigt nur noch die Satellitenkarte. `map-import.sh` holt standardmäßig nur noch `day` (ca. 90 MB).
