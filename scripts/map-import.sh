@@ -19,7 +19,7 @@ REF="main"
 ACTIVATE=0
 FORCE=0
 SETS=()
-DEFAULT_SETS=("day" "yanis,18" "yanis,15" "dupzor,51")
+DEFAULT_SETS=("day")
 OVERLAYS=("aiwe,1" "martipk,5" "rickrick,3")
 
 usage() { sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; }

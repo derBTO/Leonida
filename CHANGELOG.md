@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## v0.5 – Aufräumen Karte (25.11.2026)
+
+- Community-Karten und Ebenen-Auswahl entfernt, Leonida zeigt nur noch die Satellitenkarte. `map-import.sh` holt standardmäßig nur noch `day` (ca. 90 MB).
+- Ammu-Nation hat jetzt eine Pistole als Symbol.
+
 ## v0.4 – Orte (POIs) (25.11.2026)
 
 - Neue Pin-Art **Ort (POI)** mit 21 Kategorien (POI Allgemein, Photo, Ammu-Nation, Bar, Tankstelle, Lebensmittel, Kleidung, Tattoo, Garage, Auto-Tuning, Frisör, Pay & Spray, Autowerkstatt, Flughafen, Hafen, Militär, Restaurant, Wohnung, Rennen, Bus- und Bahnhaltestelle). Orte haben nur Name, Beschreibung und Bilder.

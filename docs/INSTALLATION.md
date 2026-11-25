@@ -59,7 +59,7 @@ scripts/map-import.sh --activate
 scripts/map-upload.sh
 ```
 
-Das überträgt einmalig ca. 320 MB (58.000 Dateien) und dauert je nach Leitung einige Minuten.
+Das überträgt einmalig ca. 90 MB (31.000 Dateien) und dauert je nach Leitung einige Minuten.
 
 ## 4. Anwendung ausliefern
 

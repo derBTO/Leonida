@@ -32,7 +32,7 @@ Die eigenen Pins sind davon nicht betroffen. Sie liegen in der Datenbank und spe
 
 | Option | Bedeutung |
 |---|---|
-| `--set NAME` | nur dieses Tile-Set (mehrfach möglich). Standard: `day`, `yanis,18`, `yanis,15`, `dupzor,51` |
+| `--set NAME` | nur dieses Tile-Set (mehrfach möglich). Standard: `day`. Die Community-Karten (`yanis,18`, `yanis,15`, `dupzor,51`) lassen sich so wieder holen, werden von Leonida aber derzeit nicht angezeigt |
 | `--ref REF` | Branch oder Commit von gtadb.org, Standard `main` |
 | `--data-dir DIR` | anderer Datenordner, Standard `data/` im Projekt (oder `LEONIDA_DATA_DIR`) |
 | `--activate` | neue Version direkt aktivieren |

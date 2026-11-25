@@ -38,9 +38,3 @@ export function tilePath(set: MapManifest['tileSets'][number], overlayRanges: Ma
   return `${folder}/${z}/${z},${y},${x}.jpg`
 }
 
-export const TILE_SET_LABELS: Record<string, string> = {
-  day: 'Satellit (Tag)',
-  'yanis,18': 'Community-Karte yanis V18',
-  'yanis,15': 'Community-Karte yanis V15',
-  'dupzor,51': 'Community-Karte dupzor V51',
-}

@@ -2,7 +2,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
-import { Layers, Minus, Plus } from 'lucide-vue-next'
+import { Minus, Plus } from 'lucide-vue-next'
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type { MapManifest, PinIndexItem } from '../api/types'
 import { load, save } from '../lib/storage'
@@ -12,7 +12,7 @@ import { useUi } from '../stores/ui'
 import { fromLatLng, LeonidaCRS, toLatLng } from './crs'
 import './map.css'
 import { clusterIcon, markerIcon, poiClusterIcon } from './markers'
-import { TILE_SET_LABELS, tilePath } from './tiles'
+import { tilePath } from './tiles'
 
 const props = defineProps<{ selectedId: number | null; movingPin: PinIndexItem | null }>()
 const emit = defineEmits<{
@@ -27,10 +27,9 @@ const ui = useUi()
 const el = ref<HTMLElement | null>(null)
 const map = shallowRef<L.Map | null>(null)
 const manifest = ref<MapManifest | null>(null)
-const layersOpen = ref(false)
-const view = load('map', { x: -3500, y: 1000, zoom: 2, tileSet: 'day', overlays: false })
-const tileSet = ref(view.tileSet)
-const overlays = ref(view.overlays)
+/** Nur die Satellitenkarte „day“ wird genutzt (Community-Karten entfernt, siehe ENTSCHEIDUNGEN.md). */
+const TILE_SET = 'day'
+const view = load('map', { x: -3500, y: 1000, zoom: 2 })
 
 let tiles: L.TileLayer | null = null
 let cluster: L.MarkerClusterGroup | null = null
@@ -42,20 +41,19 @@ const markers = new Map<number, L.Marker & { pin?: PinIndexItem }>()
 function persist() {
   if (!map.value) return
   const c = fromLatLng(map.value.getCenter())
-  save('map', { x: c.x, y: c.y, zoom: map.value.getZoom(), tileSet: tileSet.value, overlays: overlays.value })
+  save('map', { x: c.x, y: c.y, zoom: map.value.getZoom() })
   const b = map.value.getBounds()
   pins.bounds = { west: b.getWest(), east: b.getEast(), south: b.getSouth(), north: b.getNorth() }
 }
 
 function buildTiles() {
   if (!map.value || !manifest.value) return
-  const set = manifest.value.tileSets.find((s) => s.id === tileSet.value) ?? manifest.value.tileSets[0]
-  tileSet.value = set.id
+  const set = manifest.value.tileSets.find((s) => s.id === TILE_SET) ?? manifest.value.tileSets[0]
   const base = session.meta?.map.tiles_url ?? '/map/current/tiles'
   const m = manifest.value
   const Layer = L.TileLayer.extend({
     getTileUrl(coords: L.Coords) {
-      const path = tilePath(set, m.overlayRanges, overlays.value, coords.z, coords.x, coords.y)
+      const path = tilePath(set, m.overlayRanges, false, coords.z, coords.x, coords.y)
       return path ? `${base}/${path}` : L.Util.emptyImageUrl
     },
   })
@@ -173,7 +171,6 @@ onMounted(async () => {
 onBeforeUnmount(() => map.value?.remove())
 
 watch(() => pins.visible, syncMarkers)
-watch([tileSet, overlays], buildTiles)
 
 watch(() => props.selectedId, (id, old) => {
   for (const pid of [old, id]) {
@@ -230,19 +227,6 @@ defineExpose({ flyTo, center, invalidate })
         <button type="button" aria-label="Hineinzoomen" @click="map?.zoomIn()"><Plus :size="18" /></button>
         <button type="button" aria-label="Herauszoomen" @click="map?.zoomOut()"><Minus :size="18" /></button>
       </div>
-      <div class="layers">
-        <button class="panel layer-btn" type="button" aria-label="Kartenebene wählen" :aria-expanded="layersOpen" @click="layersOpen = !layersOpen"><Layers :size="18" /></button>
-        <div v-if="layersOpen && manifest" class="layer-menu panel">
-          <div class="label">Kartenebene</div>
-          <label v-for="s in manifest.tileSets" :key="s.id" class="opt">
-            <input type="radio" :value="s.id" v-model="tileSet" /> {{ TILE_SET_LABELS[s.id] ?? s.id }}
-          </label>
-          <label v-if="manifest.tileSets.find((s) => s.id === tileSet)?.overlay" class="opt sep">
-            <input type="checkbox" v-model="overlays" /> Detail-Overlays
-          </label>
-          <div class="faint small">Stand {{ manifest.version }}</div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -251,16 +235,8 @@ defineExpose({ flyTo, center, invalidate })
 .map-wrap, .map { position: absolute; inset: 0; }
 .controls { position: absolute; right: 12px; bottom: 28px; z-index: 800; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .zoom { display: flex; flex-direction: column; overflow: hidden; }
-.zoom button, .layer-btn { width: 38px; height: 38px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); }
-.zoom button:hover, .layer-btn:hover { background: var(--panel-hover); }
+.zoom button { width: 38px; height: 38px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); }
+.zoom button:hover { background: var(--panel-hover); }
 .zoom button + button { border-top: 1px solid var(--line); }
-.layer-btn { background: var(--panel); }
-.layers { position: relative; }
-.layer-menu { position: absolute; right: 46px; bottom: 0; width: 250px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
-.layer-menu .label { font-family: var(--font-display); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.opt { display: flex; gap: 8px; align-items: center; cursor: pointer; }
-.opt input { accent-color: var(--pink); }
-.sep { border-top: 1px solid var(--line); padding-top: 6px; }
-.small { font-size: 11.5px; }
 @media (max-width: 760px) { .controls { bottom: 96px; } }
 </style>

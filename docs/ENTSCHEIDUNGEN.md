@@ -37,3 +37,5 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | Orte (POIs) | eigene Pin-Art mit genau einer Kategorie, ohne Loot, Codes und Status; feste Kategorienliste im Code (Enum + Farben/Symbole im Frontend) | Wunsch BTO; serverseitig prüfbar, neue Kategorie = eine Zeile |
 | 25.11.2026 | POI-Symbole | Lucide-Symbole statt Spiel-Icons | Spiel-Icons sind geschützt; einheitlich mit dem Rest |
 | 25.11.2026 | POI-Import | einmaliger Import der markierten gtadb.org-Landmarken (CC BY 4.0) mit fester UUID je Landmarke | schneller Grundbestand, wiederholbar ohne Dubletten |
+| 25.11.2026 | Karte | Nur noch die Satellitenkarte `day`, Community-Karten und Ebenen-Auswahl entfernt | Wunsch BTO; Satellit reicht, ca. 90 MB statt 320 MB |
+| 25.11.2026 | Ammu-Nation-Symbol | eigene Pistole im Lucide-Stil statt Zielscheibe | Wunsch BTO; Lucide hat kein Waffen-Symbol |

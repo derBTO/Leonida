@@ -1,6 +1,7 @@
 import type { PoiType } from '../api/types'
 
-// Symbole aus Lucide (ISC-Lizenz) als SVG-Strings für Kartenmarker und Listen.
+// Symbole aus Lucide (ISC-Lizenz) als SVG-Strings für Kartenmarker und Listen;
+// die Pistole (Ammu-Nation) ist eigens im selben Stil gezeichnet.
 const svg = (inner: string) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`
 
@@ -10,7 +11,7 @@ export const POI_GREY = '#8b93a1'
 export const POI: Record<PoiType, { label: string; color: string; svg: string }> = {
   poi: { label: "POI Allgemein", color: '#3b82f6', svg: svg('<path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>') },
   photo: { label: "Photo", color: '#e040fb', svg: svg('<path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/>') },
-  ammunation: { label: "Ammu-Nation", color: '#8b93a1', svg: svg('<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>') },
+  ammunation: { label: "Ammu-Nation", color: '#8b93a1', svg: svg('<path d="M3 8h17v4h-8l-1 2h-2l-1.5 5a1 1 0 0 1-1 .7H4.6a1 1 0 0 1-1-1.3L5.5 12H4a1 1 0 0 1-1-1z"/><path d="M10 12v2"/><path d="M17 8V6"/>') },
   bar: { label: "Bar", color: '#8b93a1', svg: svg('<path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/>') },
   gas_station: { label: "Tankstelle", color: '#8b93a1', svg: svg('<path d="M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 4 0v-6.998a2 2 0 0 0-.59-1.42L18 5"/><path d="M14 21V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v16"/><path d="M2 21h13"/><path d="M3 9h11"/>') },
   groceries: { label: "Lebensmittel", color: '#8b93a1', svg: svg('<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>') },
