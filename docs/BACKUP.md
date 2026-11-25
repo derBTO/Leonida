@@ -7,7 +7,7 @@ Alle eigenen Daten liegen außerhalb des Codes: die Datenbank (PostgreSQL) und d
 | Sicherung | Inhalt | Wie |
 |---|---|---|
 | Hetzner | gesamtes Webhosting inkl. Datenbank | automatisch jede Nacht, 14 Tage, Wiederherstellung über konsoleH |
-| `leonida:backup` | Datenbank-Dump (`pg_dump`, Custom-Format) | Cronjob 03:30 Uhr nach `shared/backups/`, 14 Stück |
+| `leonida:backup` | Datenbank: `pg_dump` (Custom-Format, `*.dump`), wenn es zur Serverversion passt, sonst PHP-Sicherung (`*.json.gz`) | Cronjob 03:30 Uhr nach `shared/backups/`, 14 Stück, Protokoll `storage/logs/backup.log` |
 | Bilder spiegeln | `public_html/derbto.de/leonida/media` | `rsync` auf den Mac, siehe unten |
 | Export in der Oberfläche | Pins, Waffen, Fahrzeuge, Auswahllisten, Bilder als ZIP | *Verwaltung → Export & Import* |
 
@@ -24,20 +24,34 @@ cd ~/leonida/current && php artisan leonida:backup
 Auf den Mac holen:
 
 ```
-rsync -av -e "ssh -p 222" benutzer@wwwXXX.your-server.de:leonida/shared/backups/ ~/LeonidaBackup/db/
+rsync -av hetzner:leonida/shared/backups/ ~/LeonidaBackup/db/
 ```
+
+**Hinweis Hetzner:** Dort gibt es nur `pg_dump` 15, die Datenbank läuft mit PostgreSQL 17. `pg_dump` verweigert dann die Sicherung; Leonida sichert deshalb automatisch per PHP als `leonida-JJJJ-MM-TT-HHMMSS.json.gz` (alle Tabellen außer Cache und Sitzungen, in einem konsistenten Stand). Ein passendes `pg_dump` lässt sich mit `LEONIDA_PG_DUMP=/pfad/zu/pg_dump` in `.env` vorgeben.
 
 ## Bilder sichern
 
 ```
-rsync -av -e "ssh -p 222" benutzer@wwwXXX.your-server.de:public_html/derbto.de/leonida/media/ ~/LeonidaBackup/uploads/
+rsync -av hetzner:public_html/derbto.de/leonida/media/ ~/LeonidaBackup/uploads/
 ```
 
 Dateinamen enthalten eine zufällige ID und ändern sich nie. Weitere Läufe übertragen daher nur neue Bilder.
 
 ## Wiederherstellen
 
-**Datenbank** aus einem Dump (überschreibt den aktuellen Stand):
+**Datenbank aus einer PHP-Sicherung** (`*.json.gz`, Standard auf Hetzner; überschreibt den aktuellen Stand). Die installierte Programmversion muss denselben Migrationsstand haben wie die Sicherung, sonst bricht der Befehl ohne Änderung ab:
+
+```
+cd ~/leonida/current
+php artisan leonida:restore ~/leonida/shared/backups/leonida-JJJJ-MM-TT-HHMMSS.json.gz --check   # nur prüfen
+php artisan down
+php artisan leonida:restore ~/leonida/shared/backups/leonida-JJJJ-MM-TT-HHMMSS.json.gz
+php artisan up
+```
+
+Alles läuft in einer Transaktion: Bei einem Fehler bleibt der alte Stand erhalten.
+
+**Datenbank aus einem pg_dump-Archiv** (`*.dump`):
 
 ```
 cd ~/leonida/current
@@ -50,7 +64,7 @@ php artisan up
 **Bilder**:
 
 ```
-rsync -av -e "ssh -p 222" ~/LeonidaBackup/uploads/ benutzer@wwwXXX.your-server.de:public_html/derbto.de/leonida/media/
+rsync -av ~/LeonidaBackup/uploads/ hetzner:public_html/derbto.de/leonida/media/
 ```
 
 **Aus dem ZIP-Export**: *Verwaltung → Export & Import*, Datei wählen, erst „Probelauf“, dann „Importieren“.

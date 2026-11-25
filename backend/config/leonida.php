@@ -13,6 +13,8 @@ return [
     'upload_dir' => env('LEONIDA_UPLOAD_DIR') ?: storage_path('app/uploads'),
     'map_dir' => env('LEONIDA_MAP_DIR') ?: base_path('../data/map'),
     'backup_dir' => env('LEONIDA_BACKUP_DIR') ?: storage_path('app/backups'),
+    // Optional: Pfad zu einem pg_dump passend zur Serverversion; sonst sichert PHP selbst
+    'pg_dump' => env('LEONIDA_PG_DUMP'),
 
     // Öffentliche URL-Präfixe (per Symlink unter public/ eingehängt)
     'media_url' => '/media',

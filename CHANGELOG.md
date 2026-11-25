@@ -1,5 +1,13 @@
 # Änderungsprotokoll
 
+## v0.9.4 – Backups auf Hetzner (25.11.2026)
+
+- **Fehler behoben:** Auf Hetzner entstand kein einziges Backup, weil dort nur `pg_dump` 15 installiert ist, die Datenbank aber Version 17 hat (`server version mismatch`).
+- `leonida:backup` nimmt jetzt ein passendes `pg_dump` (auch unter `/usr/lib/postgresql/*/bin` oder per `LEONIDA_PG_DUMP`) und sichert sonst selbst per PHP als `*.json.gz`: alle Tabellen in einem konsistenten Stand, ohne Cache und Sitzungen.
+- Neu: `leonida:restore <datei> [--check]` stellt eine PHP-Sicherung in einer Transaktion wieder her und prüft vorher den Migrationsstand.
+- Das Backup-Protokoll des Schedulers steht in `storage/logs/backup.log`; Aufräumen berücksichtigt beide Formate.
+- Doku: Cron-Zeile mit dem echten Pfad (`/usr/home/derbto/...`, `/usr/bin/php`), Rücksicherung, rsync über den SSH-Alias `hetzner`.
+
 ## v0.9.3 – gtadb-Orte unabhängig vom Ersteller (25.11.2026)
 
 - Der Schalter „Orte von gtadb.org zeigen“ wirkt jetzt unabhängig vom Ersteller-Filter: z. B. „Meine“ + gtadb zeigt die eigenen Pins und zusätzlich alle gtadb-Orte.

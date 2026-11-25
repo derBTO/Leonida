@@ -92,10 +92,10 @@ Erneute Läufe (z. B. nach einem Karten-Update) legen nur neu hinzugekommene Ort
 In konsoleH einen Cronjob anlegen, jede Minute:
 
 ```
-cd /usr/home/benutzer/leonida/current && php artisan schedule:run >> /dev/null 2>&1
+cd /usr/home/derbto/leonida/current && /usr/bin/php artisan schedule:run >> /dev/null 2>&1
 ```
 
-Er startet um 03:30 Uhr `leonida:backup` (Datenbank-Dump nach `shared/backups/`, 14 Stück werden aufbewahrt). Falls minütliche Cronjobs nicht erlaubt sind: einmal täglich `php artisan leonida:backup` aufrufen.
+Er startet um 03:30 Uhr `leonida:backup` (Sicherung nach `shared/backups/`, 14 Stück werden aufbewahrt, Protokoll in `shared/storage/logs/backup.log`). Hetzner hat nur `pg_dump` 15, die Datenbank ist Version 17; deshalb sichert Leonida dort automatisch per PHP (`*.json.gz`). Prüfen, ob der Scheduler läuft: am nächsten Tag `ls -lh ~/leonida/shared/backups`. Falls minütliche Cronjobs nicht erlaubt sind: einmal täglich `php artisan leonida:backup` aufrufen.
 
 ## Aktualisieren
 

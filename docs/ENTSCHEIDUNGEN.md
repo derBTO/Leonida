@@ -51,3 +51,4 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | Pins aus der Spur setzen | Entwurf der Spur im Browser halten, Karte mit Fadenkreuz, danach zurück in den Editor | kein Kartenwechsel im Dialog nötig, gleiche Bedienung wie „Neuer Pin“ |
 | 25.11.2026 | gtadb-Orte ausblendbar | Feld `pins.source`, Filter standardmäßig aus | Wunsch BTO; eigene Einträge stehen im Vordergrund |
 | 25.11.2026 | Ersteller-Filter | Auswahl Alle/Meine/Benutzer statt Häkchen; Benutzernamen nur für Angemeldete | mehrere Bearbeiter möglich, Namen nicht öffentlich |
+| 25.11.2026 | Backup ohne pg_dump | PHP-Sicherung als JSON-Zeilen (gzip) mit eigenem Restore, pg_dump nur wenn die Version passt | Hetzner: pg_dump 15 gegen Server 17; kein eigenes Binary installierbar |
