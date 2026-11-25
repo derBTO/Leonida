@@ -59,6 +59,11 @@ if [[ -n "$DRY_RUN" ]]; then
 elif [[ $ACTIVATE -eq 1 ]]; then
     "${SSH[@]}" "ln -sfn 'versions/$VERSION' '$REMOTE_MAP/current'"
     echo "==> Auf dem Server aktiv: $VERSION"
+    RPHP="${LEONIDA_REMOTE_PHP:-php}"
+    "${SSH[@]}" "cd '$LEONIDA_REMOTE_DIR/current' 2>/dev/null && $RPHP artisan leonida:map-register && $RPHP artisan leonida:import-gtadb-pois" \
+        || echo "    Hinweis: Anwendung noch nicht deployt – Kartenversion wird beim nächsten deploy.sh registriert."
+    echo "    Neue Orte aus gtadb.org übernehmen (falls oben welche als neu gelistet sind):"
+    echo "    ssh $LEONIDA_SSH_HOST 'cd $LEONIDA_REMOTE_DIR/current && $RPHP artisan leonida:import-gtadb-pois --apply'"
     echo "    Alte Versionen liegen weiter unter $REMOTE_MAP/versions/ und können gelöscht werden."
 else
     echo "==> Hochgeladen, aber nicht aktiviert."

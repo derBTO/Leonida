@@ -23,8 +23,9 @@ Leonida hostet die Kartenkacheln von gtadb.org selbst. gtadb.org bittet ausdrüc
    scripts/map-upload.sh --dry-run   # zeigt nur, was übertragen würde
    scripts/map-upload.sh
    ```
-   überträgt die Version nach `shared/map/versions/` auf dem Server und schaltet `shared/map/current` um. Voraussetzung: `deploy.env` (Vorlage `deploy.env.example`) und ein SSH-Schlüssel in konsoleH.
-5. **Aufräumen** (optional): alte Ordner unter `data/map/versions/` bzw. `shared/map/versions/` löschen, sobald die neue Version läuft.
+   überträgt nur geänderte Kacheln nach `<Document Root>/map/versions/` auf dem Server, schaltet `map/current` um, trägt die Version in die Datenbank ein und zeigt eine Vorschau neuer Orte aus gtadb.org. Voraussetzung: `deploy.env` (Vorlage `deploy.env.example`) und ein SSH-Schlüssel.
+5. **Neue Orte übernehmen** (optional): den Befehl, den `map-upload.sh` am Ende ausgibt.
+6. **Aufräumen** (optional): alte Ordner unter `data/map/versions/` bzw. `<Document Root>/map/versions/` löschen, sobald die neue Version läuft.
 
 Die eigenen Pins sind davon nicht betroffen. Sie liegen in der Datenbank und speichern Spielkoordinaten, keine Kachelpositionen.
 
