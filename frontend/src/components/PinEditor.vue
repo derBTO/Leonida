@@ -77,11 +77,13 @@ const err = (k: string) => errors.value[k]?.[0]
 const usdError = (s: string) => (Number.isNaN(parseUsd(s)) ? 'Nur ganze Dollar-Beträge' : undefined)
 
 const isPoi = computed(() => form.kind === 'poi')
-const heading = computed(() => (props.pinId ? (isPoi.value ? 'Ort bearbeiten' : 'Pin bearbeiten') : isPoi.value ? 'Neuer Ort' : 'Neuer Pin'))
+const isHint = computed(() => form.kind === 'hint')
+const noun = computed(() => (isPoi.value ? 'Ort' : isHint.value ? 'Hinweis' : 'Pin'))
+const heading = computed(() => (props.pinId ? `${noun.value} bearbeiten` : isPoi.value ? 'Neuer Ort' : isHint.value ? 'Neuer Hinweis' : 'Neuer Pin'))
 
 async function save() {
   if (isPoi.value && !form.poi_type) return ui.error('Bitte eine Kategorie für den Ort wählen.')
-  if (!isPoi.value) for (const [k, v] of [['drugs', form.drugs], ['jewelry', form.jewelry], ['cash', form.cash]] as const) {
+  if (form.kind === 'loot') for (const [k, v] of [['drugs', form.drugs], ['jewelry', form.jewelry], ['cash', form.cash]] as const) {
     if (usdError(v)) return ui.error(`Ungültiger Betrag bei ${LOOT[k].label}.`)
   }
   busy.value = true
@@ -113,7 +115,7 @@ async function save() {
       pin = (await api.get<{ pin: Pin }>(`/api/pins/${pin.id}`)).pin
     }
     await pins.refresh()
-    ui.toast(props.pinId ? 'Gespeichert.' : isPoi.value ? 'Ort angelegt.' : 'Pin angelegt.', 'ok')
+    ui.toast(props.pinId ? 'Gespeichert.' : `${noun.value} angelegt.`, 'ok')
     initial = JSON.stringify(form)
     emit('saved', pin)
   } catch (e) {
@@ -130,12 +132,13 @@ async function save() {
     <div v-if="loading" class="muted">Lade …</div>
     <form v-else id="pin-form" @submit.prevent="save">
       <div class="kinds" role="radiogroup" aria-label="Art">
-        <button type="button" role="radio" :aria-checked="!isPoi" :class="{ on: !isPoi }" @click="form.kind = 'loot'">Loot-Fundort</button>
+        <button type="button" role="radio" :aria-checked="form.kind === 'loot'" :class="{ on: form.kind === 'loot' }" @click="form.kind = 'loot'">Loot-Fundort</button>
         <button type="button" role="radio" :aria-checked="isPoi" :class="{ on: isPoi }" @click="form.kind = 'poi'">Ort (POI)</button>
+        <button type="button" role="radio" :aria-checked="isHint" :class="{ on: isHint }" @click="form.kind = 'hint'">Hinweis</button>
       </div>
       <div class="field">
         <label for="pe-title">{{ isPoi ? 'Name *' : 'Titel *' }}</label>
-        <input id="pe-title" class="input" v-model="form.title" maxlength="150" required :placeholder="isPoi ? 'z. B. Ammu-Nation Port Gellhorn' : 'z. B. Safe im Motel'" />
+        <input id="pe-title" class="input" v-model="form.title" maxlength="150" required :placeholder="isPoi ? 'z. B. Ammu-Nation Port Gellhorn' : isHint ? 'z. B. Zeitung im Diner' : 'z. B. Safe im Motel'" />
         <div v-if="err('title')" class="error-text">{{ err('title') }}</div>
       </div>
       <div class="coords faint">Position: x {{ form.x.toFixed(1) }}, y {{ form.y.toFixed(1) }}</div>
@@ -152,6 +155,15 @@ async function save() {
           <label for="pe-desc-poi">Beschreibung</label>
           <textarea id="pe-desc-poi" class="input" v-model="form.description" maxlength="20000" />
         </div>
+      </template>
+      <template v-else-if="isHint">
+        <p class="faint hint-info">Hinweise sind Zwischenstationen einer Spur (Treffpunkt, Zettel, Code …). Zur Spur verbinden unter „Spuren“.</p>
+        <div class="field block">
+          <label for="pe-desc-hint">Beschreibung</label>
+          <textarea id="pe-desc-hint" class="input" v-model="form.description" maxlength="20000" placeholder="Was findet man hier, wohin führt es?" />
+        </div>
+        <div class="section-title">Codes</div>
+        <CodesEditor v-model="form.codes" :errors="errors" />
       </template>
       <template v-else>
       <div class="section-title">Loottypen</div>
@@ -220,7 +232,8 @@ async function save() {
 .block { margin-top: 14px; }
 .block > .label { margin-bottom: 6px; display: block; }
 textarea.small { min-height: 60px; }
-.kinds { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 3px; margin-bottom: 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: rgba(0,0,0,0.25); }
+.hint-info { font-size: 13px; margin: 10px 0 0; }
+.kinds { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 3px; margin-bottom: 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: rgba(0,0,0,0.25); }
 .kinds button { height: 34px; border: 0; border-radius: 6px; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .kinds button.on { background: rgba(255,255,255,0.1); color: var(--text); box-shadow: inset 0 -2px 0 var(--pink); }
 .poi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }

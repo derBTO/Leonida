@@ -3,21 +3,29 @@ import { computed, reactive, ref, watch } from 'vue'
 import type { PinIndexItem } from '../api/types'
 import { inBounds, matches, sortByTitle, type Bounds, type FilterState } from '../lib/pinFilter'
 import { load, save } from '../lib/storage'
+import { useSession } from './session'
+import { useTrails } from './trails'
 
 export const usePins = defineStore('pins', () => {
+  const session = useSession()
+  const trails = useTrails()
   const items = ref<PinIndexItem[]>([])
   const loaded = ref(false)
   let etag: string | null = null
 
   const filter = reactive<FilterState & { viewportOnly: boolean }>(
-    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, viewportOnly: false }),
+    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, showHints: true, mine: false, viewportOnly: false }),
   )
   watch(filter, () => save('filter', filter), { deep: true })
 
   const bounds = ref<Bounds | null>(null)
 
-  /** Alle Pins, die Suche und Loottyp-Filter erfüllen – so auf der Karte angezeigt. */
-  const visible = computed(() => items.value.filter((p) => matches(p, filter)))
+  /** Alle Pins, die Suche und Filter erfüllen – so auf der Karte angezeigt. Pins der aktiven Spur immer. */
+  const visible = computed(() => {
+    const author = session.user?.id ?? null
+    const pinned = trails.pinIds
+    return items.value.filter((p) => pinned.has(p.id) || matches(p, filter, author))
+  })
   /** Liste in der Sidebar: zusätzlich optional nur im Kartenausschnitt, alphabetisch. */
   const listed = computed(() => {
     const list = filter.viewportOnly && bounds.value ? visible.value.filter((p) => inBounds(p, bounds.value!)) : visible.value
@@ -40,6 +48,8 @@ export const usePins = defineStore('pins', () => {
     filter.poi = []
     filter.loot = []
     filter.showGone = true
+    filter.showHints = true
+    filter.mine = false
   }
 
   async function refresh() {

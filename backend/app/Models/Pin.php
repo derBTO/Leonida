@@ -86,7 +86,22 @@ class Pin extends Model
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'created_by' => $this->createdBy?->username,
+            'created_by_id' => $this->created_by,
             'updated_by' => $this->updatedBy?->username,
+            'trails' => $this->trailSteps(),
         ];
+    }
+
+    /** Spuren, in denen dieser Pin als Schritt vorkommt (für „Schritt 2 von 4“). */
+    public function trailSteps(): array
+    {
+        return DB::table('trail_steps')->join('trails', 'trails.id', '=', 'trail_steps.trail_id')
+            ->where('trail_steps.pin_id', $this->id)
+            ->orderByRaw('lower(trails.name)')->orderBy('trail_steps.sort_order')
+            ->get(['trails.id as trail_id', 'trails.name as trail_name', 'trail_steps.id as step_id', 'trail_steps.position',
+                DB::raw('(SELECT max(position) FROM trail_steps s2 WHERE s2.trail_id = trails.id) AS step_count')])
+            ->map(fn ($r) => ['trail_id' => (int) $r->trail_id, 'trail_name' => $r->trail_name, 'step_id' => (int) $r->step_id,
+                'position' => (int) $r->position, 'step_count' => (int) $r->step_count])
+            ->all();
     }
 }

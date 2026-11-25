@@ -21,6 +21,7 @@ const router = useRouter()
 const q = ref('')
 const group = ref<number | ''>('')
 const onlyLegendary = ref(false)
+const onlyMine = ref(false)
 const creating = ref(false)
 const isWeapons = computed(() => props.kind === 'weapons')
 const groupCategory = computed<LookupCategory>(() => (isWeapons.value ? 'weapon_type' : 'vehicle_class'))
@@ -44,6 +45,7 @@ const items = computed<(WeaponSummary | VehicleSummary)[]>(() => {
     const groupId = 'weapon_type' in i ? i.weapon_type?.id : (i as VehicleSummary).vehicle_class?.id
     if (group.value !== '' && groupId !== group.value) return false
     if (onlyLegendary.value && !('weapon_type' in i && i.is_legendary)) return false
+    if (onlyMine.value && i.created_by_id !== session.user?.id) return false
     const text = [i.name, 'weapon_type' in i ? i.weapon_type?.name : (i as VehicleSummary).manufacturer?.name, 'vehicle_class' in i ? i.vehicle_class?.name : ''].join(' ').toLowerCase()
     return words.every((w) => text.includes(w))
   })
@@ -71,6 +73,7 @@ function created(item: Weapon | Vehicle) {
           <option value="">{{ isWeapons ? 'Alle Waffentypen' : 'Alle Klassen' }}</option>
           <option v-for="v in catalog.lookups[groupCategory] ?? []" :key="v.id" :value="v.id">{{ v.name }}</option>
         </select>
+        <label v-if="session.loggedIn" class="legend-toggle"><input type="checkbox" v-model="onlyMine" /> Nur meine</label>
         <label v-if="isWeapons" class="legend-toggle"><input type="checkbox" v-model="onlyLegendary" /> Nur legendäre <LegendaryStar :size="14" /></label>
         <button v-if="session.canEdit" class="btn primary" type="button" @click="creating = true"><Plus :size="16" /> {{ isWeapons ? 'Neue Waffe' : 'Neues Fahrzeug' }}</button>
       </div>

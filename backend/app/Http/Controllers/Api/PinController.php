@@ -53,9 +53,10 @@ class PinController extends Controller
             'poi' => ['nullable', 'array'],
             'poi.*' => [Rule::enum(PoiType::class)],
             'bbox' => ['nullable', 'regex:/^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/'],
+            'author' => ['nullable', 'integer'],
         ]);
 
-        return response()->json(['ids' => PinIndex::search($data['q'] ?? null, $data['loot'] ?? [], $data['bbox'] ?? null, $data['kind'] ?? null, $data['poi'] ?? [])]);
+        return response()->json(['ids' => PinIndex::search($data['q'] ?? null, $data['loot'] ?? [], $data['bbox'] ?? null, $data['kind'] ?? null, $data['poi'] ?? [], $data['author'] ?? null)]);
     }
 
     public function show(Pin $pin): JsonResponse
@@ -175,11 +176,12 @@ class PinController extends Controller
     private function attributes(array $data): array
     {
         $blank = fn ($v) => is_string($v) && trim($v) === '' ? null : $v;
-        if (($data['kind'] ?? 'loot') === PinKind::Poi->value) {
-            // Orte haben nur Name, Beschreibung, Bilder und Position
+        $kind = $data['kind'] ?? PinKind::Loot->value;
+        if ($kind === PinKind::Poi->value || $kind === PinKind::Hint->value) {
+            // Orte und Hinweise haben nur Name, Beschreibung, Bilder und Position (Hinweise zusätzlich Codes)
             return [
-                'kind' => PinKind::Poi->value,
-                'poi_type' => $data['poi_type'],
+                'kind' => $kind,
+                'poi_type' => $kind === PinKind::Poi->value ? $data['poi_type'] : null,
                 'title' => trim($data['title']),
                 'description' => $blank($data['description'] ?? null),
                 'x' => round((float) $data['x'], 2),
@@ -212,8 +214,9 @@ class PinController extends Controller
 
     private function syncRelations(Pin $pin, array $data): void
     {
-        $isPoi = ($data['kind'] ?? 'loot') === PinKind::Poi->value;
-        $types = $isPoi ? [] : ($data['loot_types'] ?? []);
+        $kind = $data['kind'] ?? PinKind::Loot->value;
+        $isPoi = $kind === PinKind::Poi->value;
+        $types = $kind === PinKind::Loot->value ? ($data['loot_types'] ?? []) : [];
         if ($isPoi) {
             $data['codes'] = [];
         }

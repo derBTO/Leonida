@@ -4,15 +4,18 @@ import { computed, ref } from 'vue'
 import type { LootFilter } from '../lib/pinFilter'
 import type { PinIndexItem, PoiType } from '../api/types'
 import { LOOT, LOOT_ORDER, NO_LOOT_COLOR, ringGradient, sortLoot } from '../lib/lootTypes'
+import { HINT } from '../lib/hint'
 import { POI, POI_ORDER } from '../lib/poiTypes'
 import type { KindMode } from '../lib/pinFilter'
 import { usePins } from '../stores/pins'
+import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
 
 defineProps<{ selectedId: number | null }>()
 const emit = defineEmits<{ select: [number] }>()
 const pins = usePins()
 const ui = useUi()
+const session = useSession()
 const f = pins.filter
 
 function toggle(t: LootFilter) {
@@ -22,14 +25,14 @@ function togglePoi(t: PoiType) {
   f.poi = f.poi.includes(t) ? f.poi.filter((x) => x !== t) : [...f.poi, t]
 }
 const poiOpen = ref(f.poi.length > 0)
-const modes: [KindMode, string][] = [['both', 'Alles'], ['loot', 'Loot'], ['poi', 'Orte']]
+const modes: [KindMode, string][] = [['both', 'Alles'], ['loot', 'Loot'], ['poi', 'Orte'], ['hint', 'Hinweise']]
 const poiCounts = computed(() => {
   const c = new Map<string, number>()
   for (const p of pins.items) if (p.k === 'poi' && p.p) c.set(p.p, (c.get(p.p) ?? 0) + 1)
   return c
 })
 const sub = (p: PinIndexItem) =>
-  p.k === 'poi' ? POI[p.p ?? 'poi'].label : sortLoot(p.l).map((t) => LOOT[t].label).join(' · ') || 'Ohne Loottyp'
+  p.k === 'hint' ? (p.c.length ? `Hinweis · ${p.c.length} Code${p.c.length > 1 ? 's' : ''}` : 'Hinweis') : p.k === 'poi' ? POI[p.p ?? 'poi'].label : sortLoot(p.l).map((t) => LOOT[t].label).join(' · ') || 'Ohne Loottyp'
 
 // Virtuelle Liste: nur sichtbare Zeilen rendern, damit auch tausende Pins flüssig bleiben.
 const ROW = 52
@@ -46,7 +49,7 @@ function onScroll() {
   scrollTop.value = scroller.value?.scrollTop ?? 0
   viewport.value = scroller.value?.clientHeight ?? 600
 }
-const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.length > 0 || f.mode !== 'both' || !f.showGone)
+const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.length > 0 || f.mode !== 'both' || !f.showGone || f.showHints === false || !!f.mine)
 </script>
 
 <template>
@@ -60,7 +63,7 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
       <div class="modes" role="radiogroup" aria-label="Art der Pins">
         <button v-for="[m, l] in modes" :key="m" type="button" role="radio" :aria-checked="f.mode === m" :class="{ on: f.mode === m }" @click="f.mode = m">{{ l }}</button>
       </div>
-      <div v-if="f.mode !== 'poi'" class="chips">
+      <div v-if="f.mode === 'both' || f.mode === 'loot'" class="chips">
         <button v-for="t in LOOT_ORDER" :key="t" type="button" class="chip" :class="{ on: f.loot.includes(t) }" :style="{ '--c': LOOT[t].color }" :aria-pressed="f.loot.includes(t)" @click="toggle(t)">
           <span class="dot" />{{ LOOT[t].label }}
         </button>
@@ -68,7 +71,7 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
           <span class="dot" />Ohne Loottyp
         </button>
       </div>
-      <div v-if="f.mode !== 'loot'" class="poi-group">
+      <div v-if="f.mode === 'both' || f.mode === 'poi'" class="poi-group">
         <button type="button" class="poi-head" :aria-expanded="poiOpen" @click="poiOpen = !poiOpen">
           <ChevronDown :size="15" :class="{ closed: !poiOpen }" />
           Orte <span class="faint">{{ f.poi.length ? `(${f.poi.length} gewählt)` : '(alle)' }}</span>
@@ -86,7 +89,9 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
         </template>
       </div>
       <label class="switch"><input type="checkbox" v-model="f.viewportOnly" /> Nur im Kartenausschnitt</label>
-      <label v-if="f.mode !== 'poi'" class="switch"><input type="checkbox" v-model="f.showGone" /> Nicht mehr verfügbare Loot-Pins zeigen</label>
+      <label v-if="f.mode === 'both' || f.mode === 'loot'" class="switch"><input type="checkbox" v-model="f.showGone" /> Nicht mehr verfügbare Loot-Pins zeigen</label>
+      <label v-if="f.mode === 'both'" class="switch"><input type="checkbox" :checked="f.showHints !== false" @change="f.showHints = ($event.target as HTMLInputElement).checked" /> Hinweise zeigen</label>
+      <label v-if="session.loggedIn" class="switch"><input type="checkbox" v-model="f.mine" /> Nur meine Einträge</label>
       <div class="count">
         <span><strong>{{ pins.listed.length }}</strong> Treffer<template v-if="pins.listed.length !== pins.items.length"> von {{ pins.items.length }}</template></span>
         <button v-if="filtersActive" type="button" class="btn ghost sm" @click="pins.resetFilter()">Filter zurücksetzen</button>
@@ -100,7 +105,8 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
           v-for="(p, i) in rows" :key="p.id" type="button" class="row" :class="{ active: p.id === selectedId, gone: p.s === 'gone' }"
           :style="{ top: `${(range.start + i) * ROW}px` }" @click="emit('select', p.id)"
         >
-          <span v-if="p.k === 'poi'" class="sq big" :style="{ '--c': POI[p.p ?? 'poi'].color }" v-html="POI[p.p ?? 'poi'].svg" />
+          <span v-if="p.k === 'hint'" class="hint-icon" :style="{ '--c': HINT.color }" v-html="HINT.svg" />
+          <span v-else-if="p.k === 'poi'" class="sq big" :style="{ '--c': POI[p.p ?? 'poi'].color }" v-html="POI[p.p ?? 'poi'].svg" />
           <span v-else class="ring" :style="{ background: ringGradient(sortLoot(p.l)) }"><span /></span>
           <span class="text">
             <span class="name">{{ p.t }}</span>
@@ -125,8 +131,8 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
 .search .clear { position: absolute; right: 4px; top: 4px; }
 .chips { display: flex; flex-wrap: wrap; gap: 5px; }
 .chip { height: 26px; font-size: 12.5px; padding: 0 9px; }
-.modes { display: grid; grid-template-columns: repeat(3, 1fr); background: rgba(0,0,0,0.25); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 2px; }
-.modes button { border: 0; background: none; height: 28px; border-radius: 6px; cursor: pointer; font-family: var(--font-display); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.modes { display: grid; grid-template-columns: repeat(4, 1fr); background: rgba(0,0,0,0.25); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); padding: 2px; }
+.modes button { border: 0; background: none; height: 28px; font-size: 13px; border-radius: 6px; cursor: pointer; font-family: var(--font-display); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .modes button.on { background: rgba(255,255,255,0.1); color: var(--text); box-shadow: inset 0 -2px 0 var(--pink); }
 .poi-group { display: flex; flex-direction: column; gap: 6px; }
 .poi-head { display: flex; align-items: center; gap: 6px; border: 0; background: none; padding: 0; cursor: pointer; font-family: var(--font-display); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
@@ -149,6 +155,8 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
 .row:hover { background: var(--panel-hover); }
 .row.active { background: linear-gradient(90deg, rgba(255, 61, 139, 0.18), transparent); }
 .row.gone { opacity: 0.5; }
+.hint-icon { width: 16px; height: 16px; margin: 3px; flex: none; display: flex; align-items: center; justify-content: center; transform: rotate(45deg); border: 1.5px solid var(--c); border-radius: 3px; color: var(--c); background: #0d2a28; }
+.hint-icon :deep(svg) { width: 10px; height: 10px; transform: rotate(-45deg); }
 .ring { width: 22px; height: 22px; border-radius: 50%; padding: 3px; flex: none; }
 .ring span { display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--panel-solid); }
 .text { display: flex; flex-direction: column; min-width: 0; }

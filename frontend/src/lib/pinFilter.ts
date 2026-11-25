@@ -6,9 +6,11 @@ import type { LootType, PinIndexItem, PoiType } from '../api/types'
  * - Groß-/Kleinschreibung egal, alle Suchwörter müssen vorkommen.
  * - Durchsucht Titel, Beschreibung, Waffen-, Fahrzeugnamen, Codes und Code-Bezeichnungen.
  * - Loottypen: mindestens einer der gewählten (ODER); 'none' = Pins ohne Loottyp. Nur für Loot-Pins.
- * - Art: Loot, Orte oder beides; POI-Kategorien (ODER) gelten nur für Orte.
+ * - Art: alles, Loot, Orte oder Hinweise; POI-Kategorien (ODER) gelten nur für Orte.
+ *   Hinweise erscheinen unter „Alles“ nur, wenn showHints an ist.
+ * - mine: nur Pins der angemeldeten Person (author).
  */
-export type KindMode = 'both' | 'loot' | 'poi'
+export type KindMode = 'both' | 'loot' | 'poi' | 'hint'
 export type LootFilter = LootType | 'none'
 
 export interface Bounds { west: number; south: number; east: number; north: number }
@@ -19,6 +21,8 @@ export interface FilterState {
   loot: LootFilter[]
   poi: PoiType[]
   showGone: boolean
+  showHints?: boolean
+  mine?: boolean
 }
 
 export function terms(q: string): string[] {
@@ -35,8 +39,13 @@ function haystack(p: PinIndexItem): string {
   return h
 }
 
-export function matches(p: PinIndexItem, f: FilterState): boolean {
-  if (p.k === 'poi') {
+export function matches(p: PinIndexItem, f: FilterState, author: number | null = null): boolean {
+  if (f.mine && author !== null && p.u !== author) return false
+  if (p.k === 'hint') {
+    if (f.mode !== 'hint' && !(f.mode === 'both' && f.showHints !== false)) return false
+  } else if (f.mode === 'hint') {
+    return false
+  } else if (p.k === 'poi') {
     if (f.mode === 'loot') return false
     if (f.poi.length > 0 && (!p.p || !f.poi.includes(p.p))) return false
   } else {

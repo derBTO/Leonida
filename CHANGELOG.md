@@ -1,5 +1,15 @@
 # Änderungsprotokoll
 
+## v0.8 – Spuren, Hinweise, „Nur meine“ (25.11.2026)
+
+- **Spuren**: Stationen in fester Reihenfolge (A → B → C → Loot). Jeder Schritt hat eine kurze Beschreibung, optional Details und optional einen Pin; Schritte ohne Ort („Auf den Anruf warten“) sind erlaubt. Schritte können **parallel** sein (2a/2b, Reihenfolge egal).
+- Neue Seite **Spuren** (Liste mit Fortschritt, Filter „Nur meine“/„Nur offene“) und Detailseite mit Bearbeiten, Löschen und **Spoiler-Schutz** (spätere Schritte erst nach dem Abhaken oder per „Aufdecken“).
+- **Auf der Karte**: nummerierte Schritte, gestrichelte Verbindungslinie (verzweigt bei parallelen Schritten), übrige Marker abgedunkelt, Leiste mit Schritt zurück/weiter und Abhaken. Im Pin-Detail steht „Schritt 2 von 4 in …“.
+- **Fortschritt pro Person**: jede angemeldete Person hakt Schritte für sich ab; zurücksetzbar.
+- Neue Pin-Art **Hinweis** (türkise Raute mit Lupe) für Zwischenstationen: Name, Beschreibung, Bilder und Codes. In der Sidebar eigener Modus „Hinweise“ und Schalter „Hinweise zeigen“; Rechtsklick „Neuer Hinweis hier“.
+- **„Nur meine Einträge“**: Filter in der Sidebar (Pins), bei Waffen, Fahrzeugen und Spuren. API: `author=<id>` bei `/api/pins/search`, `/api/weapons`, `/api/vehicles`, `/api/trails`; Pin-Index mit Feld `u`.
+- Export/Import enthält Spuren (Fortschritt nicht, der gehört zu den Benutzerkonten).
+
 ## v0.7 – Katalog-Import und NiaDB-Daten (25.11.2026)
 
 - **CSV-Import für Waffen und Fahrzeuge** unter Verwaltung → Export & Import (Probelauf, Vorlage zum Herunterladen) und als Befehl `php artisan leonida:catalog-import`. Zuordnung über den Namen, leere Zellen ändern nichts, vorhandene Werte bleiben ohne „Überschreiben“ erhalten. Neue Listenwerte werden angelegt. Fehlerhafte Zeilen werden mit Zeilennummer gemeldet und übersprungen.

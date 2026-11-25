@@ -54,6 +54,9 @@ abstract class CatalogController extends Controller
                 $query->where($column, (int) $request->query($column));
             }
         }
+        if ($request->filled('author')) {
+            $query->where('created_by', (int) $request->query('author'));
+        }
         $this->filter($query, $request);
         $counts = DB::table($this->pivotTable())->select($this->pivotKey(), DB::raw('count(*) as n'))
             ->groupBy($this->pivotKey())->pluck('n', $this->pivotKey());

@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import type { PinIndexItem } from '../api/types'
 import { LOOT, LOOT_ORDER, PIN_SVG, ringGradient, sortLoot } from '../lib/lootTypes'
+import { DONE_COLOR, HINT } from '../lib/hint'
 import { isProminent, POI, POI_GREY } from '../lib/poiTypes'
 
 /** Ort (POI): abgerundetes Quadrat in der Kategoriefarbe; graue Orte kleiner. */
@@ -16,8 +17,30 @@ export function poiIcon(p: PinIndexItem, selected = false): L.DivIcon {
   })
 }
 
+/** Hinweis: kleine Raute in Türkis mit Lupe. */
+export function hintIcon(selected = false): L.DivIcon {
+  return L.divIcon({
+    className: 'pin-marker-wrap',
+    html: `<div class="hint-marker${selected ? ' selected' : ''}" style="--c:${HINT.color}">${HINT.svg}</div>`,
+    iconSize: [22, 22],
+    iconAnchor: [11, 11],
+  })
+}
+
 export function markerIcon(p: PinIndexItem, selected = false): L.DivIcon {
+  if (p.k === 'hint') return hintIcon(selected)
   return p.k === 'poi' ? poiIcon(p, selected) : pinIcon(p, selected)
+}
+
+/** Schrittnummer einer aktiven Spur über dem Pin; erledigt = grün mit Haken, verdeckt = „?“. */
+export function stepBadgeIcon(label: string, state: 'open' | 'done' | 'current' | 'hidden'): L.DivIcon {
+  const text = state === 'done' ? '✓' : state === 'hidden' ? '?' : label
+  return L.divIcon({
+    className: 'trail-badge-wrap',
+    html: `<div class="trail-badge ${state}" style="--done:${DONE_COLOR}">${text}</div>`,
+    iconSize: [26, 26],
+    iconAnchor: [13, 34],
+  })
 }
 
 /** Cluster für Orte: Quadrat mit Anzahl, Rand in der häufigsten Kategoriefarbe. */

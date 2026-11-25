@@ -43,3 +43,7 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | Datenquelle Katalog | NiaDB (meowdb.com/gta6) statt GTABase | NiaDB erlaubt die Weiterverwendung mit Quellenlink ausdrücklich, auch für KI-Werkzeuge; GTABase untersagt das Auslesen in seinen Nutzungsbedingungen |
 | 25.11.2026 | Katalog-Import | CSV mit festen Spaltennamen, Abgleich über den Namen, vorhandene Werte nur mit „Überschreiben“ ersetzen | eigene Pflege hat Vorrang; wiederholbar; auch für eigene Tabellen aus Excel/Numbers nutzbar |
 | 25.11.2026 | Legendär aus NiaDB | „ja“, wenn die Beschreibung unique, gold-icon oder „variant of“ nennt; Basismodelle („is its unique variant“) bleiben unbekannt | Ableitung nur aus dem Text; nie „nein“ ohne Beleg |
+| 25.11.2026 | Spuren | eigene Tabelle `trails` mit geordneten `trail_steps` (Nummer + Reihenfolge, Pin optional); parallel = gleiche Nummer; keine Verzweigungen | Wunsch BTO; Verzweigungen bisher nicht nötig, Modell bleibt einfach |
+| 25.11.2026 | Hinweis-Pins | dritte Pin-Art `hint` mit Name, Beschreibung, Bildern und Codes | Zwischenstationen sollen die Karte nicht mit Loot vermischen und ausblendbar sein |
+| 25.11.2026 | Fortschritt | pro Person und Schritt (`trail_step_progress`), nicht im Export | persönlich; Schritte behalten beim Bearbeiten über ihre ID den Fortschritt |
+| 25.11.2026 | „Nur meine“ | Filter über `created_by`, im Browser (Pins, Katalog, Spuren) und per `author` in der API | auch für spätere weitere Bearbeiter |

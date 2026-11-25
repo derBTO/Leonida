@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, Crosshair, Landmark, MapPin, Plus, X } from 'lucide-vue-next'
+import { Check, Crosshair, Landmark, MapPin, Plus, Search, X } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api/client'
@@ -7,9 +7,11 @@ import type { Pin, PinIndexItem, PinKind } from '../api/types'
 import PinDetail from '../components/PinDetail.vue'
 import PinEditor from '../components/PinEditor.vue'
 import Sidebar from '../components/Sidebar.vue'
+import TrailBar from '../components/TrailBar.vue'
 import LeonidaMap from '../map/LeonidaMap.vue'
 import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
+import { useTrails } from '../stores/trails'
 import { useUi } from '../stores/ui'
 
 const route = useRoute()
@@ -17,6 +19,7 @@ const router = useRouter()
 const pins = usePins()
 const session = useSession()
 const ui = useUi()
+const trails = useTrails()
 const mapRef = ref<InstanceType<typeof LeonidaMap> | null>(null)
 const selectedId = computed(() => (route.params.id ? Number(route.params.id) : null))
 const menu = ref<{ x: number; y: number; clientX: number; clientY: number } | null>(null)
@@ -25,7 +28,22 @@ const moving = ref<PinIndexItem | null>(null)
 const moveTarget = ref<{ x: number; y: number } | null>(null)
 const detailKey = ref(0)
 
-onMounted(() => pins.fetchAll().catch(ui.error))
+onMounted(() => {
+  pins.fetchAll().catch(ui.error)
+  trails.restore()
+})
+
+/** /?spur=<id>: Spur aktivieren und Ausschnitt anpassen (z. B. von der Spurseite). */
+watch(() => route.query.spur, async (id) => {
+  if (!id) return
+  try {
+    await trails.activate(Number(id), route.query.schritt ? Number(route.query.schritt) : undefined)
+    trails.fitRequest++
+  } catch (e) {
+    ui.error(e)
+  }
+  router.replace({ path: route.path, query: {} })
+}, { immediate: true })
 
 /** Pin auswählen: Karte zentrieren und Detailansicht öffnen (eigene URL /pin/<id>). */
 function select(id: number) {
@@ -116,6 +134,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
     <div v-if="menu" class="ctx panel" :style="{ left: `${menu.clientX}px`, top: `${menu.clientY}px` }" @mouseleave="menu = null">
       <button type="button" @click="openEditor(null, menu.x, menu.y)"><MapPin :size="15" /> Neuer Loot-Pin hier</button>
       <button type="button" @click="openEditor(null, menu.x, menu.y, 'poi')"><Landmark :size="15" /> Neuer Ort (POI) hier</button>
+      <button type="button" @click="openEditor(null, menu.x, menu.y, 'hint')"><Search :size="15" /> Neuer Hinweis hier</button>
       <button type="button" @click="copyCoords"><Crosshair :size="15" /> Koordinaten kopieren</button>
       <div class="faint small">x {{ menu.x.toFixed(1) }} · y {{ menu.y.toFixed(1) }}</div>
     </div>
@@ -135,6 +154,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
     </div>
     <button v-else-if="session.loggedIn" class="fab" type="button" aria-label="Neuen Pin anlegen" title="Neuer Pin (Touch)" @click="startPlacing"><Plus :size="26" /></button>
 
+    <TrailBar v-if="trails.active && !placing && !moving" />
     <PinEditor v-if="ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" @close="ui.pinEditor = null" @saved="onSaved" />
   </div>
 </template>
@@ -150,6 +170,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
 .fab { position: absolute; z-index: 860; right: 64px; bottom: 28px; width: 54px; height: 54px; border-radius: 50%; border: 0; background: var(--grad); color: #160b12; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(255, 61, 139, 0.45); }
 .has-detail :deep(.controls) { right: 424px; }
 .has-detail .fab { right: 476px; }
+.has-detail :deep(.trail-bar) { left: auto; right: 440px; transform: none; width: min(480px, calc(100vw - 840px)); min-width: 340px; }
 @media (max-width: 760px) {
   .fab { right: 12px; bottom: 140px; }
   .bar { bottom: 80px; }

@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { Check, Copy, Link2, Move, Pencil, Trash2, X } from 'lucide-vue-next'
+import { Check, Copy, Link2, Move, Pencil, Route, Trash2, X } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { api } from '../api/client'
 import type { Pin } from '../api/types'
 import { formatDate, formatUsd } from '../lib/format'
 import { LOOT, sortLoot } from '../lib/lootTypes'
+import { HINT } from '../lib/hint'
 import { POI } from '../lib/poiTypes'
 import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
+import { useTrails } from '../stores/trails'
 import { useUi } from '../stores/ui'
 import Gallery from './Gallery.vue'
 import LegendaryStar from './LegendaryStar.vue'
@@ -20,6 +22,7 @@ const emit = defineEmits<{ close: []; edit: [number]; move: [Pin]; deleted: [] }
 const session = useSession()
 const pins = usePins()
 const ui = useUi()
+const trails = useTrails()
 const pin = ref<Pin | null>(null)
 const error = ref<string | null>(null)
 const copied = ref<string | null>(null)
@@ -33,7 +36,17 @@ async function load() {
     error.value = e instanceof Error ? e.message : String(e)
   }
 }
-watch(() => [props.pinId, props.reloadKey], load, { immediate: true })
+watch(() => [props.pinId, props.reloadKey, trails.version], load, { immediate: true })
+
+/** Spur auf der Karte zeigen, mit diesem Pin als aktuellem Schritt. */
+async function showTrail(trailId: number, stepId: number) {
+  try {
+    await trails.activate(trailId, stepId)
+    trails.fitRequest++
+  } catch (e) {
+    ui.error(e)
+  }
+}
 
 async function copy(text: string, key: string) {
   try {
@@ -47,7 +60,7 @@ async function copy(text: string, key: string) {
 const link = () => `${window.location.origin}/pin/${props.pinId}`
 
 async function remove() {
-  if (!pin.value || !window.confirm(`${pin.value.kind === 'poi' ? 'Ort' : 'Pin'} „${pin.value.title}“ wirklich löschen? Bilder werden ebenfalls gelöscht.`)) return
+  if (!pin.value || !window.confirm(`${pin.value.kind === 'poi' ? 'Ort' : pin.value.kind === 'hint' ? 'Hinweis' : 'Pin'} „${pin.value.title}“ wirklich löschen? Bilder werden ebenfalls gelöscht.`)) return
   try {
     await api.delete(`/api/pins/${pin.value.id}`)
     await pins.refresh()
@@ -66,6 +79,9 @@ defineExpose({ reload: load })
     <header>
       <div v-if="pin && pin.kind === 'poi'" class="types">
         <span class="type" :style="{ '--c': POI[pin.poi_type ?? 'poi'].color }"><span class="sq" v-html="POI[pin.poi_type ?? 'poi'].svg" />{{ POI[pin.poi_type ?? 'poi'].label }}</span>
+      </div>
+      <div v-else-if="pin && pin.kind === 'hint'" class="types">
+        <span class="type" :style="{ '--c': HINT.color }"><span v-html="HINT.svg" />{{ HINT.label }}</span>
       </div>
       <div v-else-if="pin" class="types">
         <span v-for="t in sortLoot(pin.loot_types)" :key="t" class="type" :style="{ '--c': LOOT[t].color }"><span v-html="LOOT[t].svg" />{{ LOOT[t].label }}</span>
@@ -86,6 +102,17 @@ defineExpose({ reload: load })
           <button class="btn sm" type="button" @click="emit('edit', pin.id)"><Pencil :size="14" /> Bearbeiten</button>
           <button class="btn sm" type="button" @click="emit('move', pin)"><Move :size="14" /> Verschieben</button>
           <button class="btn sm danger" type="button" @click="remove"><Trash2 :size="14" /> Löschen</button>
+        </div>
+
+        <div v-if="pin.trails.length" class="trails">
+          <div v-for="t in pin.trails" :key="t.step_id" class="trail" :class="{ active: trails.activeId === t.trail_id }">
+            <Route :size="16" />
+            <span class="t-text">
+              <small class="faint">Schritt {{ t.position }} von {{ t.step_count }}</small>
+              <RouterLink :to="`/spuren/${t.trail_id}`">{{ t.trail_name }}</RouterLink>
+            </span>
+            <button v-if="trails.activeId !== t.trail_id" class="btn sm" type="button" @click="showTrail(t.trail_id, t.step_id)">Auf Karte</button>
+          </div>
         </div>
 
         <p v-if="pin.description" class="desc"><RichText :text="pin.description" /></p>
@@ -155,6 +182,11 @@ header { display: flex; align-items: center; justify-content: space-between; pad
 .badges { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
 .actions { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
 .desc { white-space: pre-wrap; margin: 10px 0; }
+.trails { display: flex; flex-direction: column; gap: 4px; margin: 10px 0; }
+.trail { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--line); color: var(--pink); }
+.trail.active { border-color: var(--pink); background: rgba(255, 61, 139, 0.08); }
+.t-text { flex: 1; display: flex; flex-direction: column; min-width: 0; color: var(--text); }
+.t-text a { text-decoration: none; font-weight: 600; }
 .req { border-left: 3px solid var(--orange); padding: 6px 10px; background: rgba(255, 138, 61, 0.07); border-radius: 0 6px 6px 0; margin: 10px 0; }
 .req p { margin: 2px 0 0; white-space: pre-wrap; }
 .label { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }

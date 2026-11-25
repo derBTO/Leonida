@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { PinIndexItem } from '../api/types'
 import { inBounds, matches, sortByTitle, type FilterState } from './pinFilter'
 
-const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, k: 'loot', p: null, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], ...o })
+const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, k: 'loot', p: null, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], u: null, ...o })
 const f = (o: Partial<FilterState> = {}): FilterState => ({ q: '', mode: 'both', loot: [], poi: [], showGone: true, ...o })
 
 describe('Pin-Filter', () => {
@@ -49,5 +49,17 @@ describe('Pin-Filter', () => {
     expect(all.map((p) => matches(p, f({ poi: ['bar'] })))).toEqual([true, false, true])
     expect(all.map((p) => matches(p, f({ loot: ['weapons'] })))).toEqual([false, true, true])
     expect(matches(gas, f({ q: 'tank' }))).toBe(true)
+  })
+
+  it('zeigt Hinweise unter „Alles“ nur mit showHints und filtert nach Ersteller', () => {
+    const hint = pin({ k: 'hint', u: 2 })
+    const loot = pin({ u: 1 })
+    expect(matches(hint, f())).toBe(true)
+    expect(matches(hint, f({ showHints: false }))).toBe(false)
+    expect(matches(hint, f({ mode: 'hint', showHints: false }))).toBe(true)
+    expect(matches(loot, f({ mode: 'hint' }))).toBe(false)
+    expect(matches(hint, f({ mode: 'loot' }))).toBe(false)
+    expect([hint, loot].map((p) => matches(p, f({ mine: true }), 1))).toEqual([false, true])
+    expect(matches(hint, f({ mine: true }), null)).toBe(true)
   })
 })

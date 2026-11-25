@@ -1,7 +1,7 @@
 export type LootType = 'vehicles' | 'weapons' | 'drugs' | 'jewelry' | 'cash'
 export type PinStatus = 'unconfirmed' | 'confirmed' | 'gone'
 export type RespawnStatus = 'unknown' | 'once' | 'recurring'
-export type PinKind = 'loot' | 'poi'
+export type PinKind = 'loot' | 'poi' | 'hint'
 export type PoiType =
   | 'poi'
   | 'photo'
@@ -61,6 +61,8 @@ export interface PinIndexItem {
   w: string[]
   v: string[]
   c: string[]
+  /** ID des Erstellers (für „Nur meine“) */
+  u: number | null
 }
 
 export interface MediaRef { id: string; url: string; thumb_url: string; width: number; height: number }
@@ -82,6 +84,7 @@ export interface CatalogSource {
 export interface WeaponSummary {
   id: number
   name: string
+  created_by_id?: number | null
   /** true = legendär/unique, false = nein, null = unbekannt */
   is_legendary: boolean | null
   image: MediaRef | null
@@ -108,6 +111,7 @@ export interface Weapon extends WeaponSummary {
 export interface VehicleSummary {
   id: number
   name: string
+  created_by_id?: number | null
   image: MediaRef | null
   manufacturer: LookupValue | null
   vehicle_class: LookupValue | null
@@ -158,7 +162,45 @@ export interface Pin {
   created_at: string | null
   updated_at: string | null
   created_by: string | null
+  created_by_id: number | null
   updated_by: string | null
+  trails: PinTrailRef[]
+}
+
+/** Spur, in der ein Pin als Schritt vorkommt */
+export interface PinTrailRef { trail_id: number; trail_name: string; step_id: number; position: number; step_count: number }
+
+export interface TrailSummary {
+  id: number
+  name: string
+  description: string | null
+  /** höchste Schrittnummer (parallele Schritte zählen einmal) */
+  step_count: number
+  steps_total: number
+  /** erledigte Schritte der angemeldeten Person */
+  steps_done: number
+  pin_ids: number[]
+  created_by_id: number | null
+  created_by: string | null
+  updated_at: string | null
+}
+
+export interface TrailStepPin { id: number; title: string; kind: PinKind; poi_type: PoiType | null; x: number; y: number }
+
+export interface TrailStep {
+  id: number
+  position: number
+  title: string
+  description: string | null
+  pin: TrailStepPin | null
+  done: boolean
+}
+
+export interface Trail extends TrailSummary {
+  uuid: string
+  updated_by: string | null
+  created_at: string | null
+  steps: TrailStep[]
 }
 
 export interface AuditEntry {

@@ -44,6 +44,11 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | POST | `/api/admin/import` | ZIP-Import (`file`, `mode=merge|replace`, `dry_run`) | Admin |
 | POST | `/api/admin/catalog-import/{weapons|vehicles}` | CSV-Import (`file`, `dry_run`, `overwrite`), siehe [KATALOG-IMPORT.md](KATALOG-IMPORT.md) | Admin |
 | GET | `/api/admin/catalog-template/{weapons|vehicles}` | CSV-Vorlage | Admin |
+| GET | `/api/trails` | Spuren (`q`, `author`); mit eigenem Fortschritt, wenn angemeldet | öffentlich |
+| GET | `/api/trails/{id}` | Spur mit Schritten | öffentlich |
+| POST / PUT / DELETE | `/api/trails…` | Spur anlegen, ändern (Schritte als Ganzes, `id` behält Fortschritt, `parallel`), löschen | angemeldet |
+| PUT | `/api/trails/{id}/steps/{step}/progress` | eigenen Fortschritt setzen (`done`) | angemeldet |
+| DELETE | `/api/trails/{id}/progress` | eigenen Fortschritt zurücksetzen | angemeldet |
 | GET | `/api/audit` | letzte 200 Änderungen | angemeldet |
 
 Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `caliber`, `vehicle_manufacturer`, `vehicle_class`, `vehicle_style`.

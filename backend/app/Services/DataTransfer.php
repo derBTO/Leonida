@@ -6,6 +6,7 @@ use App\Models\LookupValue;
 use App\Models\MapVersion;
 use App\Models\Media;
 use App\Models\Pin;
+use App\Models\Trail;
 use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\Weapon;
@@ -15,7 +16,8 @@ use RuntimeException;
 use ZipArchive;
 
 /**
- * Export und Import aller eigenen Daten (Pins, Waffen, Fahrzeuge, Auswahllisten, Bilder) als ZIP.
+ * Export und Import aller eigenen Daten (Pins, Spuren, Waffen, Fahrzeuge, Auswahllisten, Bilder) als ZIP.
+ * Der persönliche Fortschritt in Spuren gehört zu den Benutzerkonten und wird nicht exportiert.
  * Benutzerkonten und Passwörter werden nicht exportiert; Autoren stehen als Benutzername drin.
  * Abgleich beim Import über UUIDs, Auswahllisten über den normalisierten Namen.
  */
@@ -95,6 +97,17 @@ class DataTransfer
             'weapons' => $catalog(Weapon::class),
             'vehicles' => $catalog(Vehicle::class),
             'pins' => $pins,
+            'trails' => Trail::query()->with('steps.pin:id,uuid')->orderBy('id')->get()->map(fn (Trail $t) => [
+                'uuid' => $t->uuid,
+                'name' => $t->name,
+                'description' => $t->description,
+                'steps' => $t->steps->map(fn ($s) => ['position' => $s->position, 'title' => $s->title,
+                    'description' => $s->description, 'pin' => $s->pin?->uuid])->all(),
+                'created_at' => $t->created_at?->toIso8601String(),
+                'updated_at' => $t->updated_at?->toIso8601String(),
+                'created_by' => $name($t->created_by),
+                'updated_by' => $name($t->updated_by),
+            ])->all(),
         ];
 
         $file = tempnam(sys_get_temp_dir(), 'leonida-export-');
@@ -142,6 +155,7 @@ class DataTransfer
             DB::beginTransaction();
             if ($mode === 'replace') {
                 $report['removed'] = [
+                    'trails' => DB::table('trails')->delete(),
                     'pins' => DB::table('pins')->delete(),
                     'weapons' => DB::table('weapons')->delete(),
                     'vehicles' => DB::table('vehicles')->delete(),
@@ -237,6 +251,7 @@ class DataTransfer
             // Pins
             $versions = MapVersion::query()->pluck('id', 'version');
             $count = ['created' => 0, 'updated' => 0];
+            $pinIds = [];
             foreach ($data['pins'] ?? [] as $row) {
                 $pin = Pin::query()->where('uuid', $row['uuid'])->first();
                 $pin ? $count['updated']++ : $count['created']++;
@@ -254,6 +269,7 @@ class DataTransfer
                 $pin->updated_at = $row['updated_at'] ?? now();
                 $pin->timestamps = false;
                 $pin->save();
+                $pinIds[$row['uuid']] = $pin->id;
                 $pin->syncLootTypes($row['loot_types'] ?? []);
                 $ids = fn (string $key) => collect($row[$key] ?? [])->map(fn ($u) => $catalogIds[$key][$u] ?? null)->filter()->values()
                     ->mapWithKeys(fn ($id, $i) => [$id => ['sort_order' => $i]])->all();
@@ -269,6 +285,28 @@ class DataTransfer
                 }
             }
             $report['pins'] = $count;
+
+            // Spuren (Schritte werden ersetzt; Fortschritt der ersetzten Schritte entfällt)
+            $count = ['created' => 0, 'updated' => 0];
+            foreach ($data['trails'] ?? [] as $row) {
+                $trail = Trail::query()->where('uuid', $row['uuid'])->first();
+                $trail ? $count['updated']++ : $count['created']++;
+                $trail ??= new Trail(['uuid' => $row['uuid']]);
+                $trail->fill(['name' => $row['name'], 'description' => $row['description'] ?? null,
+                    'created_by' => $userId($row['created_by'] ?? null), 'updated_by' => $userId($row['updated_by'] ?? null)]);
+                $trail->created_at = $row['created_at'] ?? now();
+                $trail->updated_at = $row['updated_at'] ?? now();
+                $trail->timestamps = false;
+                $trail->save();
+                $trail->steps()->delete();
+                foreach (array_values($row['steps'] ?? []) as $i => $step) {
+                    $pinId = $step['pin'] ?? null;
+                    $trail->steps()->create(['position' => max(1, (int) ($step['position'] ?? $i + 1)), 'sort_order' => $i,
+                        'title' => $step['title'], 'description' => $step['description'] ?? null,
+                        'pin_id' => $pinId ? ($pinIds[$pinId] ?? Pin::query()->where('uuid', $pinId)->value('id')) : null]);
+                }
+            }
+            $report['trails'] = $count;
 
             if ($dryRun) {
                 DB::rollBack();

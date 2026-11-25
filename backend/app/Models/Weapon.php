@@ -44,6 +44,7 @@ class Weapon extends Model
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'created_by_id' => $this->created_by,
             'is_legendary' => $this->is_legendary,
             'image' => $this->image?->toApi(),
             'weapon_type' => $this->weaponType?->toApi(),

@@ -12,13 +12,14 @@ use Illuminate\Support\Facades\DB;
  * - Durchsucht Titel, Beschreibung, Waffen- und Fahrzeugnamen, Codes und Code-Bezeichnungen.
  * - Loottyp-Filter: Pin muss mindestens einen der gewählten Typen haben (ODER);
  *   „none“ steht für Pins ohne Loottyp. Gilt nur für Loot-Pins.
- * - Art (kind) filtert Loot oder Orte; POI-Kategorien (ODER) gelten nur für Orte.
+ * - Art (kind) filtert Loot, Orte oder Hinweise; POI-Kategorien (ODER) gelten nur für Orte.
+ * - author: nur Pins dieses Erstellers („Nur meine“).
  */
 class PinIndex
 {
     public static function all(): array
     {
-        $pins = DB::table('pins')->orderBy('id')->get(['id', 'kind', 'poi_type', 'title', 'description', 'x', 'y', 'status']);
+        $pins = DB::table('pins')->orderBy('id')->get(['id', 'kind', 'poi_type', 'title', 'description', 'x', 'y', 'status', 'created_by']);
         $loot = self::grouped(DB::table('pin_loot_types')->orderBy('loot_type')->get(['pin_id', 'loot_type as v']));
         $weapons = self::grouped(DB::table('pin_weapons')->join('weapons', 'weapons.id', '=', 'pin_weapons.weapon_id')
             ->orderBy('pin_weapons.sort_order')->get(['pin_id', 'weapons.name as v']));
@@ -40,11 +41,12 @@ class PinIndex
             'w' => $weapons[$p->id] ?? [],
             'v' => $vehicles[$p->id] ?? [],
             'c' => $codes[$p->id] ?? [],
+            'u' => $p->created_by === null ? null : (int) $p->created_by,
         ])->all();
     }
 
     /** @return list<int> */
-    public static function search(?string $q, array $loot = [], ?string $bbox = null, ?string $kind = null, array $poi = []): array
+    public static function search(?string $q, array $loot = [], ?string $bbox = null, ?string $kind = null, array $poi = [], ?int $author = null): array
     {
         $query = DB::table('pins')->select('pins.id')->orderBy('pins.title');
         foreach (self::terms($q) as $term) {
@@ -63,14 +65,17 @@ class PinIndex
         if ($kind) {
             $query->where('pins.kind', $kind);
         }
+        if ($author) {
+            $query->where('pins.created_by', $author);
+        }
         // Loottyp-Filter gilt nur für Loot-Pins, POI-Filter nur für Orte
         if ($poi) {
-            $query->where(fn ($w) => $w->where('pins.kind', 'loot')->orWhereIn('pins.poi_type', $poi));
+            $query->where(fn ($w) => $w->where('pins.kind', '!=', 'poi')->orWhereIn('pins.poi_type', $poi));
         }
         if ($loot) {
             $types = array_values(array_diff($loot, ['none']));
             $query->where(function ($outer) use ($types, $loot) {
-                $outer->where('pins.kind', 'poi')->orWhere(function ($w) use ($types, $loot) {
+                $outer->where('pins.kind', '!=', 'loot')->orWhere(function ($w) use ($types, $loot) {
                     if ($types) {
                         $w->whereExists(fn ($s) => $s->from('pin_loot_types')->whereColumn('pin_loot_types.pin_id', 'pins.id')->whereIn('loot_type', $types));
                     }

@@ -8,10 +8,11 @@ import type { MapManifest, PinIndexItem } from '../api/types'
 import { load, save } from '../lib/storage'
 import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
+import { useTrails } from '../stores/trails'
 import { useUi } from '../stores/ui'
 import { fromLatLng, LeonidaCRS, toLatLng } from './crs'
 import './map.css'
-import { clusterIcon, markerIcon, poiClusterIcon } from './markers'
+import { clusterIcon, markerIcon as baseIcon, poiClusterIcon, stepBadgeIcon } from './markers'
 import { tilePath } from './tiles'
 
 const props = defineProps<{ selectedId: number | null; movingPin: PinIndexItem | null }>()
@@ -23,6 +24,7 @@ const emit = defineEmits<{
 
 const pins = usePins()
 const session = useSession()
+const trails = useTrails()
 const ui = useUi()
 const el = ref<HTMLElement | null>(null)
 const map = shallowRef<L.Map | null>(null)
@@ -34,7 +36,15 @@ const view = load('map', { x: -3500, y: 1000, zoom: 2 })
 let tiles: L.TileLayer | null = null
 let cluster: L.MarkerClusterGroup | null = null
 let poiCluster: L.MarkerClusterGroup | null = null
-const groupOf = (p: PinIndexItem) => (p.k === 'poi' ? poiCluster! : cluster!)
+// Loot in eigenen Clustern, Orte und Hinweise gemeinsam
+const groupOf = (p: PinIndexItem) => (p.k === 'loot' ? cluster! : poiCluster!)
+let trailLayer: L.LayerGroup | null = null
+/** Marker-Symbol; Pins der aktiven Spur bleiben beim Abdunkeln hell. */
+function markerIcon(p: PinIndexItem, selected = false): L.DivIcon {
+  const icon = baseIcon(p, selected)
+  if (trails.pinIds.has(p.id)) icon.options.className += ' trail-pin'
+  return icon
+}
 let moveMarker: L.Marker | null = null
 const markers = new Map<number, L.Marker & { pin?: PinIndexItem }>()
 
@@ -103,12 +113,12 @@ function syncMarkers(list: PinIndexItem[]) {
     }
     const marker = L.marker(toLatLng(p.x, p.y), {
       icon: markerIcon(p, p.id === props.selectedId), title: p.t, keyboard: true, riseOnHover: true,
-      zIndexOffset: p.k === 'poi' ? -100 : 0,
+      zIndexOffset: p.k === 'loot' ? 0 : -100,
     }) as L.Marker & { pin?: PinIndexItem }
     marker.pin = p
     marker.on('click', () => emit('select', p.id))
     markers.set(p.id, marker)
-    add[p.k === 'poi' ? 'poi' : 'loot'].push(marker)
+    add[p.k === 'loot' ? 'loot' : 'poi'].push(marker)
   }
   cluster.addLayers(add.loot)
   poiCluster.addLayers(add.poi)
@@ -150,6 +160,7 @@ onMounted(async () => {
     iconCreateFunction: poiClusterIcon,
   })
   m.addLayer(poiCluster)
+  trailLayer = L.layerGroup().addTo(m)
   m.on('moveend zoomend', persist)
   m.on('contextmenu', (e: L.LeafletMouseEvent) => {
     const c = fromLatLng(e.latlng)
@@ -165,12 +176,75 @@ onMounted(async () => {
     ui.toast('Kartendaten nicht gefunden. Bitte scripts/map-import.sh ausführen.', 'error', 8000)
   }
   syncMarkers(pins.visible)
+  drawTrail()
+  if (fitted !== trails.fitRequest) fitTrail()
   persist()
 })
 
 onBeforeUnmount(() => map.value?.remove())
 
 watch(() => pins.visible, syncMarkers)
+
+/** Aktive Spur zeichnen: Linie von Schritt zu Schritt (parallele Schritte verzweigen) und Nummern. */
+function drawTrail() {
+  if (!map.value || !trailLayer) return
+  trailLayer.clearLayers()
+  const trail = trails.active
+  el.value?.classList.toggle('trail-focus', !!trail)
+  if (!trail) return
+  const shown = trail.steps.filter((s) => s.pin && !trails.isHidden(trail, s.id))
+  const groups = new Map<number, typeof shown>()
+  for (const s of shown) groups.set(s.position, [...(groups.get(s.position) ?? []), s])
+  const ordered = [...groups.entries()].sort((a, b) => a[0] - b[0]).map(([, g]) => g)
+  for (let i = 0; i + 1 < ordered.length; i++) {
+    for (const a of ordered[i]) for (const b of ordered[i + 1]) {
+      L.polyline([toLatLng(a.pin!.x, a.pin!.y), toLatLng(b.pin!.x, b.pin!.y)], {
+        color: a.done && b.done ? '#4ade80' : '#ff3d8b', weight: 3, opacity: 0.9, className: 'trail-line', interactive: false,
+      }).addTo(trailLayer)
+    }
+  }
+  const current = trail.steps[trails.stepIndex]?.id
+  for (const g of ordered) {
+    g.forEach((s, i) => {
+      const label = g.length > 1 ? `${s.position}${String.fromCharCode(97 + i)}` : String(s.position)
+      const badge = L.marker(toLatLng(s.pin!.x, s.pin!.y), {
+        icon: stepBadgeIcon(label, s.id === current ? 'current' : s.done ? 'done' : 'open'),
+        zIndexOffset: 2000, keyboard: false, title: `Schritt ${label}: ${s.title}`,
+      })
+      badge.on('click', () => {
+        trails.stepIndex = trail.steps.findIndex((x) => x.id === s.id)
+        emit('select', s.pin!.id)
+      })
+      badge.addTo(trailLayer!)
+    })
+  }
+}
+watch(() => [trails.active, trails.stepIndex, trails.spoiler, trails.revealed], drawTrail)
+/** Symbole der Spur-Pins auffrischen, wenn sich die Spur ändert (hell vs. abgedunkelt). */
+watch(() => trails.pinIds, (now, before) => {
+  for (const id of new Set([...now, ...(before ?? [])])) {
+    const mk = markers.get(id)
+    if (mk?.pin) mk.setIcon(markerIcon(mk.pin, id === props.selectedId))
+  }
+})
+
+/** Ausschnitt auf alle sichtbaren Schritte der aktiven Spur setzen. */
+let fitted = 0
+watch(() => trails.fitRequest, () => fitTrail())
+function fitTrail() {
+  const trail = trails.active
+  if (!map.value || !trail) return
+  fitted = trails.fitRequest
+  const pts = trail.steps.filter((s) => s.pin && !trails.isHidden(trail, s.id)).map((s) => toLatLng(s.pin!.x, s.pin!.y))
+  if (pts.length === 1) map.value.flyTo(pts[0], Math.max(map.value.getZoom(), 5), { duration: 0.6 })
+  else if (pts.length > 1) {
+    // Sidebar, Detailansicht und Spurleiste nicht überdecken
+    const wide = window.innerWidth > 760
+    const side = wide && ui.sidebarOpen ? (document.querySelector('.sidebar')?.getBoundingClientRect().right ?? 0) + 40 : 40
+    const right = wide && props.selectedId ? 450 : 60
+    map.value.flyToBounds(L.latLngBounds(pts), { paddingTopLeft: [side, 110], paddingBottomRight: [right, wide ? 150 : 200], maxZoom: 6, duration: 0.6 })
+  }
+}
 
 watch(() => props.selectedId, (id, old) => {
   for (const pid of [old, id]) {
@@ -216,7 +290,7 @@ function center() {
 function invalidate() {
   map.value?.invalidateSize()
 }
-defineExpose({ flyTo, center, invalidate })
+defineExpose({ flyTo, center, invalidate, fitTrail })
 </script>
 
 <template>

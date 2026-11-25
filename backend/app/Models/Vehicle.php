@@ -55,6 +55,7 @@ class Vehicle extends Model
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'created_by_id' => $this->created_by,
             'image' => $this->image?->toApi(),
             'manufacturer' => $this->manufacturer?->toApi(),
             'vehicle_class' => $this->vehicleClass?->toApi(),

@@ -1191,7 +1191,8 @@
                                                     "type": "string",
                                                     "enum": [
                                                         "loot",
-                                                        "poi"
+                                                        "poi",
+                                                        "hint"
                                                     ]
                                                 },
                                                 "poi_type": {
@@ -1316,11 +1317,47 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
                                                         "null"
                                                     ]
+                                                },
+                                                "trails": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "trail_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "trail_name": {
+                                                                "type": "string"
+                                                            },
+                                                            "step_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "step_count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "trail_id",
+                                                            "trail_name",
+                                                            "step_id",
+                                                            "position",
+                                                            "step_count"
+                                                        ]
+                                                    }
                                                 }
                                             },
                                             "required": [
@@ -1346,7 +1383,9 @@
                                                 "created_at",
                                                 "updated_at",
                                                 "created_by",
-                                                "updated_by"
+                                                "created_by_id",
+                                                "updated_by",
+                                                "trails"
                                             ]
                                         }
                                     },
@@ -1440,6 +1479,16 @@
                             ],
                             "pattern": "^-?\\d+(\\.\\d+)?(,-?\\d+(\\.\\d+)?){3}$"
                         }
+                    },
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
                     }
                 ],
                 "responses": {
@@ -1508,7 +1557,8 @@
                                                     "type": "string",
                                                     "enum": [
                                                         "loot",
-                                                        "poi"
+                                                        "poi",
+                                                        "hint"
                                                     ]
                                                 },
                                                 "poi_type": {
@@ -1633,11 +1683,47 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
                                                         "null"
                                                     ]
+                                                },
+                                                "trails": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "trail_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "trail_name": {
+                                                                "type": "string"
+                                                            },
+                                                            "step_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "step_count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "trail_id",
+                                                            "trail_name",
+                                                            "step_id",
+                                                            "position",
+                                                            "step_count"
+                                                        ]
+                                                    }
                                                 }
                                             },
                                             "required": [
@@ -1663,7 +1749,9 @@
                                                 "created_at",
                                                 "updated_at",
                                                 "created_by",
-                                                "updated_by"
+                                                "created_by_id",
+                                                "updated_by",
+                                                "trails"
                                             ]
                                         }
                                     },
@@ -1716,7 +1804,8 @@
                                                     "type": "string",
                                                     "enum": [
                                                         "loot",
-                                                        "poi"
+                                                        "poi",
+                                                        "hint"
                                                     ]
                                                 },
                                                 "poi_type": {
@@ -1841,11 +1930,47 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
                                                         "null"
                                                     ]
+                                                },
+                                                "trails": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "trail_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "trail_name": {
+                                                                "type": "string"
+                                                            },
+                                                            "step_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "step_count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "trail_id",
+                                                            "trail_name",
+                                                            "step_id",
+                                                            "position",
+                                                            "step_count"
+                                                        ]
+                                                    }
                                                 }
                                             },
                                             "required": [
@@ -1871,7 +1996,9 @@
                                                 "created_at",
                                                 "updated_at",
                                                 "created_by",
-                                                "updated_by"
+                                                "created_by_id",
+                                                "updated_by",
+                                                "trails"
                                             ]
                                         }
                                     },
@@ -1998,7 +2125,8 @@
                                                     "type": "string",
                                                     "enum": [
                                                         "loot",
-                                                        "poi"
+                                                        "poi",
+                                                        "hint"
                                                     ]
                                                 },
                                                 "poi_type": {
@@ -2123,11 +2251,47 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
                                                         "null"
                                                     ]
+                                                },
+                                                "trails": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "trail_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "trail_name": {
+                                                                "type": "string"
+                                                            },
+                                                            "step_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "step_count": {
+                                                                "type": "integer"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "trail_id",
+                                                            "trail_name",
+                                                            "step_id",
+                                                            "position",
+                                                            "step_count"
+                                                        ]
+                                                    }
                                                 }
                                             },
                                             "required": [
@@ -2153,7 +2317,9 @@
                                                 "created_at",
                                                 "updated_at",
                                                 "created_by",
-                                                "updated_by"
+                                                "created_by_id",
+                                                "updated_by",
+                                                "trails"
                                             ]
                                         }
                                     },
@@ -2438,6 +2604,766 @@
                                     },
                                     "required": [
                                         "deleted"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/trails": {
+            "get": {
+                "operationId": "trail.index",
+                "tags": [
+                    "Trail"
+                ],
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "string",
+                                "null"
+                            ],
+                            "maxLength": 100
+                        }
+                    },
+                    {
+                        "name": "author",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "integer",
+                                "null"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "items"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "trail.store",
+                "tags": [
+                    "Trail"
+                ],
+                "responses": {
+                    "201": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "item": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "step_count": {
+                                                    "type": "integer"
+                                                },
+                                                "steps_total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "steps_done": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "pin_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "steps": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "id",
+                                                "name",
+                                                "description",
+                                                "step_count",
+                                                "steps_total",
+                                                "steps_done",
+                                                "pin_ids",
+                                                "created_by_id",
+                                                "created_by",
+                                                "updated_at",
+                                                "updated_by",
+                                                "created_at",
+                                                "steps"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "item"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/trails/{id}": {
+            "get": {
+                "operationId": "trail.show",
+                "tags": [
+                    "Trail"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "item": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "step_count": {
+                                                    "type": "integer"
+                                                },
+                                                "steps_total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "steps_done": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "pin_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "steps": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "id",
+                                                "name",
+                                                "description",
+                                                "step_count",
+                                                "steps_total",
+                                                "steps_done",
+                                                "pin_ids",
+                                                "created_by_id",
+                                                "created_by",
+                                                "updated_at",
+                                                "updated_by",
+                                                "created_at",
+                                                "steps"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "item"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    }
+                }
+            },
+            "put": {
+                "operationId": "trail.update",
+                "tags": [
+                    "Trail"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "item": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "step_count": {
+                                                    "type": "integer"
+                                                },
+                                                "steps_total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "steps_done": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "pin_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "steps": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "id",
+                                                "name",
+                                                "description",
+                                                "step_count",
+                                                "steps_total",
+                                                "steps_done",
+                                                "pin_ids",
+                                                "created_by_id",
+                                                "created_by",
+                                                "updated_at",
+                                                "updated_by",
+                                                "created_at",
+                                                "steps"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "item"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "trail.destroy",
+                "tags": [
+                    "Trail"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "deleted": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "deleted"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/trails/{id}/steps/{step}/progress": {
+            "put": {
+                "operationId": "trail.progress",
+                "summary": "Schritt f\u00fcr die angemeldete Person als erledigt markieren oder zur\u00fccksetzen",
+                "tags": [
+                    "Trail"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "step",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "done": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "done"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "item": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "step_count": {
+                                                    "type": "integer"
+                                                },
+                                                "steps_total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "steps_done": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "pin_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "steps": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "id",
+                                                "name",
+                                                "description",
+                                                "step_count",
+                                                "steps_total",
+                                                "steps_done",
+                                                "pin_ids",
+                                                "created_by_id",
+                                                "created_by",
+                                                "updated_at",
+                                                "updated_by",
+                                                "created_at",
+                                                "steps"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "item"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/trails/{id}/progress": {
+            "delete": {
+                "operationId": "trail.resetProgress",
+                "summary": "Eigenen Fortschritt der Spur l\u00f6schen",
+                "tags": [
+                    "Trail"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "item": {
+                                            "type": "object",
+                                            "properties": {
+                                                "uuid": {
+                                                    "type": "string"
+                                                },
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "description": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "step_count": {
+                                                    "type": "integer"
+                                                },
+                                                "steps_total": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "steps_done": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "pin_ids": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "created_by_id": {
+                                                    "type": [
+                                                        "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "updated_by": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "created_at": {
+                                                    "type": [
+                                                        "string",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "steps": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "uuid",
+                                                "id",
+                                                "name",
+                                                "description",
+                                                "step_count",
+                                                "steps_total",
+                                                "steps_done",
+                                                "pin_ids",
+                                                "created_by_id",
+                                                "created_by",
+                                                "updated_at",
+                                                "updated_by",
+                                                "created_at",
+                                                "steps"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "item"
                                     ]
                                 }
                             }
@@ -3414,10 +4340,11 @@
         "schemas": {
             "PinKind": {
                 "type": "string",
-                "description": "Art eines Pins: Fundort mit Loot oder Ort (POI)\n",
+                "description": "Art eines Pins: Fundort mit Loot, Ort (POI) oder Hinweis (Zwischenstation einer Spur)\n",
                 "enum": [
                     "loot",
-                    "poi"
+                    "poi",
+                    "hint"
                 ],
                 "title": "PinKind"
             },

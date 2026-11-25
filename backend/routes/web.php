@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\LookupController;
 use App\Http\Controllers\Api\MetaController;
 use App\Http\Controllers\Api\PinController;
 use App\Http\Controllers\Api\PinImageController;
+use App\Http\Controllers\Api\TrailController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VehicleController;
 use App\Http\Controllers\Api\WeaponController;
@@ -34,6 +35,8 @@ Route::prefix('api')->group(function () {
         Route::get("$path/{id}", [$controller, 'show'])->whereNumber('id');
     }
     Route::get('lookups/{category}', [LookupController::class, 'index']);
+    Route::get('trails', [TrailController::class, 'index']);
+    Route::get('trails/{id}', [TrailController::class, 'show'])->whereNumber('id');
 
     Route::middleware(['auth', 'account.active'])->group(function () {
         Route::get('audit', [MetaController::class, 'audit']);
@@ -54,6 +57,12 @@ Route::prefix('api')->group(function () {
             Route::post("$path/{id}/image", [$controller, 'uploadImage'])->whereNumber('id');
             Route::delete("$path/{id}/image", [$controller, 'deleteImage'])->whereNumber('id');
         }
+
+        Route::post('trails', [TrailController::class, 'store']);
+        Route::put('trails/{id}', [TrailController::class, 'update'])->whereNumber('id');
+        Route::delete('trails/{id}', [TrailController::class, 'destroy'])->whereNumber('id');
+        Route::put('trails/{id}/steps/{step}/progress', [TrailController::class, 'progress'])->whereNumber(['id', 'step']);
+        Route::delete('trails/{id}/progress', [TrailController::class, 'resetProgress'])->whereNumber('id');
 
         Route::post('lookups/{category}', [LookupController::class, 'store']);
 

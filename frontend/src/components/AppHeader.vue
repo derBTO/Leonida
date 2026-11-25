@@ -29,6 +29,7 @@ async function logout() {
       <RouterLink to="/" class="link" :class="{ active: $route.name === 'map' || $route.name === 'pin' }">Karte</RouterLink>
       <RouterLink to="/waffen" class="link" active-class="active">Waffen</RouterLink>
       <RouterLink to="/fahrzeuge" class="link" active-class="active">Fahrzeuge</RouterLink>
+      <RouterLink to="/spuren" class="link" active-class="active">Spuren</RouterLink>
     </nav>
     <div class="user panel">
       <button v-if="!session.loggedIn" class="btn ghost sm" type="button" @click="ui.loginOpen = true"><LogIn :size="15" /> <span class="hide-sm">Anmelden</span></button>
