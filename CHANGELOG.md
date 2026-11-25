@@ -1,5 +1,9 @@
 # Änderungsprotokoll
 
+## v0.9.2 – Korrektur gtadb-Kennzeichnung (25.11.2026)
+
+- Alle bis dahin vorhandenen Pins werden einmalig als gtadb-Orte gekennzeichnet. Die Erkennung über die UUID aus v0.9.1 hatte auf dem Server nicht gegriffen, sodass der Schalter „Orte von gtadb.org zeigen“ dort wirkungslos war.
+
 ## v0.9.1 – Filter gtadb-Orte und Ersteller (25.11.2026)
 
 - Neuer Schalter **„Orte von gtadb.org zeigen“** in der Sidebar, standardmäßig aus. Übernommene Orte sind über das neue Feld `source = 'gtadb'` gekennzeichnet (vorhandene per Migration erkannt).
