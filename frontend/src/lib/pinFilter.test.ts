@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { PinIndexItem } from '../api/types'
 import { inBounds, matches, sortByTitle, type FilterState } from './pinFilter'
 
-const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, k: 'loot', p: null, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], u: null, ...o })
+const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, k: 'loot', p: null, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], u: null, o: null, ...o })
 const f = (o: Partial<FilterState> = {}): FilterState => ({ q: '', mode: 'both', loot: [], poi: [], showGone: true, ...o })
 
 describe('Pin-Filter', () => {
@@ -59,7 +59,15 @@ describe('Pin-Filter', () => {
     expect(matches(hint, f({ mode: 'hint', showHints: false }))).toBe(true)
     expect(matches(loot, f({ mode: 'hint' }))).toBe(false)
     expect(matches(hint, f({ mode: 'loot' }))).toBe(false)
-    expect([hint, loot].map((p) => matches(p, f({ mine: true }), 1))).toEqual([false, true])
-    expect(matches(hint, f({ mine: true }), null)).toBe(true)
+    expect([hint, loot].map((p) => matches(p, f({ author: 1 })))).toEqual([false, true])
+    expect([hint, loot].map((p) => matches(p, f({ author: 2 })))).toEqual([true, false])
+    expect(matches(hint, f({ author: null }))).toBe(true)
+  })
+
+  it('zeigt gtadb-Orte nur mit showGtadb', () => {
+    const imported = pin({ k: 'poi', p: 'gas_station', o: 'gtadb' })
+    expect(matches(imported, f())).toBe(false)
+    expect(matches(imported, f({ showGtadb: true }))).toBe(true)
+    expect(matches(pin({ k: 'poi', p: 'gas_station' }), f())).toBe(true)
   })
 })

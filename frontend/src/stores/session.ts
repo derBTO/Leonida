@@ -26,6 +26,8 @@ export const useSession = defineStore('session', () => {
   async function login(username: string, password: string) {
     const res = await api.post<{ user: User }>('/api/auth/login', { username, password })
     user.value = res.user
+    // Benutzerliste für den Ersteller-Filter gibt es erst angemeldet
+    meta.value = await api.get<Meta>('/api/meta').catch(() => meta.value)
   }
 
   async function logout() {

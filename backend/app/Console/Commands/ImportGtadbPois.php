@@ -119,6 +119,7 @@ class ImportGtadbPois extends Command
                 Pin::query()->create([
                     'uuid' => $r['uuid'],
                     'kind' => PinKind::Poi,
+                    'source' => 'gtadb',
                     'poi_type' => $r['type'],
                     'title' => $r['title'],
                     'description' => $r['description'],

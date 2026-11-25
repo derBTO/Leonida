@@ -13,8 +13,8 @@ export const usePins = defineStore('pins', () => {
   const loaded = ref(false)
   let etag: string | null = null
 
-  const filter = reactive<FilterState & { viewportOnly: boolean }>(
-    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, showHints: true, mine: false, viewportOnly: false }),
+  const filter = reactive<FilterState & { viewportOnly: boolean; author: number | null }>(
+    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, showHints: true, showGtadb: false, author: null as number | null, viewportOnly: false }),
   )
   watch(filter, () => save('filter', filter), { deep: true })
 
@@ -22,9 +22,10 @@ export const usePins = defineStore('pins', () => {
 
   /** Alle Pins, die Suche und Filter erfüllen – so auf der Karte angezeigt. Pins der aktiven Spur immer. */
   const visible = computed(() => {
-    const author = session.user?.id ?? null
+    // Ersteller-Filter nur für Angemeldete (nur sie sehen die Benutzerliste)
+    const f = session.user ? filter : { ...filter, author: null }
     const pinned = trails.pinIds
-    return items.value.filter((p) => pinned.has(p.id) || matches(p, filter, author))
+    return items.value.filter((p) => pinned.has(p.id) || matches(p, f))
   })
   /** Liste in der Sidebar: zusätzlich optional nur im Kartenausschnitt, alphabetisch. */
   const listed = computed(() => {
@@ -49,7 +50,7 @@ export const usePins = defineStore('pins', () => {
     filter.loot = []
     filter.showGone = true
     filter.showHints = true
-    filter.mine = false
+    filter.author = null
   }
 
   async function refresh() {

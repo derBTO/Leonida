@@ -42,6 +42,8 @@ export interface Option { value: string; label: string }
 
 export interface Meta {
   user: User | null
+  /** alle Benutzer (nur für Angemeldete), für den Filter „Ersteller“ */
+  authors: { id: number; username: string }[]
   enums: Record<'loot_type' | 'poi_type' | 'respawn' | 'pin_status' | 'drivetrain' | 'security' | 'tracker' | 'access' | 'lookup_category', Option[]>
   limits: { upload_max_mb: number; password_min_length: number }
   map: { manifest_url: string; tiles_url: string; version: string | null }
@@ -61,8 +63,10 @@ export interface PinIndexItem {
   w: string[]
   v: string[]
   c: string[]
-  /** ID des Erstellers (für „Nur meine“) */
+  /** ID des Erstellers (für den Filter „Ersteller“) */
   u: number | null
+  /** Herkunft: 'gtadb' = aus gtadb.org übernommen, sonst null */
+  o: 'gtadb' | null
 }
 
 export interface MediaRef { id: string; url: string; thumb_url: string; width: number; height: number }
@@ -163,6 +167,7 @@ export interface Pin {
   updated_at: string | null
   created_by: string | null
   created_by_id: number | null
+  source: 'gtadb' | null
   updated_by: string | null
   trails: PinTrailRef[]
 }

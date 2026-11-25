@@ -8,7 +8,8 @@ import type { LootType, PinIndexItem, PoiType } from '../api/types'
  * - Loottypen: mindestens einer der gewählten (ODER); 'none' = Pins ohne Loottyp. Nur für Loot-Pins.
  * - Art: alles, Loot, Orte oder Hinweise; POI-Kategorien (ODER) gelten nur für Orte.
  *   Hinweise erscheinen unter „Alles“ nur, wenn showHints an ist.
- * - mine: nur Pins der angemeldeten Person (author).
+ * - author: nur Pins dieses Erstellers (null = alle).
+ * - Aus gtadb.org übernommene Orte erscheinen nur mit showGtadb.
  */
 export type KindMode = 'both' | 'loot' | 'poi' | 'hint'
 export type LootFilter = LootType | 'none'
@@ -22,7 +23,8 @@ export interface FilterState {
   poi: PoiType[]
   showGone: boolean
   showHints?: boolean
-  mine?: boolean
+  showGtadb?: boolean
+  author?: number | null
 }
 
 export function terms(q: string): string[] {
@@ -39,8 +41,9 @@ function haystack(p: PinIndexItem): string {
   return h
 }
 
-export function matches(p: PinIndexItem, f: FilterState, author: number | null = null): boolean {
-  if (f.mine && author !== null && p.u !== author) return false
+export function matches(p: PinIndexItem, f: FilterState): boolean {
+  if (f.author != null && p.u !== f.author) return false
+  if (p.o === 'gtadb' && !f.showGtadb) return false
   if (p.k === 'hint') {
     if (f.mode !== 'hint' && !(f.mode === 'both' && f.showHints !== false)) return false
   } else if (f.mode === 'hint') {

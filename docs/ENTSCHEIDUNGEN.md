@@ -49,3 +49,5 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | „Nur meine“ | Filter über `created_by`, im Browser (Pins, Katalog, Spuren) und per `author` in der API | auch für spätere weitere Bearbeiter |
 | 25.11.2026 | Rechte (ersetzt „Editoren löschen alles“) | Bearbeiter ändern/löschen nur Selbstangelegtes; Katalog und Auswahllisten nur Admin; Einträge ohne Ersteller nur Admin | Wunsch BTO: niemand außer BTO darf fremde Einträge anfassen |
 | 25.11.2026 | Pins aus der Spur setzen | Entwurf der Spur im Browser halten, Karte mit Fadenkreuz, danach zurück in den Editor | kein Kartenwechsel im Dialog nötig, gleiche Bedienung wie „Neuer Pin“ |
+| 25.11.2026 | gtadb-Orte ausblendbar | Feld `pins.source`, Filter standardmäßig aus | Wunsch BTO; eigene Einträge stehen im Vordergrund |
+| 25.11.2026 | Ersteller-Filter | Auswahl Alle/Meine/Benutzer statt Häkchen; Benutzernamen nur für Angemeldete | mehrere Bearbeiter möglich, Namen nicht öffentlich |

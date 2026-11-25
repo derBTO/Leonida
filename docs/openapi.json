@@ -582,7 +582,8 @@
                                         "items": {
                                             "type": "array",
                                             "items": {
-                                                "type": "string"
+                                                "type": "array",
+                                                "items": {}
                                             }
                                         }
                                     },
@@ -961,6 +962,25 @@
                                                 "created_at"
                                             ]
                                         },
+                                        "authors": {
+                                            "type": "array",
+                                            "description": "F\u00fcr den Filter \u201eErsteller\u201c; Benutzernamen sehen nur Angemeldete",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "username": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "username"
+                                                ]
+                                            }
+                                        },
                                         "enums": {
                                             "type": "object",
                                             "properties": {
@@ -1053,6 +1073,7 @@
                                     },
                                     "required": [
                                         "user",
+                                        "authors",
                                         "enums",
                                         "limits",
                                         "map"
@@ -1106,7 +1127,56 @@
                                         "items": {
                                             "type": "array",
                                             "items": {
-                                                "type": "string"
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "user": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "action": {
+                                                        "type": "string"
+                                                    },
+                                                    "entity": {
+                                                        "type": "string"
+                                                    },
+                                                    "entity_id": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "summary": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "changes": {
+                                                        "type": [
+                                                            "array",
+                                                            "null"
+                                                        ],
+                                                        "items": {}
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "user",
+                                                    "action",
+                                                    "entity",
+                                                    "entity_id",
+                                                    "summary",
+                                                    "changes",
+                                                    "created_at"
+                                                ]
                                             }
                                         }
                                     },
@@ -1293,7 +1363,33 @@
                                                 "codes": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "label": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "code": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "label",
+                                                            "code",
+                                                            "description"
+                                                        ]
                                                     }
                                                 },
                                                 "images": {
@@ -1320,6 +1416,12 @@
                                                 "created_by_id": {
                                                     "type": [
                                                         "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "source": {
+                                                    "type": [
+                                                        "string",
                                                         "null"
                                                     ]
                                                 },
@@ -1384,6 +1486,7 @@
                                                 "updated_at",
                                                 "created_by",
                                                 "created_by_id",
+                                                "source",
                                                 "updated_by",
                                                 "trails"
                                             ]
@@ -1659,7 +1762,33 @@
                                                 "codes": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "label": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "code": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "label",
+                                                            "code",
+                                                            "description"
+                                                        ]
                                                     }
                                                 },
                                                 "images": {
@@ -1686,6 +1815,12 @@
                                                 "created_by_id": {
                                                     "type": [
                                                         "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "source": {
+                                                    "type": [
+                                                        "string",
                                                         "null"
                                                     ]
                                                 },
@@ -1750,6 +1885,7 @@
                                                 "updated_at",
                                                 "created_by",
                                                 "created_by_id",
+                                                "source",
                                                 "updated_by",
                                                 "trails"
                                             ]
@@ -1906,7 +2042,33 @@
                                                 "codes": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "label": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "code": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "label",
+                                                            "code",
+                                                            "description"
+                                                        ]
                                                     }
                                                 },
                                                 "images": {
@@ -1933,6 +2095,12 @@
                                                 "created_by_id": {
                                                     "type": [
                                                         "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "source": {
+                                                    "type": [
+                                                        "string",
                                                         "null"
                                                     ]
                                                 },
@@ -1997,6 +2165,7 @@
                                                 "updated_at",
                                                 "created_by",
                                                 "created_by_id",
+                                                "source",
                                                 "updated_by",
                                                 "trails"
                                             ]
@@ -2227,7 +2396,33 @@
                                                 "codes": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "label": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "code": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "label",
+                                                            "code",
+                                                            "description"
+                                                        ]
                                                     }
                                                 },
                                                 "images": {
@@ -2254,6 +2449,12 @@
                                                 "created_by_id": {
                                                     "type": [
                                                         "integer",
+                                                        "null"
+                                                    ]
+                                                },
+                                                "source": {
+                                                    "type": [
+                                                        "string",
                                                         "null"
                                                     ]
                                                 },
@@ -2318,6 +2519,7 @@
                                                 "updated_at",
                                                 "created_by",
                                                 "created_by_id",
+                                                "source",
                                                 "updated_by",
                                                 "trails"
                                             ]
@@ -2658,7 +2860,68 @@
                                         "items": {
                                             "type": "array",
                                             "items": {
-                                                "type": "string"
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "step_count": {
+                                                        "type": "integer"
+                                                    },
+                                                    "steps_total": {
+                                                        "type": "integer",
+                                                        "minimum": 0
+                                                    },
+                                                    "steps_done": {
+                                                        "type": "integer",
+                                                        "minimum": 0
+                                                    },
+                                                    "pin_ids": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "created_by_id": {
+                                                        "type": [
+                                                            "integer",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "created_by": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    },
+                                                    "updated_at": {
+                                                        "type": [
+                                                            "string",
+                                                            "null"
+                                                        ]
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "description",
+                                                    "step_count",
+                                                    "steps_total",
+                                                    "steps_done",
+                                                    "pin_ids",
+                                                    "created_by_id",
+                                                    "created_by",
+                                                    "updated_at"
+                                                ]
                                             }
                                         }
                                     },
@@ -2755,7 +3018,101 @@
                                                 "steps": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "pin": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "kind": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "loot",
+                                                                            "poi",
+                                                                            "hint"
+                                                                        ]
+                                                                    },
+                                                                    "poi_type": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ],
+                                                                        "enum": [
+                                                                            "poi",
+                                                                            "photo",
+                                                                            "ammunation",
+                                                                            "bar",
+                                                                            "gas_station",
+                                                                            "groceries",
+                                                                            "clothing",
+                                                                            "tattoo",
+                                                                            "garage",
+                                                                            "tuning",
+                                                                            "barber",
+                                                                            "pay_and_spray",
+                                                                            "workshop",
+                                                                            "airport",
+                                                                            "harbor",
+                                                                            "military",
+                                                                            "restaurant",
+                                                                            "apartment",
+                                                                            "race",
+                                                                            "bus_stop",
+                                                                            "train_stop",
+                                                                            null
+                                                                        ]
+                                                                    },
+                                                                    "x": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "y": {
+                                                                        "type": "number"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title",
+                                                                    "kind",
+                                                                    "poi_type",
+                                                                    "x",
+                                                                    "y"
+                                                                ]
+                                                            },
+                                                            "done": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "position",
+                                                            "title",
+                                                            "description",
+                                                            "pin",
+                                                            "done"
+                                                        ]
                                                     }
                                                 }
                                             },
@@ -2882,7 +3239,101 @@
                                                 "steps": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "pin": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "kind": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "loot",
+                                                                            "poi",
+                                                                            "hint"
+                                                                        ]
+                                                                    },
+                                                                    "poi_type": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ],
+                                                                        "enum": [
+                                                                            "poi",
+                                                                            "photo",
+                                                                            "ammunation",
+                                                                            "bar",
+                                                                            "gas_station",
+                                                                            "groceries",
+                                                                            "clothing",
+                                                                            "tattoo",
+                                                                            "garage",
+                                                                            "tuning",
+                                                                            "barber",
+                                                                            "pay_and_spray",
+                                                                            "workshop",
+                                                                            "airport",
+                                                                            "harbor",
+                                                                            "military",
+                                                                            "restaurant",
+                                                                            "apartment",
+                                                                            "race",
+                                                                            "bus_stop",
+                                                                            "train_stop",
+                                                                            null
+                                                                        ]
+                                                                    },
+                                                                    "x": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "y": {
+                                                                        "type": "number"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title",
+                                                                    "kind",
+                                                                    "poi_type",
+                                                                    "x",
+                                                                    "y"
+                                                                ]
+                                                            },
+                                                            "done": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "position",
+                                                            "title",
+                                                            "description",
+                                                            "pin",
+                                                            "done"
+                                                        ]
                                                     }
                                                 }
                                             },
@@ -3007,7 +3458,101 @@
                                                 "steps": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "pin": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "kind": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "loot",
+                                                                            "poi",
+                                                                            "hint"
+                                                                        ]
+                                                                    },
+                                                                    "poi_type": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ],
+                                                                        "enum": [
+                                                                            "poi",
+                                                                            "photo",
+                                                                            "ammunation",
+                                                                            "bar",
+                                                                            "gas_station",
+                                                                            "groceries",
+                                                                            "clothing",
+                                                                            "tattoo",
+                                                                            "garage",
+                                                                            "tuning",
+                                                                            "barber",
+                                                                            "pay_and_spray",
+                                                                            "workshop",
+                                                                            "airport",
+                                                                            "harbor",
+                                                                            "military",
+                                                                            "restaurant",
+                                                                            "apartment",
+                                                                            "race",
+                                                                            "bus_stop",
+                                                                            "train_stop",
+                                                                            null
+                                                                        ]
+                                                                    },
+                                                                    "x": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "y": {
+                                                                        "type": "number"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title",
+                                                                    "kind",
+                                                                    "poi_type",
+                                                                    "x",
+                                                                    "y"
+                                                                ]
+                                                            },
+                                                            "done": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "position",
+                                                            "title",
+                                                            "description",
+                                                            "pin",
+                                                            "done"
+                                                        ]
                                                     }
                                                 }
                                             },
@@ -3206,7 +3751,101 @@
                                                 "steps": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "pin": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "kind": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "loot",
+                                                                            "poi",
+                                                                            "hint"
+                                                                        ]
+                                                                    },
+                                                                    "poi_type": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ],
+                                                                        "enum": [
+                                                                            "poi",
+                                                                            "photo",
+                                                                            "ammunation",
+                                                                            "bar",
+                                                                            "gas_station",
+                                                                            "groceries",
+                                                                            "clothing",
+                                                                            "tattoo",
+                                                                            "garage",
+                                                                            "tuning",
+                                                                            "barber",
+                                                                            "pay_and_spray",
+                                                                            "workshop",
+                                                                            "airport",
+                                                                            "harbor",
+                                                                            "military",
+                                                                            "restaurant",
+                                                                            "apartment",
+                                                                            "race",
+                                                                            "bus_stop",
+                                                                            "train_stop",
+                                                                            null
+                                                                        ]
+                                                                    },
+                                                                    "x": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "y": {
+                                                                        "type": "number"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title",
+                                                                    "kind",
+                                                                    "poi_type",
+                                                                    "x",
+                                                                    "y"
+                                                                ]
+                                                            },
+                                                            "done": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "position",
+                                                            "title",
+                                                            "description",
+                                                            "pin",
+                                                            "done"
+                                                        ]
                                                     }
                                                 }
                                             },
@@ -3340,7 +3979,101 @@
                                                 "steps": {
                                                     "type": "array",
                                                     "items": {
-                                                        "type": "string"
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "position": {
+                                                                "type": "integer"
+                                                            },
+                                                            "title": {
+                                                                "type": "string"
+                                                            },
+                                                            "description": {
+                                                                "type": [
+                                                                    "string",
+                                                                    "null"
+                                                                ]
+                                                            },
+                                                            "pin": {
+                                                                "type": [
+                                                                    "object",
+                                                                    "null"
+                                                                ],
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "integer"
+                                                                    },
+                                                                    "title": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "kind": {
+                                                                        "type": "string",
+                                                                        "enum": [
+                                                                            "loot",
+                                                                            "poi",
+                                                                            "hint"
+                                                                        ]
+                                                                    },
+                                                                    "poi_type": {
+                                                                        "type": [
+                                                                            "string",
+                                                                            "null"
+                                                                        ],
+                                                                        "enum": [
+                                                                            "poi",
+                                                                            "photo",
+                                                                            "ammunation",
+                                                                            "bar",
+                                                                            "gas_station",
+                                                                            "groceries",
+                                                                            "clothing",
+                                                                            "tattoo",
+                                                                            "garage",
+                                                                            "tuning",
+                                                                            "barber",
+                                                                            "pay_and_spray",
+                                                                            "workshop",
+                                                                            "airport",
+                                                                            "harbor",
+                                                                            "military",
+                                                                            "restaurant",
+                                                                            "apartment",
+                                                                            "race",
+                                                                            "bus_stop",
+                                                                            "train_stop",
+                                                                            null
+                                                                        ]
+                                                                    },
+                                                                    "x": {
+                                                                        "type": "number"
+                                                                    },
+                                                                    "y": {
+                                                                        "type": "number"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "title",
+                                                                    "kind",
+                                                                    "poi_type",
+                                                                    "x",
+                                                                    "y"
+                                                                ]
+                                                            },
+                                                            "done": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "position",
+                                                            "title",
+                                                            "description",
+                                                            "pin",
+                                                            "done"
+                                                        ]
                                                     }
                                                 }
                                             },

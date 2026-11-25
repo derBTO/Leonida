@@ -14,6 +14,7 @@ use App\Enums\VehicleSecurity;
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
 use App\Models\MapVersion;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -24,6 +25,9 @@ class MetaController extends Controller
     {
         return response()->json([
             'user' => $request->user()?->toPublicArray(),
+            // Für den Filter „Ersteller“; Benutzernamen sehen nur Angemeldete
+            'authors' => $request->user() ? User::query()->orderByRaw('lower(username)')->get(['id', 'username'])
+                ->map(fn (User $u) => ['id' => $u->id, 'username' => $u->username])->all() : [],
             'enums' => [
                 'loot_type' => LootType::options(),
                 'respawn' => RespawnStatus::options(),

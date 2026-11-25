@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { api } from '../api/client'
 import type { Trail, TrailSummary } from '../api/types'
+import AuthorSelect from '../components/AuthorSelect.vue'
 import TrailForm from '../components/TrailForm.vue'
 import { terms } from '../lib/pinFilter'
 import { load as loadPref, save as savePref } from '../lib/storage'
@@ -18,10 +19,10 @@ const ui = useUi()
 const router = useRouter()
 const items = ref<TrailSummary[] | null>(null)
 const q = ref('')
-const prefs = loadPref('trails-page', { mine: false, open: false })
-const onlyMine = ref(prefs.mine)
+const prefs = loadPref('trails-page', { author: null as number | null, open: false })
+const author = ref<number | null>(prefs.author)
 const onlyOpen = ref(prefs.open)
-watch([onlyMine, onlyOpen], () => savePref('trails-page', { mine: onlyMine.value, open: onlyOpen.value }))
+watch([author, onlyOpen], () => savePref('trails-page', { author: author.value, open: onlyOpen.value }))
 const creating = ref(false)
 // Zurück vom Pin-Setzen: Editor mit dem Entwurf wieder öffnen
 const draft = trails.draft?.resume && trails.draft.trailId === null ? trails.draft : null
@@ -40,7 +41,7 @@ watch(() => [trails.version, session.user?.id], load)
 const shown = computed(() => {
   const words = terms(q.value)
   return (items.value ?? []).filter((t) => {
-    if (onlyMine.value && t.created_by_id !== session.user?.id) return false
+    if (author.value !== null && session.user && t.created_by_id !== author.value) return false
     if (onlyOpen.value && t.steps_total > 0 && t.steps_done >= t.steps_total) return false
     const h = `${t.name} ${t.description ?? ''}`.toLowerCase()
     return words.every((w) => h.includes(w))
@@ -59,7 +60,7 @@ function created(t: Trail) {
       <h1>Spuren</h1>
       <div class="tools">
         <div class="search"><Search :size="16" class="icon" /><input class="input" type="search" placeholder="Suchen …" v-model="q" /></div>
-        <label v-if="session.loggedIn" class="toggle"><input type="checkbox" v-model="onlyMine" /> Nur meine</label>
+        <AuthorSelect v-model="author" />
         <label v-if="session.loggedIn" class="toggle"><input type="checkbox" v-model="onlyOpen" /> Nur offene</label>
         <button v-if="session.canEdit" class="btn primary" type="button" @click="creating = true"><Plus :size="16" /> Neue Spur</button>
       </div>

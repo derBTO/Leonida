@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## v0.9.1 – Filter gtadb-Orte und Ersteller (25.11.2026)
+
+- Neuer Schalter **„Orte von gtadb.org zeigen“** in der Sidebar, standardmäßig aus. Übernommene Orte sind über das neue Feld `source = 'gtadb'` gekennzeichnet (vorhandene per Migration erkannt).
+- **Ersteller-Filter** statt „Nur meine“: Alle, Meine oder ein bestimmter Benutzer, in der Sidebar sowie bei Waffen, Fahrzeugen und Spuren. Nur für Angemeldete sichtbar; `/api/meta` liefert die Benutzerliste (`authors`) nur angemeldet.
+- Pin-Index mit Feld `o` (Herkunft); Export/Import übernimmt die Herkunft.
+
 ## v0.9 – Rechte für Bearbeiter, Pins direkt aus der Spur (25.11.2026)
 
 - **Rechte**: Bearbeiter dürfen Pins und Spuren anlegen, aber nur ihre eigenen ändern, verschieben oder löschen (auch Bilder). Einträge anderer und solche ohne Ersteller (z. B. importierte Orte) sind für sie gesperrt. Den eigenen Fortschritt in Spuren hakt weiterhin jede Person ab.

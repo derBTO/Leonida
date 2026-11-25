@@ -19,7 +19,7 @@ class PinIndex
 {
     public static function all(): array
     {
-        $pins = DB::table('pins')->orderBy('id')->get(['id', 'kind', 'poi_type', 'title', 'description', 'x', 'y', 'status', 'created_by']);
+        $pins = DB::table('pins')->orderBy('id')->get(['id', 'kind', 'poi_type', 'title', 'description', 'x', 'y', 'status', 'created_by', 'source']);
         $loot = self::grouped(DB::table('pin_loot_types')->orderBy('loot_type')->get(['pin_id', 'loot_type as v']));
         $weapons = self::grouped(DB::table('pin_weapons')->join('weapons', 'weapons.id', '=', 'pin_weapons.weapon_id')
             ->orderBy('pin_weapons.sort_order')->get(['pin_id', 'weapons.name as v']));
@@ -42,6 +42,7 @@ class PinIndex
             'v' => $vehicles[$p->id] ?? [],
             'c' => $codes[$p->id] ?? [],
             'u' => $p->created_by === null ? null : (int) $p->created_by,
+            'o' => $p->source,
         ])->all();
     }
 

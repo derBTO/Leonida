@@ -87,6 +87,7 @@ class Pin extends Model
             'updated_at' => $this->updated_at?->toIso8601String(),
             'created_by' => $this->createdBy?->username,
             'created_by_id' => $this->created_by,
+            'source' => $this->source,
             'updated_by' => $this->updatedBy?->username,
             'trails' => $this->trailSteps(),
         ];

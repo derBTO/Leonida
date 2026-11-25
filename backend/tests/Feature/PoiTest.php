@@ -82,6 +82,8 @@ class PoiTest extends TestCase
         $this->assertStringContainsString('CC BY 4.0', $gas->description);
         $this->assertStringContainsString('Vorbild: Shell, Miami', $gas->description);
         $this->assertSame('Bushaltestelle, Vice Beach', Pin::query()->where('poi_type', 'bus_stop')->value('title'));
+        $this->assertSame('gtadb', $gas->source);
+        $this->assertSame(['gtadb', 'gtadb'], array_column($this->getJson('/api/pins')->json('pins'), 'o'));
         $this->artisan('leonida:import-gtadb-pois', ['--file' => $file, '--apply' => true])->assertSuccessful();
         $this->assertSame(2, Pin::query()->count());
     }
@@ -94,5 +96,14 @@ class PoiTest extends TestCase
         copy($this->get('/api/admin/export')->baseResponse->getFile()->getPathname(), $zip);
         $this->post('/api/admin/import', ['file' => new \Illuminate\Http\UploadedFile($zip, 'e.zip', null, null, true), 'mode' => 'replace'], ['Accept' => 'application/json'])->assertOk();
         $this->assertSame('harbor', Pin::query()->first()->poi_type->value);
+    }
+
+    public function test_own_pins_have_no_source_and_authors_only_for_logged_in(): void
+    {
+        $this->assertSame([], $this->getJson('/api/meta')->json('authors'));
+        $editor = $this->editor();
+        $this->actingAs($editor);
+        $this->postJson('/api/pins', $this->poi())->assertCreated()->assertJsonPath('pin.source', null);
+        $this->assertContains(['id' => $editor->id, 'username' => $editor->username], $this->getJson('/api/meta')->json('authors'));
     }
 }

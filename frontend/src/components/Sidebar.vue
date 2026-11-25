@@ -5,17 +5,16 @@ import type { LootFilter } from '../lib/pinFilter'
 import type { PinIndexItem, PoiType } from '../api/types'
 import { LOOT, LOOT_ORDER, NO_LOOT_COLOR, ringGradient, sortLoot } from '../lib/lootTypes'
 import { HINT } from '../lib/hint'
+import AuthorSelect from './AuthorSelect.vue'
 import { POI, POI_ORDER } from '../lib/poiTypes'
 import type { KindMode } from '../lib/pinFilter'
 import { usePins } from '../stores/pins'
-import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
 
 defineProps<{ selectedId: number | null }>()
 const emit = defineEmits<{ select: [number] }>()
 const pins = usePins()
 const ui = useUi()
-const session = useSession()
 const f = pins.filter
 
 function toggle(t: LootFilter) {
@@ -31,6 +30,7 @@ const poiCounts = computed(() => {
   for (const p of pins.items) if (p.k === 'poi' && p.p) c.set(p.p, (c.get(p.p) ?? 0) + 1)
   return c
 })
+const gtadbCount = computed(() => pins.items.filter((p) => p.o === 'gtadb').length)
 const sub = (p: PinIndexItem) =>
   p.k === 'hint' ? (p.c.length ? `Hinweis · ${p.c.length} Code${p.c.length > 1 ? 's' : ''}` : 'Hinweis') : p.k === 'poi' ? POI[p.p ?? 'poi'].label : sortLoot(p.l).map((t) => LOOT[t].label).join(' · ') || 'Ohne Loottyp'
 
@@ -49,7 +49,7 @@ function onScroll() {
   scrollTop.value = scroller.value?.scrollTop ?? 0
   viewport.value = scroller.value?.clientHeight ?? 600
 }
-const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.length > 0 || f.mode !== 'both' || !f.showGone || f.showHints === false || !!f.mine)
+const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.length > 0 || f.mode !== 'both' || !f.showGone || f.showHints === false || !!f.showGtadb || f.author != null)
 </script>
 
 <template>
@@ -91,7 +91,8 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
       <label class="switch"><input type="checkbox" v-model="f.viewportOnly" /> Nur im Kartenausschnitt</label>
       <label v-if="f.mode === 'both' || f.mode === 'loot'" class="switch"><input type="checkbox" v-model="f.showGone" /> Nicht mehr verfügbare Loot-Pins zeigen</label>
       <label v-if="f.mode === 'both'" class="switch"><input type="checkbox" :checked="f.showHints !== false" @change="f.showHints = ($event.target as HTMLInputElement).checked" /> Hinweise zeigen</label>
-      <label v-if="session.loggedIn" class="switch"><input type="checkbox" v-model="f.mine" /> Nur meine Einträge</label>
+      <label v-if="f.mode === 'both' || f.mode === 'poi'" class="switch"><input type="checkbox" v-model="f.showGtadb" /> Orte von gtadb.org zeigen <span class="faint">({{ gtadbCount }})</span></label>
+      <AuthorSelect v-model="f.author" compact />
       <div class="count">
         <span><strong>{{ pins.listed.length }}</strong> Treffer<template v-if="pins.listed.length !== pins.items.length"> von {{ pins.items.length }}</template></span>
         <button v-if="filtersActive" type="button" class="btn ghost sm" @click="pins.resetFilter()">Filter zurücksetzen</button>
