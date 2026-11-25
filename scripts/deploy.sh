@@ -64,6 +64,7 @@ mkdir -p "$BUILD"
 echo "==> Release $RELEASE bauen in $BUILD"
 git -C "$PROJECT_DIR" archive HEAD backend | tar -x -C "$BUILD" --strip-components=1
 git -C "$PROJECT_DIR" archive HEAD frontend | tar -x -C "$(dirname "$BUILD")"
+git -C "$PROJECT_DIR" archive HEAD imports | tar -x -C "$BUILD"
 WORK="$(dirname "$BUILD")"
 if [[ $USE_DOCKER_NODE -eq 1 ]]; then
     docker run --rm -v "$WORK:/w" -w /w/frontend node:22-alpine sh -c \

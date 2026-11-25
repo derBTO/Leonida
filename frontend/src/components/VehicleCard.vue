@@ -2,6 +2,7 @@
 import type { Vehicle } from '../api/types'
 import { useSession } from '../stores/session'
 import MediaImage from './MediaImage.vue'
+import SourceLink from './SourceLink.vue'
 import RatingPair from './RatingPair.vue'
 import StatBar from './StatBar.vue'
 
@@ -37,6 +38,7 @@ const yesNo = (v: boolean | null) => (v === null ? '–' : v ? 'Ja' : 'Nein')
     </div>
     <RatingPair :on-road="vehicle.rating_on_road" :off-road="vehicle.rating_off_road" />
     <p v-if="vehicle.notes" class="notes">{{ vehicle.notes }}</p>
+    <SourceLink v-if="vehicle.source" :source="vehicle.source" />
   </article>
 </template>
 

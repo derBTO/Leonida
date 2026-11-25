@@ -31,6 +31,12 @@ onMounted(async () => {
       </p>
       <p>Ein Teil der Orte (POIs) wie Tankstellen, Haltestellen und Geschäfte wurde aus den Landmarken-Daten von gtadb.org übernommen (CC BY 4.0, „GTA VI Landmarks Data — https://map.gtadb.org“). Die Beschreibung jedes übernommenen Orts verlinkt auf den Originaleintrag.</p>
       <p v-if="manifest" class="muted">Aktueller Kartenstand: {{ manifest.version }} (gtadb.org-Commit {{ manifest.source.commit.slice(0, 7) }}).</p>
+      <h2>Waffen- und Fahrzeugdaten</h2>
+      <p>
+        Viele Waffen und Fahrzeuge samt Werten (Schaden, Treffgenauigkeit, Geschwindigkeit, Ratings usw.) und Beschreibungen stammen aus
+        <a href="https://meowdb.com/gta6/" target="_blank" rel="noopener">NiaDB (NiaMeowDB)</a>, das die Weiterverwendung mit Quellenlink erlaubt.
+        Jeder übernommene Eintrag verlinkt mit „Daten von NiaDB“ auf die Seite, von der seine Daten stammen. Bilder wurden nicht übernommen.
+      </p>
       <h2>Spiel</h2>
       <p>Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Dies ist ein privates Fanprojekt ohne Verbindung zu diesen Unternehmen.</p>
       <h2>Software</h2>

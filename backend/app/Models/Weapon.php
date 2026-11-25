@@ -66,6 +66,7 @@ class Weapon extends Model
             'magazine_size' => $this->magazine_size,
             'stats' => $this->only(self::STATS),
             'notes' => $this->notes,
+            'source' => $this->source_name ? ['name' => $this->source_name, 'url' => $this->source_url] : null,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'created_by' => $this->createdBy?->username,

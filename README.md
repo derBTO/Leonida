@@ -2,7 +2,7 @@
 
 Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Privates Projekt unter **https://leonida.derbto.de**.
 
-Aktuelle Version: **0.6**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
+Aktuelle Version: **0.7**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
 
 ## Funktionen
 
@@ -44,6 +44,7 @@ Aktuelle Version: **0.6**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), E
 - [Lokale Entwicklung und Tests](docs/ENTWICKLUNG.md)
 - [Backup und Wiederherstellung](docs/BACKUP.md)
 - [Kartengrundlage aktualisieren](docs/KARTE-AKTUALISIEREN.md)
+- [Waffen und Fahrzeuge per CSV importieren](docs/KATALOG-IMPORT.md)
 - [API](docs/API.md)
 
 ## Schnellstart lokal

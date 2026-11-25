@@ -84,6 +84,7 @@ class Vehicle extends Model
             'rating_on_road' => $this->rating_on_road,
             'rating_off_road' => $this->rating_off_road,
             'notes' => $this->notes,
+            'source' => $this->source_name ? ['name' => $this->source_name, 'url' => $this->source_url] : null,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'created_by' => $this->createdBy?->username,

@@ -14,6 +14,14 @@
 
 Ein Teil der Orte wurde aus `map/data/6/landmarks.json` von gtadb.org übernommen (CC BY 4.0, „GTA VI Landmarks Data (CC BY 4.0) — https://map.gtadb.org“). Übernommen werden Name, Position und reales Vorbild; jede Beschreibung verlinkt auf den Originaleintrag. Kategorien wurden aus den gtadb-Tags abgeleitet.
 
+## Waffen- und Fahrzeugdaten – NiaDB
+
+Ein Grundbestand an Waffen und Fahrzeugen (Namen, Typ/Klasse, Hersteller, Werte, Ratings, Beschreibungen) stammt aus NiaMeowDB, https://meowdb.com/gta6/ (abgerufen am 25.11.2026). NiaDB erlaubt die Weiterverwendung der Daten mit Quellenlink („Data from NiaDB“); Bilder gehören ihren Urhebern und wurden nicht übernommen.
+
+- Rohdaten: `imports/niadb/raw/`, umgewandelt mit `scripts/niadb_convert.py` nach `imports/niadb/waffen.csv` und `fahrzeuge.csv`.
+- Jeder übernommene Eintrag trägt `source_name = NiaDB` und `source_url` mit der Seite, von der seine Daten stammen; die Karte zeigt „Daten von NiaDB“ mit Link.
+- Änderungen durch Leonida: Typ- und Klassennamen ins Deutsche übertragen, Sammel- und Platzhaltereinträge weggelassen, „legendär“ aus der Beschreibung abgeleitet.
+
 ## Grand Theft Auto VI
 
 Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Leonida ist ein privates Fanprojekt ohne Verbindung zu diesen Unternehmen und verwendet keine Logos, Schriften oder Grafiken aus dem Spiel.

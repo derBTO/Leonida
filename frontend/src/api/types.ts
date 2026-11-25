@@ -73,6 +73,12 @@ export type VehicleStats = Record<'speed' | 'acceleration' | 'handling_on_road' 
 
 export interface Location { id: number; title: string; x: number; y: number; status: PinStatus }
 
+/** Herkunft übernommener Daten (z. B. NiaDB mit Link zur Quellseite). */
+export interface CatalogSource {
+  name: string
+  url: string | null
+}
+
 export interface WeaponSummary {
   id: number
   name: string
@@ -91,6 +97,7 @@ export interface Weapon extends WeaponSummary {
   caliber: LookupValue | null
   magazine_size: number | null
   notes: string | null
+  source: CatalogSource | null
   created_at: string | null
   updated_at: string | null
   created_by: string | null
@@ -120,6 +127,7 @@ export interface Vehicle extends VehicleSummary {
   access: 'key' | 'keyless' | null
   registrable: boolean | null
   notes: string | null
+  source: CatalogSource | null
   created_at: string | null
   updated_at: string | null
   created_by: string | null

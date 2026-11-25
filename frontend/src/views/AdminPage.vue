@@ -103,6 +103,47 @@ async function afterLookupChange() {
   catalog.invalidate()
 }
 
+// ---------------------------------------------------------------- CSV-Import Katalog
+interface CsvReport {
+  kind: 'weapons' | 'vehicles'
+  dry_run: boolean
+  rows: number
+  created: number
+  updated: number
+  unchanged: number
+  skipped: number
+  conflict_count: number
+  errors: { line: number; name: string | null; messages: string[] }[]
+  conflicts: { line: number; name: string; field: string; current: string; csv: string }[]
+  lookups_created: Record<string, string[]>
+}
+const csvKind = ref<'weapons' | 'vehicles'>('weapons')
+const csvFile = ref<File | null>(null)
+const csvOverwrite = ref(false)
+const csvReport = ref<CsvReport | null>(null)
+const csvBusy = ref(false)
+const categoryLabel = (c: string) => categories.value.find((x) => x.value === c)?.label ?? c
+async function runCsvImport(dryRun: boolean) {
+  if (!csvFile.value) return
+  if (!dryRun && csvOverwrite.value && !window.confirm('Abweichende vorhandene Werte werden durch die Werte aus der Datei ersetzt. Fortfahren?')) return
+  const data = new FormData()
+  data.append('file', csvFile.value)
+  data.append('dry_run', dryRun ? '1' : '0')
+  data.append('overwrite', csvOverwrite.value ? '1' : '0')
+  csvBusy.value = true
+  try {
+    csvReport.value = (await api.post<{ report: CsvReport }>(`/api/admin/catalog-import/${csvKind.value}`, data)).report
+    if (!dryRun) {
+      ui.toast('CSV-Import abgeschlossen.', 'ok')
+      catalog.invalidate()
+    }
+  } catch (e) {
+    ui.error(e)
+  } finally {
+    csvBusy.value = false
+  }
+}
+
 // ---------------------------------------------------------------- Daten
 const importFile = ref<File | null>(null)
 const importMode = ref<'merge' | 'replace'>('merge')
@@ -222,6 +263,51 @@ onMounted(() => loadUsers().catch(ui.error))
           </div>
         </div>
         <pre v-if="report" class="report">{{ JSON.stringify(report, null, 2) }}</pre>
+
+        <h2 class="mt">Waffen &amp; Fahrzeuge aus CSV</h2>
+        <p class="muted">
+          Eine Zeile pro Eintrag, erste Zeile mit Spaltennamen wie in der Vorlage. Zuordnung über den Namen; leere Zellen ändern nichts.
+          Vorhandene Werte bleiben erhalten, solange „Überschreiben“ nicht gewählt ist. Neue Listenwerte werden automatisch angelegt.
+        </p>
+        <div class="import">
+          <div class="row">
+            <label><input type="radio" value="weapons" v-model="csvKind" @change="csvReport = null" /> Waffen</label>
+            <label><input type="radio" value="vehicles" v-model="csvKind" @change="csvReport = null" /> Fahrzeuge</label>
+            <a class="btn" :href="`/api/admin/catalog-template/${csvKind}`" download><Download :size="14" /> Vorlage</a>
+          </div>
+          <input type="file" accept=".csv,text/csv,text/plain" @change="csvFile = ($event.target as HTMLInputElement).files?.[0] ?? null; csvReport = null" />
+          <label><input type="checkbox" v-model="csvOverwrite" /> Abweichende vorhandene Werte überschreiben</label>
+          <div class="row">
+            <button class="btn" type="button" :disabled="!csvFile || csvBusy" @click="runCsvImport(true)">Probelauf</button>
+            <button class="btn primary" type="button" :disabled="!csvFile || csvBusy" @click="runCsvImport(false)"><Upload :size="16" /> Importieren</button>
+          </div>
+        </div>
+        <div v-if="csvReport" class="csv-report">
+          <p>
+            <strong>{{ csvReport.dry_run ? 'Probelauf' : 'Import' }}:</strong>
+            {{ csvReport.rows }} Zeilen · {{ csvReport.created }} neu · {{ csvReport.updated }} ergänzt ·
+            {{ csvReport.unchanged }} unverändert · {{ csvReport.skipped }} übersprungen
+            <span v-if="csvReport.dry_run" class="muted"> – nichts gespeichert</span>
+          </p>
+          <p v-for="(names, cat) in csvReport.lookups_created" :key="cat" class="muted">
+            Neue Listenwerte ({{ categoryLabel(String(cat)) }}): {{ names.join(', ') }}
+          </p>
+          <template v-if="csvReport.errors.length">
+            <h3>Fehler (Zeile wird übersprungen)</h3>
+            <ul class="error-text">
+              <li v-for="e in csvReport.errors" :key="e.line">Zeile {{ e.line }}<template v-if="e.name"> ({{ e.name }})</template>: {{ e.messages.join(' ') }}</li>
+            </ul>
+          </template>
+          <template v-if="csvReport.conflict_count">
+            <h3>{{ csvReport.conflict_count }} abweichende Werte nicht überschrieben</h3>
+            <table class="table">
+              <thead><tr><th>Zeile</th><th>Name</th><th>Feld</th><th>Vorhanden</th><th>CSV</th></tr></thead>
+              <tbody>
+                <tr v-for="c in csvReport.conflicts" :key="`${c.line}-${c.field}`"><td>{{ c.line }}</td><td>{{ c.name }}</td><td>{{ c.field }}</td><td>{{ c.current }}</td><td>{{ c.csv }}</td></tr>
+              </tbody>
+            </table>
+          </template>
+        </div>
       </section>
 
       <section v-if="tab === 'audit'" class="panel box">
@@ -261,7 +347,10 @@ h2 { font-size: 22px; margin-bottom: 6px; }
 .new { display: grid; grid-template-columns: 1fr 1fr 160px auto; gap: 10px; align-items: end; margin-top: 16px; }
 .cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .import { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
-.import .row { display: flex; gap: 8px; }
+.import .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.csv-report { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.csv-report h3 { font-size: 16px; margin-top: 8px; }
+.csv-report ul { margin: 0; padding-left: 18px; }
 .report { background: rgba(0, 0, 0, 0.35); padding: 12px; border-radius: 8px; overflow: auto; font-size: 12px; }
 @media (max-width: 760px) { .new { grid-template-columns: 1fr; } }
 </style>

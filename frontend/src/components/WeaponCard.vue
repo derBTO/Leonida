@@ -2,6 +2,7 @@
 import type { Weapon } from '../api/types'
 import LegendaryStar from './LegendaryStar.vue'
 import MediaImage from './MediaImage.vue'
+import SourceLink from './SourceLink.vue'
 import StatBar from './StatBar.vue'
 
 /** Waffenkarte: 1. Name, 2. großes Bild, 3. Eigenschaften, 4. Werte. */
@@ -29,6 +30,7 @@ const name = (v: { name: string } | null) => v?.name ?? '–'
       <StatBar label="Reichweite" :value="weapon.stats.range" />
     </div>
     <p v-if="weapon.notes" class="notes">{{ weapon.notes }}</p>
+    <SourceLink v-if="weapon.source" :source="weapon.source" />
   </article>
 </template>
 

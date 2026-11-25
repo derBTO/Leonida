@@ -1,5 +1,12 @@
 # Änderungsprotokoll
 
+## v0.7 – Katalog-Import und NiaDB-Daten (25.11.2026)
+
+- **CSV-Import für Waffen und Fahrzeuge** unter Verwaltung → Export & Import (Probelauf, Vorlage zum Herunterladen) und als Befehl `php artisan leonida:catalog-import`. Zuordnung über den Namen, leere Zellen ändern nichts, vorhandene Werte bleiben ohne „Überschreiben“ erhalten. Neue Listenwerte werden angelegt. Fehlerhafte Zeilen werden mit Zeilennummer gemeldet und übersprungen.
+- Neue Felder **Quelle** (`source_name`, `source_url`) bei Waffen und Fahrzeugen; Anzeige als „Daten von …“ mit Link auf der Karte.
+- **Startbestand aus NiaDB** (meowdb.com/gta6, Weiterverwendung mit Quellenlink erlaubt): 153 Waffen (118 mit Werten, 81 als legendär erkannt) und 235 Fahrzeuge (122 mit Werten und Ratings) in `imports/niadb/`. Bilder wurden nicht übernommen.
+- `deploy.sh` liefert den Ordner `imports/` mit aus.
+
 ## v0.6 – Legendäre Waffen (25.11.2026)
 
 - Neues Waffenfeld **Legendär / Unique** (Ja, Nein oder unbekannt). Legendäre Waffen tragen einen gelben Stern hinter dem Namen: auf der Waffenkarte, in der Übersicht, im Pin und in der Waffenauswahl.

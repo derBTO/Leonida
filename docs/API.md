@@ -42,6 +42,8 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | GET / POST / PATCH / DELETE | `/api/users…` | Benutzerverwaltung | Admin |
 | GET | `/api/admin/export` | ZIP-Export | Admin |
 | POST | `/api/admin/import` | ZIP-Import (`file`, `mode=merge|replace`, `dry_run`) | Admin |
+| POST | `/api/admin/catalog-import/{weapons|vehicles}` | CSV-Import (`file`, `dry_run`, `overwrite`), siehe [KATALOG-IMPORT.md](KATALOG-IMPORT.md) | Admin |
+| GET | `/api/admin/catalog-template/{weapons|vehicles}` | CSV-Vorlage | Admin |
 | GET | `/api/audit` | letzte 200 Änderungen | angemeldet |
 
 Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `caliber`, `vehicle_manufacturer`, `vehicle_class`, `vehicle_style`.

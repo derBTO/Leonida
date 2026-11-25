@@ -40,3 +40,6 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | Karte | Nur noch die Satellitenkarte `day`, Community-Karten und Ebenen-Auswahl entfernt | Wunsch BTO; Satellit reicht, ca. 90 MB statt 320 MB |
 | 25.11.2026 | Legendäre Waffen | Feld `is_legendary` mit Ja/Nein/unbekannt, Anzeige als gelber Stern | Wunsch BTO; Stern statt Pistole, weil die Pistole schon Ammu-Nation kennzeichnet |
 | 25.11.2026 | Ammu-Nation-Symbol | eigene Pistole im Lucide-Stil statt Zielscheibe | Wunsch BTO; Lucide hat kein Waffen-Symbol |
+| 25.11.2026 | Datenquelle Katalog | NiaDB (meowdb.com/gta6) statt GTABase | NiaDB erlaubt die Weiterverwendung mit Quellenlink ausdrücklich, auch für KI-Werkzeuge; GTABase untersagt das Auslesen in seinen Nutzungsbedingungen |
+| 25.11.2026 | Katalog-Import | CSV mit festen Spaltennamen, Abgleich über den Namen, vorhandene Werte nur mit „Überschreiben“ ersetzen | eigene Pflege hat Vorrang; wiederholbar; auch für eigene Tabellen aus Excel/Numbers nutzbar |
+| 25.11.2026 | Legendär aus NiaDB | „ja“, wenn die Beschreibung unique, gold-icon oder „variant of“ nennt; Basismodelle („is its unique variant“) bleiben unbekannt | Ableitung nur aus dem Text; nie „nein“ ohne Beleg |

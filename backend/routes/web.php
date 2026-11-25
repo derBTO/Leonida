@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CatalogImportController;
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\LookupController;
 use App\Http\Controllers\Api\MetaController;
@@ -68,6 +69,8 @@ Route::prefix('api')->group(function () {
 
             Route::get('admin/export', [DataController::class, 'export']);
             Route::post('admin/import', [DataController::class, 'import']);
+            Route::post('admin/catalog-import/{kind}', [CatalogImportController::class, 'import'])->whereIn('kind', ['weapons', 'vehicles']);
+            Route::get('admin/catalog-template/{kind}', [CatalogImportController::class, 'template'])->whereIn('kind', ['weapons', 'vehicles']);
         });
     });
 
