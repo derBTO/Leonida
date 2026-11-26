@@ -68,10 +68,10 @@ Ein Puzzle verbindet Hinweise in fester Reihenfolge und führt zu einer **Belohn
 
 - **Suche** in der Seitenleiste: findet Titel, Beschreibungen, Waffen, Fahrzeuge und Codes.
 - **Alles / Loot / Orte / Hinweise:** welche Pin-Arten gezeigt werden.
-- **Loottypen** und **Ort-Kategorien:** einzeln an- und abwählen.
+- **Loottypen** und **Ort-Kategorien:** einzeln an- und abwählen. Unter „Alles“ zeigt eine Auswahl nur noch das Gewählte: nur „Ammu-Nation“ angeklickt → nur Ammu-Nation-Läden, keine Loot-Pins. Ist nichts gewählt, wird alles gezeigt.
 - **Orte von gtadb.org zeigen:** blendet die aus gtadb.org übernommenen Orte ein (standardmäßig aus).
 - **Eastereggs:** zeigen, ausblenden oder nur Eastereggs.
-- **Ersteller:** nur eigene Einträge („Meine“) oder die einer bestimmten Person zeigen.
+- **Ersteller:** nur eigene Einträge („Meine“) oder die einer bestimmten Person zeigen. Bei Waffen und Fahrzeugen zählen auch Einträge, die die Person bearbeitet hat.
 - **Nur im Kartenausschnitt:** Liste auf den sichtbaren Bereich beschränken.
 
-Ein Klick auf einen Pin öffnet seine Details in einem Fenster über der Karte; Esc oder das × schließt es. Jeder Pin hat eine eigene Adresse; „Link kopieren“ im Pin teilt genau diesen Ort.
+Ein Klick auf einen Pin öffnet seine Details in einem Fenster über der Karte; Esc oder das × schließt es. Am Computer lässt sich das Fenster an der Titelleiste verschieben, ein Doppelklick auf die Titelleiste setzt es zurück in die Mitte. Jeder Pin hat eine eigene Adresse; „Link kopieren“ im Pin teilt genau diesen Ort.

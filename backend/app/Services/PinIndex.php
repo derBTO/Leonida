@@ -74,7 +74,14 @@ class PinIndex
         if ($egg !== null) {
             $query->where('pins.is_easteregg', $egg);
         }
-        // Loottyp-Filter gilt nur für Loot-Pins, POI-Filter nur für Orte
+        // Loottyp-Filter gilt nur für Loot-Pins, POI-Filter nur für Orte. Ohne Art („Alles“) zählt
+        // nur die Auswahl: nur Kategorien gewählt → keine Loot-Pins, nur Loottypen → keine Orte.
+        if (! $kind && $poi && ! $loot) {
+            $query->where('pins.kind', '!=', 'loot');
+        }
+        if (! $kind && $loot && ! $poi) {
+            $query->where('pins.kind', '!=', 'poi');
+        }
         if ($poi) {
             $query->where(fn ($w) => $w->where('pins.kind', '!=', 'poi')->orWhereIn('pins.poi_type', $poi));
         }

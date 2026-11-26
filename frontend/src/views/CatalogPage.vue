@@ -46,7 +46,8 @@ const items = computed<(WeaponSummary | VehicleSummary)[]>(() => {
     const groupId = 'weapon_type' in i ? i.weapon_type?.id : (i as VehicleSummary).vehicle_class?.id
     if (group.value !== '' && groupId !== group.value) return false
     if (onlyLegendary.value && !('weapon_type' in i && i.is_legendary)) return false
-    if (author.value !== null && session.user && i.created_by_id !== author.value) return false
+    // angelegt oder bearbeitet (editor_ids), sonst nur angelegt
+    if (author.value !== null && session.user && !(i.editor_ids ?? [i.created_by_id]).includes(author.value)) return false
     const text = [i.name, 'weapon_type' in i ? i.weapon_type?.name : (i as VehicleSummary).manufacturer?.name, 'vehicle_class' in i ? i.vehicle_class?.name : ''].join(' ').toLowerCase()
     return words.every((w) => text.includes(w))
   })

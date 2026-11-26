@@ -42,6 +42,21 @@ test('Bearbeiter dürfen Fremdes nicht ändern und keine Waffen anlegen', async 
   await expect(page.getByRole('dialog').locator('header h2')).toHaveText('E2E Admin-Versteck')
   await expect(page.getByRole('dialog').locator('.actions')).toHaveCount(0)
 
+  // Dialog lässt sich am Kopf verschieben, Doppelklick setzt zurück
+  const head = page.getByRole('dialog').locator('header')
+  const before = (await page.getByRole('dialog').boundingBox())!
+  const h = (await head.boundingBox())!
+  await page.mouse.move(h.x + 60, h.y + h.height / 2)
+  await page.mouse.down()
+  await page.mouse.move(h.x + 260, h.y + h.height / 2 + 80, { steps: 5 })
+  await page.mouse.up()
+  const after = (await page.getByRole('dialog').boundingBox())!
+  expect(Math.round(after.x - before.x)).toBe(200)
+  expect(Math.round(after.y - before.y)).toBe(80)
+  await head.dblclick({ position: { x: 60, y: h.height / 2 } })
+  expect(Math.round((await page.getByRole('dialog').boundingBox())!.x)).toBe(Math.round(before.x))
+  await page.keyboard.press('Escape')
+
   await page.goto('/waffen')
   // legendäre Waffe: Name in Gelb mit Stern
   await expect(page.locator('h3.legendary-name', { hasText: 'E2E Test-Pistole' })).toBeVisible()

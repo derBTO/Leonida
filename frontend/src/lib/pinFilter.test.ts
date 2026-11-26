@@ -27,6 +27,16 @@ describe('Pin-Filter', () => {
     expect([a, b, c].map((p) => matches(p, f({ loot: ['none'] })))).toEqual([false, false, true])
   })
 
+  it('zeigt unter „Alles“ nur die gewählten Kategorien bzw. Loottypen', () => {
+    const shop = pin({ k: 'poi', p: 'ammunation' })
+    const garage = pin({ k: 'poi', p: 'garage' })
+    const loot = pin({ l: ['weapons'] })
+    expect([shop, garage, loot].map((p) => matches(p, f({ poi: ['ammunation'] })))).toEqual([true, false, false])
+    expect([shop, garage, loot].map((p) => matches(p, f({ loot: ['weapons'] })))).toEqual([false, false, true])
+    expect([shop, garage, loot].map((p) => matches(p, f({ poi: ['garage'], loot: ['weapons'] })))).toEqual([false, true, true])
+    expect([shop, garage, loot].map((p) => matches(p, f()))).toEqual([true, true, true])
+  })
+
   it('blendet nicht mehr verfügbare Pins optional aus', () => {
     expect(matches(pin({ s: 'gone' }), f({ showGone: false }))).toBe(false)
     expect(matches(pin({ s: 'gone' }), f({ showGone: true }))).toBe(true)
@@ -46,8 +56,8 @@ describe('Pin-Filter', () => {
     const all = [loot, gas, bar]
     expect(all.map((p) => matches(p, f({ mode: 'loot' })))).toEqual([true, false, false])
     expect(all.map((p) => matches(p, f({ mode: 'poi' })))).toEqual([false, true, true])
-    expect(all.map((p) => matches(p, f({ poi: ['bar'] })))).toEqual([true, false, true])
-    expect(all.map((p) => matches(p, f({ loot: ['weapons'] })))).toEqual([false, true, true])
+    expect(all.map((p) => matches(p, f({ poi: ['bar'] })))).toEqual([false, false, true])
+    expect(all.map((p) => matches(p, f({ loot: ['weapons'] })))).toEqual([false, false, false])
     expect(matches(gas, f({ q: 'tank' }))).toBe(true)
   })
 

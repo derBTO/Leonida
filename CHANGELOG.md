@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## v1.2.1 – Filter, „Meine“ im Katalog, verschiebbare Dialoge (26.11.2026)
+
+- **Filter unter „Alles“:** Sind Ort-Kategorien oder Loottypen gewählt, zeigen Karte und Liste nur noch das Gewählte. Nur „Ammu-Nation“ angeklickt zeigt jetzt nur Ammu-Nation-Läden statt zusätzlich aller Loot-Pins.
+- **Ersteller „Meine“ bei Waffen und Fahrzeugen:** zeigt auch Einträge, die man bearbeitet hat (zuletzt geändert oder laut Änderungsprotokoll angelegt, geändert oder Bild gesetzt), nicht nur selbst angelegte. Die API liefert dafür `editor_ids` je Eintrag.
+- **Dialoge verschiebbar:** Fenster über der Karte (Pin-Details, Editor usw.) lassen sich am Computer an der Titelleiste verschieben; Doppelklick setzt sie zurück. Auf dem Handy bleiben sie bildschirmfüllend.
+
 ## v1.2.0 – Ammu-Nation-Sortiment, Ortsfarben wie im Spiel (26.11.2026)
 
 - **Waffensortiment für Ammu-Nation:** Orte der Kategorie Ammu-Nation führen eine Liste ihrer Waffen. Der Laden erscheint bei diesen Waffen als Fundort (ohne „über Hinweis“). Wechselt der Ort die Kategorie, entfällt das Sortiment.

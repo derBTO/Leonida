@@ -52,15 +52,20 @@ export function matches(p: PinIndexItem, f: FilterState): boolean {
   } else if (f.author != null && p.u !== f.author) {
     return false
   }
+  // Unter „Alles“: Sobald Loottypen oder Ort-Kategorien gewählt sind, zählt nur noch die Auswahl.
+  // Nur „Ammu-Nation“ gewählt → nur Ammu-Nation-Orte, keine Loot-Pins (und umgekehrt).
+  const selecting = f.mode === 'both' && (f.loot.length > 0 || f.poi.length > 0)
   if (p.k === 'hint') {
     if (f.mode !== 'hint' && !(f.mode === 'both' && f.showHints !== false)) return false
   } else if (f.mode === 'hint') {
     return false
   } else if (p.k === 'poi') {
     if (f.mode === 'loot') return false
+    if (selecting && f.poi.length === 0) return false
     if (f.poi.length > 0 && (!p.p || !f.poi.includes(p.p))) return false
   } else {
     if (f.mode === 'poi') return false
+    if (selecting && f.loot.length === 0) return false
     if (!f.showGone && p.s === 'gone') return false
     if (f.loot.length > 0) {
       const ok = f.loot.some((t) => (t === 'none' ? p.l.length === 0 : p.l.includes(t)))

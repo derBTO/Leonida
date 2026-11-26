@@ -99,6 +99,8 @@ export interface WeaponSummary {
   id: number
   name: string
   created_by_id?: number | null
+  /** wer den Eintrag angelegt oder bearbeitet hat (Übersicht) */
+  editor_ids?: number[]
   /** true = legendär/unique, false = nein, null = unbekannt */
   is_legendary: boolean | null
   image: MediaRef | null
@@ -127,6 +129,8 @@ export interface VehicleSummary {
   id: number
   name: string
   created_by_id?: number | null
+  /** wer den Eintrag angelegt oder bearbeitet hat (Übersicht) */
+  editor_ids?: number[]
   image: MediaRef | null
   manufacturer: LookupValue | null
   vehicle_class: LookupValue | null

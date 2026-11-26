@@ -24,14 +24,14 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | POST | `/api/auth/login` · `/api/auth/logout` | Anmelden / Abmelden | öffentlich |
 | POST | `/api/auth/password` | eigenes Passwort ändern | angemeldet |
 | GET | `/api/pins` | kompakte Liste aller Pins für die Karte (mit ETag) | öffentlich |
-| GET | `/api/pins/search?q=&kind=&loot[]=&poi[]=&bbox=&author=&egg=` | IDs passender Pins (gleiche Regeln wie im Browser); `egg=1` nur Eastereggs, `egg=0` ohne | öffentlich |
+| GET | `/api/pins/search?q=&kind=&loot[]=&poi[]=&bbox=&author=&egg=` | IDs passender Pins (gleiche Regeln wie im Browser: ohne `kind` schränken gewählte `poi[]`/`loot[]` auf das Gewählte ein); `egg=1` nur Eastereggs, `egg=0` ohne | öffentlich |
 | GET | `/api/pins/{id}` | Pin mit Waffen, Fahrzeugen, Codes, Bildern | öffentlich |
 | POST / PUT / DELETE | `/api/pins` · `/api/pins/{id}` | Pin anlegen / ändern / löschen | angemeldet; ändern nur Ersteller oder Admin |
 | PATCH | `/api/pins/{id}/position` | Pin verschieben | angemeldet; ändern nur Ersteller oder Admin |
 | POST | `/api/pins/{id}/images` | Bild hochladen (`multipart/form-data`: `file`, `caption`) | angemeldet; ändern nur Ersteller oder Admin |
 | PUT | `/api/pins/{id}/images/order` | Reihenfolge (`ids`) | angemeldet; ändern nur Ersteller oder Admin |
 | PATCH / DELETE | `/api/pin-images/{id}` | Beschreibung ändern / Bild löschen | angemeldet; ändern nur Ersteller oder Admin |
-| GET | `/api/weapons` · `/api/vehicles` | Übersicht mit Anzahl Fundorte, Filter `q`, Lookup-IDs | öffentlich |
+| GET | `/api/weapons` · `/api/vehicles` | Übersicht mit Anzahl Fundorte und `editor_ids` (angelegt/bearbeitet von), Filter `q`, Lookup-IDs, `author` (angelegt oder bearbeitet) | öffentlich |
 | GET | `/api/weapons/{id}` · `/api/vehicles/{id}` | Detail inkl. Fundorte | öffentlich |
 | POST / PUT / DELETE | `/api/weapons…` · `/api/vehicles…` | anlegen / ändern / löschen (`?force=1`, wenn Fundorte zugeordnet sind) | Admin |
 | POST / DELETE | `/api/weapons/{id}/image` · `/api/vehicles/{id}/image` | Hauptbild setzen / entfernen | Admin |

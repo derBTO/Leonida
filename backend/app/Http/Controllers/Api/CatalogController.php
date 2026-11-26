@@ -53,8 +53,14 @@ abstract class CatalogController extends Controller
                 $query->where($column, (int) $request->query($column));
             }
         }
+        // Bearbeiter: angelegt, zuletzt geändert oder laut Protokoll angelegt/geändert/Bild gesetzt
+        $editors = DB::table('audit_log')->where('entity', $this->entity())->whereIn('action', ['create', 'update', 'image'])
+            ->whereNotNull('user_id')->whereNotNull('entity_id')->distinct()->get(['entity_id', 'user_id'])
+            ->groupBy('entity_id')->map(fn ($rows) => $rows->pluck('user_id')->map(fn ($id) => (int) $id)->all());
         if ($request->filled('author')) {
-            $query->where('created_by', (int) $request->query('author'));
+            $author = (int) $request->query('author');
+            $logged = $editors->filter(fn ($ids) => in_array($author, $ids, true))->keys()->map(fn ($id) => (int) $id)->all();
+            $query->where(fn (Builder $q) => $q->where('created_by', $author)->orWhere('updated_by', $author)->orWhereIn('id', $logged));
         }
         $this->filter($query, $request);
         // Fundorte: Loot-Pins und über Hinweise verknüpfte Orte
@@ -62,6 +68,8 @@ abstract class CatalogController extends Controller
 
         return response()->json(['items' => $query->get()->map(fn ($item) => $item->toSummary() + [
             'location_count' => (int) ($counts[$item->id] ?? 0),
+            'editor_ids' => collect([$item->created_by, $item->updated_by, ...($editors[(string) $item->id] ?? [])])
+                ->filter()->map(fn ($id) => (int) $id)->unique()->values()->all(),
         ])->all()]);
     }
 

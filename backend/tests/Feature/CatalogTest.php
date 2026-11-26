@@ -99,4 +99,27 @@ class CatalogTest extends TestCase
         $pin = $this->postJson('/api/pins', ['title' => 'Versteck', 'x' => 0, 'y' => 0, 'loot_types' => ['weapons'], 'weapon_ids' => [$gold['id']]])->json('pin.id');
         $this->assertTrue($this->getJson("/api/pins/$pin")->json('pin.weapons.0.is_legendary'));
     }
+
+    public function test_author_filter_includes_items_edited_by_user(): void
+    {
+        $admin = $this->admin();
+        $other = $this->admin();
+        $this->actingAs($other);
+        $mine = $this->postJson('/api/weapons', ['name' => 'Von mir angelegt'])->json('item');
+        $edited = $this->postJson('/api/weapons', ['name' => 'Fremd, von mir geändert'])->json('item');
+        $this->postJson('/api/weapons', ['name' => 'Fremd'])->assertCreated();
+        $this->actingAs($admin);
+        $this->postJson('/api/weapons', ['name' => 'Wirklich meins'])->assertCreated();
+        $this->putJson("/api/weapons/{$edited['id']}", ['name' => 'Fremd, von mir geändert', 'description' => 'neu'])->assertOk();
+        // Änderung durch jemand anderen danach: bleibt trotzdem „meins“ (Protokoll)
+        $this->actingAs($other)->putJson("/api/weapons/{$edited['id']}", ['name' => 'Fremd, von mir geändert'])->assertOk();
+
+        $this->actingAs($admin);
+        $names = array_column($this->getJson('/api/weapons?author='.$admin->id)->json('items'), 'name');
+        sort($names);
+        $this->assertSame(['Fremd, von mir geändert', 'Wirklich meins'], $names);
+        $item = collect($this->getJson('/api/weapons')->json('items'))->firstWhere('id', $edited['id']);
+        $this->assertEqualsCanonicalizing([$other->id, $admin->id], $item['editor_ids']);
+        $this->assertNotContains($admin->id, collect($this->getJson('/api/weapons')->json('items'))->firstWhere('id', $mine['id'])['editor_ids']);
+    }
 }

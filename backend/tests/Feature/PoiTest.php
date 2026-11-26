@@ -56,9 +56,10 @@ class PoiTest extends TestCase
         $this->assertSame([$loot], $this->getJson('/api/pins/search?kind=loot')->json('ids'));
         $this->assertEqualsCanonicalizing([$gas, $bar], $this->getJson('/api/pins/search?kind=poi')->json('ids'));
         $this->assertSame([$bar], $this->getJson('/api/pins/search?kind=poi&poi[]=bar')->json('ids'));
-        // Loot-Filter wirkt nicht auf Orte, POI-Filter nicht auf Loot
-        $this->assertEqualsCanonicalizing([$loot, $gas, $bar], $this->getJson('/api/pins/search?loot[]=cash')->json('ids'));
-        $this->assertEqualsCanonicalizing([$loot, $bar], $this->getJson('/api/pins/search?poi[]=bar')->json('ids'));
+        // Ohne Art zählt nur die Auswahl: nur Loottypen → keine Orte, nur Kategorien → kein Loot, beides → Vereinigung
+        $this->assertSame([$loot], $this->getJson('/api/pins/search?loot[]=cash')->json('ids'));
+        $this->assertSame([$bar], $this->getJson('/api/pins/search?poi[]=bar')->json('ids'));
+        $this->assertEqualsCanonicalizing([$loot, $bar], $this->getJson('/api/pins/search?poi[]=bar&loot[]=cash')->json('ids'));
         $index = collect($this->getJson('/api/pins')->json('pins'))->keyBy('id');
         $this->assertSame('poi', $index[$bar]['k']);
         $this->assertSame('bar', $index[$bar]['p']);
