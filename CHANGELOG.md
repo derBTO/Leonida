@@ -1,5 +1,9 @@
 # Änderungsprotokoll
 
+## v1.0.2 – Backup-Ziel einstellbar (26.11.2026)
+
+- `scripts/backup-pull.sh` liest den Zielordner aus `LEONIDA_BACKUP_TARGET` in `deploy.env` (z. B. `~/Nextcloud/Backup/Leonida`, damit die Sicherungen zusätzlich in der Cloud liegen).
+
 ## v1.0.1 – Sicherungen auf den Mac holen (26.11.2026)
 
 - Neu: `scripts/backup-pull.sh` holt Datenbank-Sicherungen und Bilder vom Server nach `~/LeonidaBackup` (nur Neues, nie löschen, Protokollzeile je Lauf). Doku in `docs/BACKUP.md`.

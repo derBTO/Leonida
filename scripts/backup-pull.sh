@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Holt die Sicherungen vom Server auf diesen Rechner (bei Bedarf von Hand ausführen).
 #
-#   scripts/backup-pull.sh              nach ~/LeonidaBackup
+#   scripts/backup-pull.sh              nach LEONIDA_BACKUP_TARGET aus deploy.env (sonst ~/LeonidaBackup)
 #   scripts/backup-pull.sh /Pfad/Ziel   in einen anderen Ordner
 #
 # Übertragen werden
@@ -19,12 +19,12 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 case "${1:-}" in
     -h|--help) sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
 esac
-TARGET="${1:-$HOME/LeonidaBackup}"
-
 CONFIG="$PROJECT_DIR/deploy.env"
 [[ -f "$CONFIG" ]] || { echo "FEHLER: $CONFIG fehlt (Vorlage: deploy.env.example)." >&2; exit 1; }
 # shellcheck source=/dev/null
 source "$CONFIG"
+TARGET="${1:-${LEONIDA_BACKUP_TARGET:-$HOME/LeonidaBackup}}"
+TARGET="${TARGET/#\~/$HOME}"
 : "${LEONIDA_SSH_HOST:?}" "${LEONIDA_SSH_USER:?}" "${LEONIDA_REMOTE_DIR:?}" "${LEONIDA_PUBLIC_DIR:?in deploy.env setzen}"
 PORT="${LEONIDA_SSH_PORT:-222}"
 REMOTE="$LEONIDA_SSH_USER@$LEONIDA_SSH_HOST"

@@ -29,7 +29,7 @@ Die Sicherungen liegen sonst nur auf demselben Server wie die Seite, und die Bil
 scripts/backup-pull.sh
 ```
 
-Das holt per `rsync` die Datenbank-Sicherungen nach `~/LeonidaBackup/db/` und alle Bilder nach `~/LeonidaBackup/uploads/`. Übertragen wird nur Neues; auf dem Mac wird nie etwas gelöscht, dort bleiben also auch Sicherungen erhalten, die der Server nach 14 Tagen aufräumt. Jeder Lauf schreibt eine Zeile nach `~/LeonidaBackup/backup-pull.log`. Anderer Zielordner: `scripts/backup-pull.sh /Pfad/zum/Ordner`. Zugangsdaten kommen wie bei `deploy.sh` aus `deploy.env`.
+Das holt per `rsync` die Datenbank-Sicherungen nach `<Ziel>/db/` und alle Bilder nach `<Ziel>/uploads/`. Das Ziel steht in `deploy.env` als `LEONIDA_BACKUP_TARGET` (bei BTO `~/Nextcloud/Backup/Leonida`, damit es zusätzlich in der Nextcloud landet; ohne Eintrag `~/LeonidaBackup`). Übertragen wird nur Neues; auf dem Mac wird nie etwas gelöscht, dort bleiben also auch Sicherungen erhalten, die der Server nach 14 Tagen aufräumt. Jeder Lauf schreibt eine Zeile nach `<Ziel>/backup-pull.log`. Anderer Zielordner: `scripts/backup-pull.sh /Pfad/zum/Ordner`. Zugangsdaten kommen wie bei `deploy.sh` aus `deploy.env`.
 
 **Hinweis Hetzner:** Dort gibt es nur `pg_dump` 15, die Datenbank läuft mit PostgreSQL 17. `pg_dump` verweigert dann die Sicherung; Leonida sichert deshalb automatisch per PHP als `leonida-JJJJ-MM-TT-HHMMSS.json.gz` (alle Tabellen außer Cache und Sitzungen, in einem konsistenten Stand). Ein passendes `pg_dump` lässt sich mit `LEONIDA_PG_DUMP=/pfad/zu/pg_dump` in `.env` vorgeben.
 
