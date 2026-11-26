@@ -21,21 +21,21 @@ Auf dem Server:
 cd ~/leonida/current && php artisan leonida:backup
 ```
 
-Auf den Mac holen:
+## Auf den Mac holen
+
+Die Sicherungen liegen sonst nur auf demselben Server wie die Seite, und die Bilder sind darin nicht enthalten. Deshalb regelmäßig (z. B. nach größeren Änderungen) auf dem Mac ausführen:
 
 ```
-rsync -av hetzner:leonida/shared/backups/ ~/LeonidaBackup/db/
+scripts/backup-pull.sh
 ```
+
+Das holt per `rsync` die Datenbank-Sicherungen nach `~/LeonidaBackup/db/` und alle Bilder nach `~/LeonidaBackup/uploads/`. Übertragen wird nur Neues; auf dem Mac wird nie etwas gelöscht, dort bleiben also auch Sicherungen erhalten, die der Server nach 14 Tagen aufräumt. Jeder Lauf schreibt eine Zeile nach `~/LeonidaBackup/backup-pull.log`. Anderer Zielordner: `scripts/backup-pull.sh /Pfad/zum/Ordner`. Zugangsdaten kommen wie bei `deploy.sh` aus `deploy.env`.
 
 **Hinweis Hetzner:** Dort gibt es nur `pg_dump` 15, die Datenbank läuft mit PostgreSQL 17. `pg_dump` verweigert dann die Sicherung; Leonida sichert deshalb automatisch per PHP als `leonida-JJJJ-MM-TT-HHMMSS.json.gz` (alle Tabellen außer Cache und Sitzungen, in einem konsistenten Stand). Ein passendes `pg_dump` lässt sich mit `LEONIDA_PG_DUMP=/pfad/zu/pg_dump` in `.env` vorgeben.
 
-## Bilder sichern
+## Bilder
 
-```
-rsync -av hetzner:public_html/derbto.de/leonida/media/ ~/LeonidaBackup/uploads/
-```
-
-Dateinamen enthalten eine zufällige ID und ändern sich nie. Weitere Läufe übertragen daher nur neue Bilder.
+Die Bilder holt `scripts/backup-pull.sh` mit (siehe oben). Dateinamen enthalten eine zufällige ID und ändern sich nie. Weitere Läufe übertragen daher nur neue Bilder.
 
 ## Wiederherstellen
 

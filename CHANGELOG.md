@@ -1,5 +1,9 @@
 # Änderungsprotokoll
 
+## v1.0.1 – Sicherungen auf den Mac holen (26.11.2026)
+
+- Neu: `scripts/backup-pull.sh` holt Datenbank-Sicherungen und Bilder vom Server nach `~/LeonidaBackup` (nur Neues, nie löschen, Protokollzeile je Lauf). Doku in `docs/BACKUP.md`.
+
 ## v1.0.0 – Erste vollständige Version (26.11.2026)
 
 - **Eastereggs**: Jeder Pin (Loot, Ort oder Hinweis) kann als Easteregg markiert werden und erscheint dann auf der Karte immer mit dem grünen Ei-Symbol. Filter in der Seitenleiste: zeigen, ausblenden oder nur Eastereggs. API: Feld `is_easteregg`, Index-Feld `e`, Suche `egg=1|0`.
