@@ -2,12 +2,21 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPinLocations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Weapon extends Model
 {
+    use HasPinLocations;
+
+    public const PIVOT = 'pin_weapons';
+
+    public const PIVOT_KEY = 'weapon_id';
+
+    public const TRAIL_PIVOT = 'trail_weapons';
+
     public const STATS = ['damage', 'accuracy', 'handling', 'range'];
 
     public const LOOKUPS = [
@@ -101,9 +110,8 @@ class Weapon extends Model
             'updated_by' => $this->updatedBy?->username,
         ];
         if ($withLocations) {
-            $data['locations'] = $this->pins()->orderBy('title')->get(['pins.id', 'title', 'x', 'y', 'status'])
-                ->map(fn (Pin $p) => ['id' => $p->id, 'title' => $p->title, 'x' => (float) $p->x, 'y' => (float) $p->y, 'status' => $p->status->value])
-                ->all();
+            $data['locations'] = $this->locations();
+            $data['puzzles'] = $this->puzzles();
         }
 
         return $data;

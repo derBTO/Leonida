@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, Copy, Link2, Move, Pencil, Route, Trash2 } from 'lucide-vue-next'
+import { Car, Check, Copy, Crosshair, Link2, Move, Pencil, Puzzle, Trash2 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { api } from '../api/client'
@@ -50,6 +50,11 @@ async function showTrail(trailId: number, stepId: number) {
   }
 }
 
+/** Bild eines Hinweis-Schritts in voller Größe in einem neuen Tab öffnen */
+function openImage(url: string) {
+  window.open(url, '_blank', 'noopener')
+}
+
 async function copy(text: string, key: string) {
   try {
     await navigator.clipboard.writeText(text)
@@ -77,7 +82,7 @@ defineExpose({ reload: load })
 </script>
 
 <template>
-  <Modal :title="pin?.title ?? (error ? 'Pin' : 'Lade …')" width="760px" @close="emit('close')">
+  <Modal :title="pin?.title ?? (error ? 'Pin' : 'Lade …')" width="760px" :fill="pin?.kind === 'hint'" @close="emit('close')">
     <div class="head-row">
       <span v-if="pin?.is_easteregg" class="type egg" :style="{ '--c': EGG.color }"><span v-html="EGG.svg" />{{ EGG.label }}</span>
       <div v-if="pin && pin.kind === 'poi'" class="types">
@@ -92,6 +97,59 @@ defineExpose({ reload: load })
     </div>
       <div v-if="error" class="error-text">{{ error }}</div>
       <div v-else-if="!pin" class="muted">Lade …</div>
+      <!-- Hinweis: Kopf (Titel bis Verknüpfungen) bleibt stehen, nur die Schritte scrollen -->
+      <div v-else-if="pin.kind === 'hint'" class="hint-layout">
+        <div class="hint-head scroll">
+          <div v-if="session.canModify(pin.created_by_id)" class="actions">
+            <button class="btn sm" type="button" @click="emit('edit', pin.id)"><Pencil :size="14" /> Bearbeiten</button>
+            <button class="btn sm" type="button" @click="emit('move', pin)"><Move :size="14" /> Verschieben</button>
+            <button class="btn sm danger" type="button" @click="remove"><Trash2 :size="14" /> Löschen</button>
+          </div>
+          <div v-if="pin.trails.length" class="trails">
+            <div v-for="t in pin.trails" :key="t.step_id" class="trail" :class="{ active: trails.activeId === t.trail_id }">
+              <Puzzle :size="16" />
+              <span class="t-text">
+                <small class="faint">Schritt {{ t.position }} von {{ t.step_count }}</small>
+                <RouterLink :to="`/puzzle/${t.trail_id}`">{{ t.trail_name }}</RouterLink>
+              </span>
+              <button v-if="trails.activeId !== t.trail_id" class="btn sm" type="button" @click="showTrail(t.trail_id, t.step_id)">Auf Karte</button>
+            </div>
+          </div>
+          <p v-if="pin.description" class="desc"><RichText :text="pin.description" /></p>
+          <div v-for="(c, i) in pin.codes" :key="i" class="code">
+            <div>
+              <span class="label">{{ c.label || 'Code' }}</span>
+              <code>{{ c.code }}</code>
+              <small v-if="c.description" class="muted">{{ c.description }}</small>
+            </div>
+            <button class="btn sm icon" type="button" :aria-label="`Code ${c.code} kopieren`" @click="copy(c.code, `c${i}`)">
+              <Check v-if="copied === `c${i}`" :size="15" /><Copy v-else :size="15" />
+            </button>
+          </div>
+          <div v-if="pin.place || pin.vehicles.length || pin.weapons.length" class="links">
+            <RouterLink v-if="pin.place" :to="`/pin/${pin.place.id}`" class="link-chip" :style="{ '--c': POI[pin.place.poi_type ?? 'poi'].color }">
+              <span class="sq" v-html="POI[pin.place.poi_type ?? 'poi'].svg" />{{ pin.place.title }}
+            </RouterLink>
+            <RouterLink v-for="v in pin.vehicles" :key="`v${v.id}`" :to="`/fahrzeuge/${v.id}`" class="link-chip"><Car :size="14" />{{ v.name }}</RouterLink>
+            <RouterLink v-for="w in pin.weapons" :key="`w${w.id}`" :to="`/waffen/${w.id}`" class="link-chip" :class="{ 'legendary-name': w.is_legendary }">
+              <Crosshair :size="14" />{{ w.name }}<LegendaryStar v-if="w.is_legendary" :size="13" />
+            </RouterLink>
+          </div>
+        </div>
+        <div class="hint-steps scroll">
+          <section v-for="(s, i) in pin.steps" :key="s.id" class="hstep">
+            <div class="hstep-head"><span class="hnum">{{ i + 1 }}</span><hr /></div>
+            <img v-if="s.image" :src="s.image.url" :alt="s.text ?? `Bild zu Schritt ${i + 1}`" class="himg" loading="lazy" @click="openImage(s.image.url)" />
+            <p v-if="s.text" class="htext"><RichText :text="s.text" /></p>
+          </section>
+          <p v-if="!pin.steps.length" class="faint">Noch keine Schritte.</p>
+          <footer class="meta faint">
+            <button class="btn ghost sm" type="button" @click="copy(link(), 'link')"><Check v-if="copied === 'link'" :size="14" /><Link2 v-else :size="14" /> Link kopieren</button>
+            <div>Erstellt {{ formatDate(pin.created_at) }}<template v-if="pin.created_by"> von {{ pin.created_by }}</template></div>
+            <div>Bearbeitet {{ formatDate(pin.updated_at) }}<template v-if="pin.updated_by"> von {{ pin.updated_by }}</template></div>
+          </footer>
+        </div>
+      </div>
       <template v-else>
         <div v-if="pin.kind === 'loot'" class="badges">
           <span class="badge" :class="statusClass[pin.status]">{{ session.label('pin_status', pin.status) }}</span>
@@ -106,16 +164,20 @@ defineExpose({ reload: load })
 
         <div v-if="pin.trails.length" class="trails">
           <div v-for="t in pin.trails" :key="t.step_id" class="trail" :class="{ active: trails.activeId === t.trail_id }">
-            <Route :size="16" />
+            <Puzzle :size="16" />
             <span class="t-text">
               <small class="faint">Schritt {{ t.position }} von {{ t.step_count }}</small>
-              <RouterLink :to="`/spuren/${t.trail_id}`">{{ t.trail_name }}</RouterLink>
+              <RouterLink :to="`/puzzle/${t.trail_id}`">{{ t.trail_name }}</RouterLink>
             </span>
             <button v-if="trails.activeId !== t.trail_id" class="btn sm" type="button" @click="showTrail(t.trail_id, t.step_id)">Auf Karte</button>
           </div>
         </div>
 
         <p v-if="pin.description" class="desc"><RichText :text="pin.description" /></p>
+        <template v-if="pin.hints.length">
+          <div class="section-title">Hinweise zu diesem Ort</div>
+          <RouterLink v-for="h in pin.hints" :key="h.id" :to="`/pin/${h.id}`" class="link-chip" :style="{ '--c': HINT.color }"><span class="hint-dot" v-html="HINT.svg" />{{ h.title }}</RouterLink>
+        </template>
         <div v-if="pin.requirements" class="req"><span class="label">Voraussetzungen / Hinweise</span><p><RichText :text="pin.requirements" /></p></div>
 
         <div v-if="pin.images.length" class="gallery">
@@ -173,6 +235,21 @@ defineExpose({ reload: load })
 .types { display: flex; flex-wrap: wrap; gap: 10px; }
 .type.egg { padding: 2px 8px 2px 4px; border: 1px solid var(--c); border-radius: 999px; background: rgba(163, 230, 53, 0.08); }
 .gallery { margin: 14px 0; }
+.hint-layout { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+.hint-head { flex: none; max-height: 45%; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.hint-steps { flex: 1; min-height: 0; padding: 6px 2px 16px; }
+.links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.link-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px 4px 6px; border: 1px solid var(--line-strong); border-radius: 999px; text-decoration: none; font-size: 13.5px; margin: 0 6px 6px 0; }
+.link-chip:hover { background: var(--panel-hover); }
+.link-chip .sq { width: 18px; height: 18px; }
+.hint-dot { display: inline-flex; color: var(--c); }
+.hint-dot :deep(svg) { width: 14px; height: 14px; }
+.hstep { margin-top: 14px; }
+.hstep-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.hstep-head hr { flex: 1; border: 0; border-top: 1px solid var(--line-strong); margin: 0; }
+.hnum { font-family: var(--font-display); font-weight: 800; font-size: 22px; color: #2dd4bf; min-width: 18px; }
+.himg { display: block; max-width: 100%; max-height: 60vh; margin: 0 auto 8px; border-radius: 8px; cursor: zoom-in; }
+.htext { white-space: pre-wrap; margin: 0; }
 .type { display: inline-flex; align-items: center; gap: 5px; color: var(--c); font-family: var(--font-display); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; }
 .type :deep(svg) { width: 15px; height: 15px; }
 .sq { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; background: var(--c); color: #fff; }

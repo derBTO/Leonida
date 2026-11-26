@@ -2,6 +2,9 @@
 #   docker compose up      → Frontend http://localhost:5173, Backend http://localhost:8000
 # Anmeldung: BTO / entwicklung-123 (muss beim ersten Login geändert werden)
 # Kartenkacheln vorher mit scripts/map-import.sh --activate nach data/map holen.
+# Mit Server-Daten testen: vorher scripts/backup-pull.sh ausführen. Die neueste Sicherung aus
+# data/server-backup wird beim Start eingespielt (nur wenn neu), Bilder liegen in data/uploads.
+# Anmeldung dann mit den Zugangsdaten vom Server.
 services:
   db:
     image: postgres:16-alpine

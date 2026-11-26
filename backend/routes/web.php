@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatalogImportController;
 use App\Http\Controllers\Api\DataController;
 use App\Http\Controllers\Api\LookupController;
+use App\Http\Controllers\Api\MediaController;
 use App\Http\Controllers\Api\MetaController;
 use App\Http\Controllers\Api\PinController;
 use App\Http\Controllers\Api\PinImageController;
@@ -46,6 +47,7 @@ Route::prefix('api')->group(function () {
         Route::put('pins/{pin}', [PinController::class, 'update'])->whereNumber('pin');
         Route::patch('pins/{pin}/position', [PinController::class, 'move'])->whereNumber('pin');
         Route::delete('pins/{pin}', [PinController::class, 'destroy'])->whereNumber('pin');
+        Route::post('media', [MediaController::class, 'store'])->middleware('throttle:60,1');
         Route::post('pins/{pin}/images', [PinImageController::class, 'store'])->whereNumber('pin');
         Route::put('pins/{pin}/images/order', [PinImageController::class, 'reorder'])->whereNumber('pin');
         Route::patch('pin-images/{image}', [PinImageController::class, 'update'])->whereNumber('image');

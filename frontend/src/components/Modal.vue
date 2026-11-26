@@ -2,7 +2,8 @@
 import { X } from 'lucide-vue-next'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-const props = withDefaults(defineProps<{ title: string; width?: string; dirty?: boolean }>(), { width: '640px', dirty: false })
+/** fill: Inhalt regelt das Scrollen selbst (z. B. fester Kopf, scrollender Teil) */
+const props = withDefaults(defineProps<{ title: string; width?: string; dirty?: boolean; fill?: boolean }>(), { width: '640px', dirty: false, fill: false })
 const emit = defineEmits<{ close: [] }>()
 const box = ref<HTMLElement | null>(null)
 
@@ -29,7 +30,7 @@ defineExpose({ requestClose })
           <h2>{{ title }}</h2>
           <button class="btn ghost icon close" type="button" aria-label="Schließen" @click="requestClose"><X :size="18" /></button>
         </header>
-        <div class="body scroll"><slot /></div>
+        <div class="body" :class="fill ? 'fill' : 'scroll'"><slot /></div>
         <footer v-if="$slots.footer"><slot name="footer" /></footer>
       </div>
     </div>
@@ -45,9 +46,11 @@ defineExpose({ requestClose })
 header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px 20px; border-bottom: 1px solid var(--line); }
 header h2 { font-size: 22px; }
 .body { padding: 16px 20px 20px; flex: 1; }
+.body.fill { display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding-bottom: 0; }
 footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); flex-wrap: wrap; }
 @media (max-width: 640px) {
   .backdrop { padding: 0; align-items: stretch; }
   .modal { max-width: none !important; max-height: none; border-radius: 0; }
+  .modal:has(.body.fill) { height: 100%; }
 }
 </style>

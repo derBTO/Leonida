@@ -38,7 +38,7 @@ npm run dev                       # Frontend auf :5173 mit Proxy auf :8000
 
 | Bereich | Befehl | Inhalt |
 |---|---|---|
-| Backend | `cd backend && php artisan test` | über 110 Tests: Rechte und Eigentum, Validierung, NULL ≠ 0, Suche, Bilder, Spuren, Export/Import, Backup/Restore, CSV-Import, Installationsprüfung |
+| Backend | `cd backend && php artisan test` | über 120 Tests: Rechte und Eigentum, Validierung, NULL ≠ 0, Suche, Bilder, Puzzle und Hinweise, Export/Import, Backup/Restore, CSV-Import, Installationsprüfung |
 | Frontend | `cd frontend && npm test` | Such- und Filterregeln, Kachel-Geometrie |
 | Browser | `cd frontend && npm run e2e` | durchgängige Abläufe im echten Browser (siehe unten) |
 | Typprüfung | `cd frontend && npm run typecheck` | TypeScript/Vue |
@@ -52,7 +52,8 @@ Die Backend-Tests brauchen eine PostgreSQL-Datenbank `leonida_test` (Zugang in `
 
 - Gäste: Karte, gtadb-Schalter, kein Ersteller-Filter
 - Bearbeiter: fremde Pins und Waffen nicht änderbar, eigenen Hinweis mit Code anlegen
-- Spur anlegen, Pin direkt aus dem Editor auf der Karte setzen, Fortschritt pro Person
+- Puzzle mit Belohnung anlegen, Hinweis direkt aus dem Editor auf der Karte setzen, Fortschritt pro Person
+- Hinweis mit Ort, Waffe und Text-/Bild-Schritten; der Ort erscheint als Fundort der Waffe
 - Administrator: Ersteller-Filter, Benutzer über das Menü anlegen, fremde Pins bearbeiten
 
 Einmalig den Browser holen: `npx playwright install chromium` (oder vorhandenes Chrome: `E2E_CHROME=/Pfad/zu/chrome npm run e2e`). Benötigt lokales PHP und PostgreSQL wie unter „Ohne Docker“; die Datenbank-Zugangsdaten kommen aus `backend/.env`. Testbenutzer: `e2e-admin`, `e2e-alice`, `e2e-bob`, Passwort `e2e-passwort-123` (nur in der Testdatenbank).
@@ -64,3 +65,11 @@ Einmalig den Browser holen: `npx playwright install chromium` (oder vorhandenes 
 - **Feste Auswahllisten** als PHP-Enums in `backend/app/Enums` (Bezeichnungen auf Deutsch, über `/api/meta` ans Frontend)
 - **Such- und Filterregeln** doppelt und gleich: `backend/app/Services/PinIndex.php` und `frontend/src/lib/pinFilter.ts`
 - **Karte**: `frontend/src/map` (Koordinatensystem, Kachelpfade, Marker)
+
+## Lokal mit Server-Daten testen
+
+1. Auf dem Mac `scripts/backup-pull.sh` ausführen. Neben der Kopie in der Cloud legt es die neueste Datenbank-Sicherung nach `data/server-backup/` und die Bilder nach `data/uploads/` (beides nicht in Git).
+2. `docker compose up`. Beim Start spielt `php artisan leonida:restore-latest` die Sicherung ein, aber nur, wenn sie neuer ist als die zuletzt eingespielte; sonst bleiben die lokalen Daten.
+3. Anmelden mit den Zugangsdaten vom Server.
+
+Dabei werden zuerst nur die Migrationen ausgeführt, die die Sicherung kennt, dann die Daten eingespielt und danach die neueren Migrationen des aktuellen Codes. So lässt sich jede Änderung am Datenmodell mit echten Daten prüfen, bevor sie auf den Server geht, und nebenbei ist die Wiederherstellung getestet. Erneut einspielen (z. B. nach eigenen Teständerungen): `docker compose exec app php artisan leonida:restore-latest --dir=/app/data/server-backup --force`.

@@ -79,7 +79,15 @@ export interface PinCode { id?: number; label: string | null; code: string; desc
 export type WeaponStats = Record<'damage' | 'accuracy' | 'handling' | 'range', number | null>
 export type VehicleStats = Record<'speed' | 'acceleration' | 'handling_on_road' | 'handling_off_road' | 'durability', number | null>
 
-export interface Location { id: number; title: string; x: number; y: number; status: PinStatus }
+export interface Location { id: number; title: string; kind?: PinKind; poi_type?: PoiType | null; x: number; y: number; status: PinStatus }
+/** Puzzle, das einen Katalogeintrag als Belohnung nennt */
+export interface PuzzleRef { id: number; name: string }
+/** Schritt eines Hinweises: Text und/oder Bild */
+export interface HintStep { id: number; text: string | null; image: MediaRef | null }
+/** Zeile im Schritt-Editor eines Hinweises */
+export interface HintStepRow { key: number; text: string; image: MediaRef | null }
+/** Verknüpfter Ort eines Hinweises */
+export interface PlaceRef { id: number; title: string; poi_type: PoiType | null; x: number; y: number }
 
 /** Herkunft übernommener Daten (z. B. NiaDB mit Link zur Quellseite). */
 export interface CatalogSource {
@@ -112,6 +120,7 @@ export interface Weapon extends WeaponSummary {
   created_by: string | null
   updated_by: string | null
   locations: Location[]
+  puzzles: PuzzleRef[]
 }
 
 export interface VehicleSummary {
@@ -143,6 +152,7 @@ export interface Vehicle extends VehicleSummary {
   created_by: string | null
   updated_by: string | null
   locations: Location[]
+  puzzles: PuzzleRef[]
 }
 
 export interface Pin {
@@ -173,6 +183,12 @@ export interface Pin {
   is_easteregg: boolean
   updated_by: string | null
   trails: PinTrailRef[]
+  /** Hinweis: verknüpfter Ort */
+  place: PlaceRef | null
+  /** Hinweis: Schritte */
+  steps: HintStep[]
+  /** Ort: Hinweise, die auf ihn verweisen */
+  hints: { id: number; title: string }[]
 }
 
 /** Spur, in der ein Pin als Schritt vorkommt */
@@ -187,6 +203,8 @@ export interface TrailSummary {
   steps_total: number
   /** erledigte Schritte der angemeldeten Person */
   steps_done: number
+  /** Namen der Belohnungen (Waffen, Fahrzeuge) */
+  rewards: string[]
   pin_ids: number[]
   created_by_id: number | null
   created_by: string | null
@@ -208,6 +226,8 @@ export interface Trail extends TrailSummary {
   uuid: string
   updated_by: string | null
   created_at: string | null
+  weapons: WeaponSummary[]
+  vehicles: VehicleSummary[]
   steps: TrailStep[]
 }
 

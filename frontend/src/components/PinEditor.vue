@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { api, ApiError } from '../api/client'
-import type { GalleryImage, LootType, Pin, PinCode, PinKind, PinStatus, PoiType, RespawnStatus, VehicleSummary, WeaponSummary } from '../api/types'
+import type { GalleryImage, HintStepRow, LootType, Pin, PinCode, PinKind, PinStatus, PoiType, RespawnStatus, VehicleSummary, WeaponSummary } from '../api/types'
 import { EGG } from '../lib/easteregg'
 import { formatNumber, parseUsd } from '../lib/format'
 import { LOOT, LOOT_ORDER } from '../lib/lootTypes'
@@ -12,11 +12,14 @@ import { useUi } from '../stores/ui'
 import CatalogPicker from './CatalogPicker.vue'
 import CodesEditor from './CodesEditor.vue'
 import EnumSelect from './EnumSelect.vue'
+import HintStepsEditor from './HintStepsEditor.vue'
 import ImageManager from './ImageManager.vue'
+import PinPicker from './PinPicker.vue'
 import Modal from './Modal.vue'
 
 /** Anlegen und Bearbeiten eines Pins. Felder je Loottyp werden dynamisch eingeblendet. */
-const props = defineProps<{ pinId: number | null; x: number; y: number; kind?: PinKind; title?: string }>()
+/** lockKind: Art ist vorgegeben (z. B. Hinweis für einen Puzzle-Schritt) */
+const props = defineProps<{ pinId: number | null; x: number; y: number; kind?: PinKind; title?: string; lockKind?: boolean }>()
 const emit = defineEmits<{ close: []; saved: [Pin] }>()
 const ui = useUi()
 const pins = usePins()
@@ -45,6 +48,8 @@ const form = reactive({
   respawn: 'unknown' as RespawnStatus,
   status: 'unconfirmed' as PinStatus,
   is_easteregg: false,
+  place_pin_id: null as number | null,
+  steps: [] as HintStepRow[],
 })
 let initial = ''
 const dirty = computed(() => !loading.value && JSON.stringify(form) !== initial)
@@ -60,6 +65,8 @@ onMounted(async () => {
         weapons: pin.weapons, vehicles: pin.vehicles, drugs: money(pin.drugs_value_usd), jewelry: money(pin.jewelry_value_usd),
         cash: money(pin.cash_usd), codes: pin.codes.map((c) => ({ ...c })), requirements: pin.requirements ?? '',
         respawn: pin.respawn, status: pin.status, is_easteregg: pin.is_easteregg,
+        place_pin_id: pin.place?.id ?? null,
+        steps: pin.steps.map((s, i) => ({ key: i + 1, text: s.text ?? '', image: s.image })),
       })
       images.value = pin.images
     } catch (e) {
@@ -108,12 +115,14 @@ async function save() {
     respawn: form.respawn,
     status: form.status,
     is_easteregg: form.is_easteregg,
+    place_pin_id: isHint.value ? form.place_pin_id : null,
+    steps: isHint.value ? form.steps.map((s) => ({ text: s.text, media_id: s.image?.id ?? null })) : [],
   }
   try {
     let pin = props.pinId
       ? (await api.put<{ pin: Pin }>(`/api/pins/${props.pinId}`, payload)).pin
       : (await api.post<{ pin: Pin }>('/api/pins', payload)).pin
-    if (manager.value?.hasPending()) {
+    if (!isHint.value && manager.value?.hasPending()) {
       await manager.value.flush(pin.id)
       pin = (await api.get<{ pin: Pin }>(`/api/pins/${pin.id}`)).pin
     }
@@ -134,7 +143,7 @@ async function save() {
   <Modal :title="heading" width="760px" :dirty="dirty" @close="emit('close')">
     <div v-if="loading" class="muted">Lade …</div>
     <form v-else id="pin-form" @submit.prevent="save">
-      <div class="kinds" role="radiogroup" aria-label="Art">
+      <div v-if="!lockKind" class="kinds" role="radiogroup" aria-label="Art">
         <button type="button" role="radio" :aria-checked="form.kind === 'loot'" :class="{ on: form.kind === 'loot' }" @click="form.kind = 'loot'">Loot-Fundort</button>
         <button type="button" role="radio" :aria-checked="isPoi" :class="{ on: isPoi }" @click="form.kind = 'poi'">Ort (POI)</button>
         <button type="button" role="radio" :aria-checked="isHint" :class="{ on: isHint }" @click="form.kind = 'hint'">Hinweis</button>
@@ -165,13 +174,31 @@ async function save() {
         </div>
       </template>
       <template v-else-if="isHint">
-        <p class="faint hint-info">Hinweise sind Zwischenstationen einer Spur (Treffpunkt, Zettel, Code …). Zur Spur verbinden unter „Spuren“.</p>
         <div class="field block">
           <label for="pe-desc-hint">Beschreibung</label>
-          <textarea id="pe-desc-hint" class="input" v-model="form.description" maxlength="20000" placeholder="Was findet man hier, wohin führt es?" />
+          <textarea id="pe-desc-hint" class="input" v-model="form.description" maxlength="20000" placeholder="Worum geht es bei diesem Hinweis?" />
         </div>
         <div class="section-title">Codes</div>
         <CodesEditor v-model="form.codes" :errors="errors" />
+
+        <div class="section-title">Verknüpfungen</div>
+        <div class="field">
+          <label for="pe-place">Ort</label>
+          <PinPicker id="pe-place" v-model="form.place_pin_id" :kinds="['poi']" placeholder="Vorhandenen Ort suchen … (optional)" />
+          <div v-if="err('place_pin_id')" class="error-text">{{ err('place_pin_id') }}</div>
+        </div>
+        <p class="faint hint-info">Ist ein Ort gewählt, erscheint er bei den verknüpften Fahrzeugen und Waffen als Fundort.</p>
+        <div class="block">
+          <div class="label">Fahrzeuge</div>
+          <CatalogPicker kind="vehicles" v-model="form.vehicles" />
+        </div>
+        <div class="block">
+          <div class="label">Waffen</div>
+          <CatalogPicker kind="weapons" v-model="form.weapons" />
+        </div>
+
+        <div class="section-title">Schritte</div>
+        <HintStepsEditor v-model="form.steps" :errors="errors" />
       </template>
       <template v-else>
       <div class="section-title">Loottypen</div>
@@ -224,8 +251,10 @@ async function save() {
       <CodesEditor v-model="form.codes" :errors="errors" />
       </template>
 
-      <div class="section-title">Bilder</div>
-      <ImageManager ref="manager" :pin-id="pinId" :images="images" @changed="images = $event" />
+      <template v-if="!isHint">
+        <div class="section-title">Bilder</div>
+        <ImageManager ref="manager" :pin-id="pinId" :images="images" @changed="images = $event" />
+      </template>
     </form>
     <template #footer>
       <button class="btn" type="button" @click="emit('close')">Abbrechen</button>

@@ -244,7 +244,7 @@ function fitTrail() {
   const pts = trail.steps.filter((s) => s.pin && !trails.isHidden(trail, s.id)).map((s) => toLatLng(s.pin!.x, s.pin!.y))
   if (pts.length === 1) map.value.flyTo(pts[0], Math.max(map.value.getZoom(), 5), { duration: 0.6 })
   else if (pts.length > 1) {
-    // Sidebar, Detailansicht und Spurleiste nicht überdecken
+    // Sidebar, Detailansicht und Puzzle-Leiste nicht überdecken
     const wide = window.innerWidth > 760
     const side = wide && ui.sidebarOpen ? (document.querySelector('.sidebar')?.getBoundingClientRect().right ?? 0) + 40 : 40
     const right = 60

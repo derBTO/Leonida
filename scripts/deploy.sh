@@ -104,6 +104,7 @@ remote "cd '$R/releases/$RELEASE' \
     && ln -sfn '$R/shared/storage' storage \
     && $RPHP artisan migrate --force \
     && $RPHP artisan leonida:bootstrap-admin \
+    && $RPHP artisan leonida:media-cleanup \
     && $RPHP artisan leonida:link \
     && $RPHP artisan leonida:map-register \
     && $RPHP artisan config:cache && $RPHP artisan route:cache \

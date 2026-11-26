@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, MapPin, Pencil, Trash2 } from 'lucide-vue-next'
+import { ArrowLeft, MapPin, Pencil, Puzzle, Trash2 } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { api, ApiError } from '../api/client'
@@ -11,6 +11,7 @@ import WeaponForm from '../components/WeaponForm.vue'
 import { formatDate } from '../lib/format'
 import { useCatalog } from '../stores/catalog'
 import { usePins } from '../stores/pins'
+import { POI } from '../lib/poiTypes'
 import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
 
@@ -86,8 +87,15 @@ const statusLabel = (l: Location) => session.label('pin_status', l.status)
           <p v-if="!item.locations.length" class="empty">Noch keinem Pin zugeordnet.</p>
           <RouterLink v-for="l in item.locations" :key="l.id" :to="`/pin/${l.id}`" class="loc">
             <MapPin :size="16" />
-            <span><strong>{{ l.title }}</strong><small class="faint">{{ statusLabel(l) }} · x {{ l.x.toFixed(0) }}, y {{ l.y.toFixed(0) }}</small></span>
+            <span><strong>{{ l.title }}</strong><small class="faint">{{ l.kind === 'poi' ? `Ort · ${POI[l.poi_type ?? 'poi'].label} (über Hinweis)` : statusLabel(l) }} · x {{ l.x.toFixed(0) }}, y {{ l.y.toFixed(0) }}</small></span>
           </RouterLink>
+          <template v-if="item.puzzles.length">
+            <h2 class="puzzles">Belohnung in <span class="muted">({{ item.puzzles.length }})</span></h2>
+            <RouterLink v-for="p in item.puzzles" :key="p.id" :to="`/puzzle/${p.id}`" class="loc">
+              <Puzzle :size="16" />
+              <span><strong>{{ p.name }}</strong><small class="faint">Puzzle</small></span>
+            </RouterLink>
+          </template>
         </aside>
       </div>
     </div>
@@ -105,6 +113,7 @@ const statusLabel = (l: Location) => session.label('pin_status', l.status)
 .meta { font-size: 12px; margin-top: 10px; }
 .locations { padding: 16px; }
 .locations h2 { font-size: 22px; margin-bottom: 8px; }
+.locations h2.puzzles { margin-top: 18px; }
 .loc { display: flex; gap: 10px; align-items: flex-start; padding: 8px; border-radius: 8px; text-decoration: none; color: var(--pink); }
 .loc:hover { background: var(--panel-hover); }
 .loc span { display: flex; flex-direction: column; color: var(--text); }

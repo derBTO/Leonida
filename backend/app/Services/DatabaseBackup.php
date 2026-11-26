@@ -173,6 +173,8 @@ class DatabaseBackup
             try {
                 $tables = $this->tables();
                 $data = array_values(array_filter($tables, fn ($t) => $t !== 'migrations'));
+                // Selbstbezüge (Hinweis → Ort) erst am Ende der Transaktion prüfen
+                DB::statement('SET CONSTRAINTS ALL DEFERRED');
                 if ($data) {
                     DB::statement('TRUNCATE '.implode(', ', array_map(fn ($t) => "\"$t\"", $data)).' RESTART IDENTITY CASCADE');
                 }

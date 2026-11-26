@@ -37,6 +37,18 @@ class Pin extends Model
         return $this->belongsToMany(Weapon::class, 'pin_weapons')->withPivot('sort_order')->orderByPivot('sort_order');
     }
 
+    /** Hinweis: verknüpfter Ort (POI) */
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Pin::class, 'place_pin_id');
+    }
+
+    /** Hinweis: Schritte mit Text und/oder Bild */
+    public function steps(): HasMany
+    {
+        return $this->hasMany(PinStep::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     public function vehicles(): BelongsToMany
     {
         return $this->belongsToMany(Vehicle::class, 'pin_vehicles')->withPivot('sort_order')->orderByPivot('sort_order');
@@ -77,7 +89,7 @@ class Pin extends Model
 
     public function toApi(): array
     {
-        $this->loadMissing(['weapons.image', 'weapons.weaponType', 'vehicles.image', 'vehicles.manufacturer', 'vehicles.vehicleClass', 'codes', 'images.media', 'createdBy', 'updatedBy']);
+        $this->loadMissing(['weapons.image', 'weapons.weaponType', 'vehicles.image', 'vehicles.manufacturer', 'vehicles.vehicleClass', 'codes', 'images.media', 'steps.media', 'place', 'createdBy', 'updatedBy']);
 
         return [
             'id' => $this->id,
@@ -107,6 +119,14 @@ class Pin extends Model
             'is_easteregg' => $this->is_easteregg,
             'updated_by' => $this->updatedBy?->username,
             'trails' => $this->trailSteps(),
+            'place' => $this->place ? ['id' => $this->place->id, 'title' => $this->place->title, 'poi_type' => $this->place->poi_type?->value,
+                'x' => $this->place->x, 'y' => $this->place->y] : null,
+            'steps' => $this->steps->map->toApi()->all(),
+            // Ort: Hinweise, die auf diesen Ort verweisen
+            'hints' => $this->kind === PinKind::Poi
+                ? self::query()->where('place_pin_id', $this->id)->orderByRaw('lower(title)')->get(['id', 'title'])
+                    ->map(fn (Pin $h) => ['id' => $h->id, 'title' => $h->title])->all()
+                : [],
         ];
     }
 

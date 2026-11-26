@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\PinKind;
 use App\Http\Controllers\Controller;
 use App\Models\Pin;
 use App\Models\PinImage;
@@ -21,6 +22,9 @@ class PinImageController extends Controller
             'file' => ['required', 'file'],
             'caption' => ['nullable', 'string', 'max:2000'],
         ], ['file.required' => 'Es wurde kein Bild übertragen.']);
+        if ($pin->kind === PinKind::Hint) {
+            return response()->json(['message' => 'Hinweise haben Schritte statt einer Galerie. Bilder bitte im Schritt hochladen.'], 422);
+        }
         if ($pin->images()->count() >= 100) {
             return response()->json(['message' => 'Ein Pin kann höchstens 100 Bilder haben.'], 422);
         }

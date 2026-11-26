@@ -6,12 +6,21 @@ use App\Enums\Drivetrain;
 use App\Enums\Tracker;
 use App\Enums\VehicleAccess;
 use App\Enums\VehicleSecurity;
+use App\Models\Concerns\HasPinLocations;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Vehicle extends Model
 {
+    use HasPinLocations;
+
+    public const PIVOT = 'pin_vehicles';
+
+    public const PIVOT_KEY = 'vehicle_id';
+
+    public const TRAIL_PIVOT = 'trail_vehicles';
+
     public const STATS = ['speed', 'acceleration', 'handling_on_road', 'handling_off_road', 'durability'];
 
     public const LOOKUPS = [
@@ -115,9 +124,8 @@ class Vehicle extends Model
             'updated_by' => $this->updatedBy?->username,
         ];
         if ($withLocations) {
-            $data['locations'] = $this->pins()->orderBy('title')->get(['pins.id', 'title', 'x', 'y', 'status'])
-                ->map(fn (Pin $p) => ['id' => $p->id, 'title' => $p->title, 'x' => (float) $p->x, 'y' => (float) $p->y, 'status' => $p->status->value])
-                ->all();
+            $data['locations'] = $this->locations();
+            $data['puzzles'] = $this->puzzles();
         }
 
         return $data;

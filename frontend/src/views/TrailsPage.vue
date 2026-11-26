@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Plus, Route, Search } from 'lucide-vue-next'
+import { Plus, Puzzle, Search, Trophy } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { api } from '../api/client'
@@ -50,28 +50,29 @@ const shown = computed(() => {
 const pct = (t: TrailSummary) => (t.steps_total ? Math.round((t.steps_done / t.steps_total) * 100) : 0)
 function created(t: Trail) {
   creating.value = false
-  router.push(`/spuren/${t.id}`)
+  router.push(`/puzzle/${t.id}`)
 }
 </script>
 
 <template>
   <div class="page">
     <div class="head">
-      <h1>Spuren</h1>
+      <h1>Puzzle</h1>
       <div class="tools">
         <div class="search"><Search :size="16" class="icon" /><input class="input" type="search" placeholder="Suchen …" v-model="q" /></div>
         <AuthorSelect v-model="author" />
         <label v-if="session.loggedIn" class="toggle"><input type="checkbox" v-model="onlyOpen" /> Nur offene</label>
-        <button v-if="session.canEdit" class="btn primary" type="button" @click="creating = true"><Plus :size="16" /> Neue Spur</button>
+        <button v-if="session.canEdit" class="btn primary" type="button" @click="creating = true"><Plus :size="16" /> Neues Puzzle</button>
       </div>
     </div>
-    <p class="muted intro">Eine Spur verbindet Stationen in fester Reihenfolge: Treffpunkt → Hinweis → Code → Loot. Den Fortschritt hakt jede Person für sich ab.</p>
+    <p class="muted intro">Ein Puzzle führt über Hinweise in fester Reihenfolge zur Belohnung. Den Fortschritt hakt jede Person für sich ab.</p>
     <div v-if="!items" class="muted">Lade …</div>
-    <div v-else-if="!shown.length" class="empty">{{ items.length ? 'Keine Spur passt zum Filter.' : 'Noch keine Spuren angelegt.' }}</div>
+    <div v-else-if="!shown.length" class="empty">{{ items.length ? 'Kein Puzzle passt zum Filter.' : 'Noch keine Puzzle angelegt.' }}</div>
     <div class="grid">
-      <RouterLink v-for="t in shown" :key="t.id" :to="`/spuren/${t.id}`" class="tile panel">
-        <div class="top"><Route :size="18" /><h3>{{ t.name }}</h3></div>
+      <RouterLink v-for="t in shown" :key="t.id" :to="`/puzzle/${t.id}`" class="tile panel">
+        <div class="top"><Puzzle :size="18" /><h3>{{ t.name }}</h3></div>
         <p v-if="t.description" class="desc muted">{{ t.description }}</p>
+        <p v-if="t.rewards.length" class="reward-line"><Trophy :size="13" /> {{ t.rewards.join(', ') }}</p>
         <div class="meta faint">{{ t.step_count }} Schritt{{ t.step_count === 1 ? '' : 'e' }}<template v-if="t.created_by"> · von {{ t.created_by }}</template></div>
         <div v-if="session.loggedIn && t.steps_total" class="bar" :title="`${t.steps_done} von ${t.steps_total} erledigt`">
           <span :style="{ width: `${pct(t)}%` }" />
@@ -100,6 +101,7 @@ function created(t: Trail) {
 .top h3 { color: var(--text); font-size: 20px; margin: 0; }
 .desc { margin: 0; font-size: 13.5px; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .meta, .small { font-size: 12.5px; }
+.reward-line { margin: 0; font-size: 13px; color: #facc15; display: flex; align-items: center; gap: 5px; }
 .bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 4px; }
 .bar span { display: block; height: 100%; background: linear-gradient(90deg, #4ade80, #2dd4bf); }
 </style>

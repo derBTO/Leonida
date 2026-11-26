@@ -60,7 +60,7 @@ class DataTransfer
             })->all();
         };
 
-        $pins = Pin::query()->with(['weapons:id,uuid', 'vehicles:id,uuid', 'codes', 'images'])->orderBy('id')->get()->map(fn (Pin $p) => [
+        $pins = Pin::query()->with(['weapons:id,uuid', 'vehicles:id,uuid', 'codes', 'images', 'steps', 'place:id,uuid'])->orderBy('id')->get()->map(fn (Pin $p) => [
             'uuid' => $p->uuid,
             'kind' => $p->kind->value,
             'poi_type' => $p->poi_type?->value,
@@ -82,6 +82,8 @@ class DataTransfer
             'vehicles' => $p->vehicles->pluck('uuid')->all(),
             'codes' => $p->codes->map(fn ($c) => $c->only(['label', 'code', 'description']))->all(),
             'images' => $p->images->map(fn ($i) => ['media_id' => $i->media_id, 'caption' => $i->caption])->all(),
+            'place' => $p->place?->uuid,
+            'steps' => $p->steps->map(fn ($s) => ['text' => $s->text, 'media_id' => $s->media_id])->all(),
             'created_at' => $p->created_at?->toIso8601String(),
             'updated_at' => $p->updated_at?->toIso8601String(),
             'created_by' => $name($p->created_by),
@@ -99,10 +101,12 @@ class DataTransfer
             'weapons' => $catalog(Weapon::class),
             'vehicles' => $catalog(Vehicle::class),
             'pins' => $pins,
-            'trails' => Trail::query()->with('steps.pin:id,uuid')->orderBy('id')->get()->map(fn (Trail $t) => [
+            'trails' => Trail::query()->with(['steps.pin:id,uuid', 'weapons:id,uuid', 'vehicles:id,uuid'])->orderBy('id')->get()->map(fn (Trail $t) => [
                 'uuid' => $t->uuid,
                 'name' => $t->name,
                 'description' => $t->description,
+                'weapons' => $t->weapons->pluck('uuid')->all(),
+                'vehicles' => $t->vehicles->pluck('uuid')->all(),
                 'steps' => $t->steps->map(fn ($s) => ['position' => $s->position, 'title' => $s->title,
                     'description' => $s->description, 'pin' => $s->pin?->uuid])->all(),
                 'created_at' => $t->created_at?->toIso8601String(),
@@ -285,6 +289,17 @@ class DataTransfer
                 foreach (array_values($row['images'] ?? []) as $i => $image) {
                     $pin->images()->create(['media_id' => $image['media_id'], 'caption' => $image['caption'] ?? null, 'sort_order' => $i]);
                 }
+                $pin->steps()->delete();
+                foreach (array_values($row['steps'] ?? []) as $i => $step) {
+                    $pin->steps()->create(['text' => $step['text'] ?? null, 'media_id' => $step['media_id'] ?? null, 'sort_order' => $i]);
+                }
+            }
+            // Hinweis → Ort erst nach allen Pins setzen (der Ort kann in der Datei später stehen)
+            foreach ($data['pins'] ?? [] as $row) {
+                if (! empty($row['place'])) {
+                    $place = $pinIds[$row['place']] ?? Pin::query()->where('uuid', $row['place'])->value('id');
+                    Pin::query()->whereKey($pinIds[$row['uuid']])->update(['place_pin_id' => $place]);
+                }
             }
             $report['pins'] = $count;
 
@@ -300,6 +315,10 @@ class DataTransfer
                 $trail->updated_at = $row['updated_at'] ?? now();
                 $trail->timestamps = false;
                 $trail->save();
+                $reward = fn (string $key) => collect($row[$key] ?? [])->map(fn ($u) => $catalogIds[$key][$u] ?? null)->filter()->values()
+                    ->mapWithKeys(fn ($id, $i) => [$id => ['sort_order' => $i]])->all();
+                $trail->weapons()->sync($reward('weapons'));
+                $trail->vehicles()->sync($reward('vehicles'));
                 $trail->steps()->delete();
                 foreach (array_values($row['steps'] ?? []) as $i => $step) {
                     $pinId = $step['pin'] ?? null;

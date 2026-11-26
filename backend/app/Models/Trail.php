@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +16,17 @@ class Trail extends Model
     public function steps(): HasMany
     {
         return $this->hasMany(TrailStep::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    /** Belohnung: Waffen und Fahrzeuge */
+    public function weapons(): BelongsToMany
+    {
+        return $this->belongsToMany(Weapon::class, 'trail_weapons')->withPivot('sort_order')->orderByPivot('sort_order');
+    }
+
+    public function vehicles(): BelongsToMany
+    {
+        return $this->belongsToMany(Vehicle::class, 'trail_vehicles')->withPivot('sort_order')->orderByPivot('sort_order');
     }
 
     public function createdBy(): BelongsTo
@@ -52,6 +64,8 @@ class Trail extends Model
             'step_count' => $this->stepCount(),
             'steps_total' => $this->steps->count(),
             'steps_done' => $this->steps->filter(fn ($s) => isset($done[$s->id]))->count(),
+            'rewards' => $this->relationLoaded('weapons') && $this->relationLoaded('vehicles')
+                ? [...$this->weapons->pluck('name')->all(), ...$this->vehicles->pluck('name')->all()] : [],
             'pin_ids' => $this->steps->pluck('pin_id')->filter()->unique()->values()->map(fn ($id) => (int) $id)->all(),
             'created_by_id' => $this->created_by,
             'created_by' => $this->createdBy?->username,
@@ -61,7 +75,7 @@ class Trail extends Model
 
     public function toApi(?int $userId = null): array
     {
-        $this->loadMissing(['steps.pin', 'createdBy', 'updatedBy']);
+        $this->loadMissing(['steps.pin', 'createdBy', 'updatedBy', 'weapons.image', 'weapons.weaponType', 'vehicles.image', 'vehicles.manufacturer', 'vehicles.vehicleClass']);
         $done = self::doneSteps($userId, $this->steps->pluck('id')->all());
 
         return [
@@ -69,6 +83,8 @@ class Trail extends Model
             ...$this->toSummary($done),
             'updated_by' => $this->updatedBy?->username,
             'created_at' => $this->created_at?->toIso8601String(),
+            'weapons' => $this->weapons->map->toSummary()->all(),
+            'vehicles' => $this->vehicles->map->toSummary()->all(),
             'steps' => $this->steps->map(fn (TrailStep $s) => [
                 'id' => $s->id,
                 'position' => $s->position,

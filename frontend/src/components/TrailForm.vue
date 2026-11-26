@@ -2,12 +2,13 @@
 import { ArrowDown, ArrowUp, MapPinPlus, Plus, Trash2 } from 'lucide-vue-next'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { api, ApiError } from '../api/client'
-import type { Trail } from '../api/types'
+import type { Trail, VehicleSummary, WeaponSummary } from '../api/types'
 import { useRoute, useRouter } from 'vue-router'
 import { usePins } from '../stores/pins'
 import { useTrails, type TrailDraft, type TrailDraftStep } from '../stores/trails'
 import { useUi } from '../stores/ui'
 import Modal from './Modal.vue'
+import CatalogPicker from './CatalogPicker.vue'
 import PinPicker from './PinPicker.vue'
 
 /** Spur anlegen/bearbeiten: Name, Beschreibung und geordnete Schritte (optional parallel). */
@@ -28,11 +29,15 @@ const row = (o: Partial<StepRow> = {}): StepRow => ({ key: ++seq, id: null, titl
 const fromTrail = () => ({
   name: props.trail?.name ?? '',
   description: props.trail?.description ?? '',
+  weapons: (props.trail?.weapons ?? []) as WeaponSummary[],
+  vehicles: (props.trail?.vehicles ?? []) as VehicleSummary[],
   steps: props.trail
     ? props.trail.steps.map((s, i, all) => row({ id: s.id, title: s.title, description: s.description ?? '', pin_id: s.pin?.id ?? null, parallel: i > 0 && all[i - 1].position === s.position }))
     : [row(), row()],
 })
-const form = reactive(props.draft ? { name: props.draft.name, description: props.draft.description, steps: props.draft.steps } : fromTrail())
+const form = reactive(props.draft
+  ? { name: props.draft.name, description: props.draft.description, weapons: props.draft.weapons, vehicles: props.draft.vehicles, steps: props.draft.steps }
+  : fromTrail())
 // Nach dem Pin-Setzen gilt der Entwurf als ungespeicherte Änderung
 const initial = props.draft ? '' : JSON.stringify(form)
 const dirty = computed(() => JSON.stringify(form) !== initial)
@@ -74,6 +79,8 @@ function placeOnMap(s: StepRow) {
     trailId: props.trail?.id ?? null,
     name: form.name,
     description: form.description,
+    weapons: [...form.weapons],
+    vehicles: [...form.vehicles],
     steps: form.steps.map((x) => ({ ...x })),
     stepKey: s.key,
     returnPath: route.path,
@@ -88,13 +95,15 @@ async function save() {
   const payload = {
     name: form.name,
     description: form.description,
+    weapon_ids: form.weapons.map((w) => w.id),
+    vehicle_ids: form.vehicles.map((v) => v.id),
     steps: form.steps.map((s, i) => ({ id: s.id, title: s.title, description: s.description, pin_id: s.pin_id, parallel: i > 0 && s.parallel })),
   }
   try {
     const trail = props.trail
       ? (await api.put<{ item: Trail }>(`/api/trails/${props.trail.id}`, payload)).item
       : (await api.post<{ item: Trail }>('/api/trails', payload)).item
-    ui.toast(props.trail ? 'Spur gespeichert.' : 'Spur angelegt.', 'ok')
+    ui.toast(props.trail ? 'Puzzle gespeichert.' : 'Puzzle angelegt.', 'ok')
     trails.draft = null
     emit('saved', trail)
   } catch (e) {
@@ -107,7 +116,7 @@ async function save() {
 </script>
 
 <template>
-  <Modal :title="trail ? 'Spur bearbeiten' : 'Neue Spur'" width="820px" :dirty="dirty" @close="close">
+  <Modal :title="trail ? 'Puzzle bearbeiten' : 'Neues Puzzle'" width="820px" :dirty="dirty" @close="close">
     <form id="trail-form" @submit.prevent="save">
       <div class="field">
         <label for="tf-name">Name *</label>
@@ -116,23 +125,33 @@ async function save() {
       </div>
       <div class="field block">
         <label for="tf-desc">Beschreibung</label>
-        <textarea id="tf-desc" class="input small" v-model="form.description" maxlength="20000" placeholder="Worum geht es, wie wird die Spur ausgelöst?" />
+        <textarea id="tf-desc" class="input small" v-model="form.description" maxlength="20000" placeholder="Worum geht es, wie wird das Puzzle ausgelöst?" />
+      </div>
+
+      <div class="section-title">Belohnung</div>
+      <div class="field">
+        <div class="label">Fahrzeuge</div>
+        <CatalogPicker kind="vehicles" v-model="form.vehicles" />
+      </div>
+      <div class="field block">
+        <div class="label">Waffen</div>
+        <CatalogPicker kind="weapons" v-model="form.weapons" />
       </div>
 
       <div class="section-title">Schritte</div>
-      <p class="faint info">Pin fehlt noch? „Auf Karte setzen“ öffnet die Karte, danach geht es hier weiter. Reihenfolge von oben nach unten. „Parallel“ = gleiche Nummer wie der Schritt darüber (Reihenfolge egal). Ein Schritt ohne Pin ist erlaubt, z. B. „Auf Anruf warten“.</p>
+      <p class="faint info">Jeder Schritt zeigt auf einen Hinweis. Fehlt er noch, legt „Hinweis auf Karte setzen“ ihn an; danach geht es hier weiter. „Parallel“ = gleiche Nummer wie der Schritt darüber (Reihenfolge egal). Ein Schritt ohne Hinweis ist erlaubt, z. B. „Auf Anruf warten“.</p>
       <ol class="steps">
         <li v-for="(s, i) in form.steps" :key="s.key" class="step" :class="{ parallel: s.parallel && i > 0 }">
           <div class="num">{{ numbers[i] }}</div>
           <div class="fields">
-            <input class="input" v-model="s.title" maxlength="200" required :placeholder="i === form.steps.length - 1 ? 'z. B. Loot im Versteck holen' : 'Was passiert hier? z. B. Moses treffen'" :aria-label="`Schritt ${numbers[i]}: Beschreibung`" />
+            <input class="input" v-model="s.title" maxlength="200" required :placeholder="i === form.steps.length - 1 ? 'z. B. Loot im Versteck holen' : 'Was passiert hier? z. B. Moses treffen'" :aria-label="`Schritt ${numbers[i]}: Name`" />
             <div v-if="err(`steps.${i}.title`)" class="error-text">{{ err(`steps.${i}.title`) }}</div>
+            <textarea class="input small" v-model="s.description" maxlength="5000" placeholder="Beschreibung (optional)" :aria-label="`Schritt ${numbers[i]}: Beschreibung`" />
             <div class="pin-row">
-              <PinPicker :id="`tf-pin-${s.key}`" v-model="s.pin_id" class="grow" />
-              <button v-if="!s.pin_id" class="btn" type="button" title="Neuen Pin auf der Karte setzen und hier eintragen" @click="placeOnMap(s)"><MapPinPlus :size="15" /> Auf Karte setzen</button>
+              <PinPicker :id="`tf-pin-${s.key}`" v-model="s.pin_id" :kinds="['hint']" placeholder="Hinweis suchen … (leer = ohne Hinweis)" class="grow" />
+              <button v-if="!s.pin_id" class="btn" type="button" title="Neuen Hinweis auf der Karte setzen und hier eintragen" @click="placeOnMap(s)"><MapPinPlus :size="15" /> Hinweis auf Karte setzen</button>
             </div>
             <div v-if="err(`steps.${i}.pin_id`)" class="error-text">{{ err(`steps.${i}.pin_id`) }}</div>
-            <textarea class="input small" v-model="s.description" maxlength="5000" placeholder="Details (optional)" :aria-label="`Schritt ${numbers[i]}: Details`" />
             <label v-if="i > 0" class="par"><input type="checkbox" v-model="s.parallel" /> parallel zu Schritt {{ numbers[i - 1] }}</label>
           </div>
           <div class="tools">
@@ -155,6 +174,7 @@ async function save() {
 .block { margin-top: 14px; }
 textarea.small { min-height: 40px; }
 .info { font-size: 13px; margin: 0 0 10px; }
+.label { font-family: var(--font-display); font-weight: 600; font-size: 12.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
 .steps { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .step { display: grid; grid-template-columns: 38px 1fr auto; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: rgba(255,255,255,0.02); }
 .step.parallel { margin-left: 28px; border-style: dashed; }

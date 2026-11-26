@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class PinController extends Controller
 {
@@ -125,7 +126,7 @@ class PinController extends Controller
     public function destroy(Pin $pin, ImageService $images): JsonResponse
     {
         $this->ensureOwner($pin->created_by);
-        $mediaIds = $pin->images()->pluck('media_id')->all();
+        $mediaIds = [...$pin->images()->pluck('media_id')->all(), ...$pin->steps()->pluck('media_id')->filter()->all()];
         $title = $pin->title;
         $id = $pin->id;
         DB::transaction(fn () => $pin->delete());
@@ -141,7 +142,7 @@ class PinController extends Controller
     {
         $money = ['nullable', 'integer', 'min:0', 'max:2000000000'];
 
-        return $request->validate([
+        $data = $request->validate([
             'kind' => ['nullable', Rule::enum(PinKind::class)],
             'poi_type' => ['nullable', 'required_if:kind,poi', Rule::enum(PoiType::class)],
             'title' => ['required', 'string', 'max:150', 'regex:/\S/u'],
@@ -165,13 +166,31 @@ class PinController extends Controller
             'respawn' => ['nullable', Rule::enum(RespawnStatus::class)],
             'status' => ['nullable', Rule::enum(PinStatus::class)],
             'is_easteregg' => ['nullable', 'boolean'],
+            // Hinweise: verknüpfter Ort und Schritte (Text und/oder Bild)
+            'place_pin_id' => ['nullable', 'integer', Rule::exists('pins', 'id')->where('kind', PinKind::Poi->value)],
+            'steps' => ['nullable', 'array', 'max:200'],
+            'steps.*.text' => ['nullable', 'string', 'max:10000'],
+            'steps.*.media_id' => ['nullable', 'uuid', 'exists:media,id'],
         ], [
+            'place_pin_id.exists' => 'Als Ort kann nur ein vorhandener Orts-Pin verknüpft werden.',
+            'steps.*.media_id.exists' => 'Ein Bild in den Schritten existiert nicht mehr. Bitte neu hochladen.',
             'title.required' => 'Der Titel fehlt.',
             'title.regex' => 'Der Titel darf nicht leer sein.',
             'codes.*.code.required' => 'Jeder Code braucht einen Wert.',
             'codes.*.code.string' => 'Codes müssen als Text gesendet werden.',
             'poi_type.required_if' => 'Bitte eine Kategorie für den Ort wählen.',
         ]);
+        $errors = [];
+        foreach (array_values($data['steps'] ?? []) as $i => $step) {
+            if (trim((string) ($step['text'] ?? '')) === '' && empty($step['media_id'])) {
+                $errors["steps.$i.text"] = 'Jeder Schritt braucht einen Text oder ein Bild.';
+            }
+        }
+        if ($errors) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        return $data;
     }
 
     /**
@@ -188,6 +207,7 @@ class PinController extends Controller
                 'kind' => $kind,
                 'is_easteregg' => (bool) ($data['is_easteregg'] ?? false),
                 'poi_type' => $kind === PinKind::Poi->value ? $data['poi_type'] : null,
+                'place_pin_id' => $kind === PinKind::Hint->value ? ($data['place_pin_id'] ?? null) : null,
                 'title' => trim($data['title']),
                 'description' => $blank($data['description'] ?? null),
                 'x' => round((float) $data['x'], 2),
@@ -206,6 +226,7 @@ class PinController extends Controller
             'kind' => PinKind::Loot->value,
             'is_easteregg' => (bool) ($data['is_easteregg'] ?? false),
             'poi_type' => null,
+            'place_pin_id' => null,
             'title' => trim($data['title']),
             'description' => $blank($data['description'] ?? null),
             'x' => round((float) $data['x'], 2),
@@ -229,8 +250,11 @@ class PinController extends Controller
         }
         $pin->syncLootTypes($types);
         $order = fn (array $ids) => collect($ids)->values()->mapWithKeys(fn ($id, $i) => [$id => ['sort_order' => $i]])->all();
-        $pin->weapons()->sync(in_array('weapons', $types, true) ? $order($data['weapon_ids'] ?? []) : []);
-        $pin->vehicles()->sync(in_array('vehicles', $types, true) ? $order($data['vehicle_ids'] ?? []) : []);
+        $isHint = $kind === PinKind::Hint->value;
+        // Loot: Waffen/Fahrzeuge je nach Loottyp; Hinweis: frei verknüpfbar; Ort: keine
+        $pin->weapons()->sync($isHint || in_array('weapons', $types, true) ? $order($data['weapon_ids'] ?? []) : []);
+        $pin->vehicles()->sync($isHint || in_array('vehicles', $types, true) ? $order($data['vehicle_ids'] ?? []) : []);
+        $this->syncSteps($pin, $isHint ? array_values($data['steps'] ?? []) : []);
         $pin->codes()->delete();
         foreach (array_values($data['codes'] ?? []) as $i => $code) {
             $pin->codes()->create([
@@ -239,6 +263,31 @@ class PinController extends Controller
                 'description' => isset($code['description']) && trim($code['description']) !== '' ? $code['description'] : null,
                 'sort_order' => $i,
             ]);
+        }
+    }
+
+    /**
+     * Hinweis-Schritte ersetzen. Galeriebilder eines (ggf. gerade umgewandelten) Hinweises werden als
+     * Schritte angehängt; nicht mehr verwendete Bilder werden gelöscht.
+     */
+    private function syncSteps(Pin $pin, array $steps): void
+    {
+        $oldMedia = $pin->steps()->pluck('media_id')->filter()->all();
+        $pin->steps()->delete();
+        $blank = fn ($v) => is_string($v) && trim($v) !== '' ? $v : null;
+        foreach ($steps as $i => $step) {
+            $pin->steps()->create(['sort_order' => $i, 'text' => $blank($step['text'] ?? null), 'media_id' => $step['media_id'] ?? null]);
+        }
+        if ($pin->kind === PinKind::Hint) {
+            $next = count($steps);
+            foreach ($pin->images()->orderBy('sort_order')->get() as $image) {
+                $pin->steps()->create(['sort_order' => $next++, 'text' => $image->caption, 'media_id' => $image->media_id]);
+            }
+            $pin->images()->delete();
+        }
+        $images = app(ImageService::class);
+        foreach ($oldMedia as $mediaId) {
+            $images->deleteIfUnused($mediaId);
         }
     }
 }

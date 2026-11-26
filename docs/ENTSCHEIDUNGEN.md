@@ -54,3 +54,9 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | Backup ohne pg_dump | PHP-Sicherung als JSON-Zeilen (gzip) mit eigenem Restore, pg_dump nur wenn die Version passt | Hetzner: pg_dump 15 gegen Server 17; kein eigenes Binary installierbar |
 | 26.11.2026 | Easteregg | Kennzeichen `is_easteregg` an jedem Pin statt eigener Art; Symbol hat Vorrang vor der Art | Eastereggs können Fahrzeug, Ort oder Hinweis sein und behalten deren Felder |
 | 26.11.2026 | Pin-Details | zentrierter Dialog statt Seitenleiste, ein durchgehend scrollbarer Inhalt | Wunsch BTO: gleiche Größe wie der Bearbeiten-Dialog, alles auf einer Seite |
+| 26.11.2026 | „Spuren“ → „Puzzle“ | nur Oberfläche und Adressen umbenannt, API und Tabellen heißen weiter `trails` | Wunsch BTO; kein Umbau der Datenbank nötig, alte Links leiten weiter |
+| 26.11.2026 | Puzzle-Belohnung | am Puzzle als Ganzes (Waffen, Fahrzeuge) | Wunsch BTO |
+| 26.11.2026 | Puzzle-Schritte nur Hinweise | Schritte mit anderen Pins verlieren die Verknüpfung, der Schritt bleibt | Wunsch BTO; Ort und Belohnung kommen jetzt über Hinweis bzw. Puzzle |
+| 26.11.2026 | Fundort über Hinweis | berechnet (Loot-Pins ∪ Orte von Hinweisen mit demselben Eintrag), nicht gespeichert | bleibt automatisch richtig, wenn Hinweise geändert werden |
+| 26.11.2026 | Hinweis-Schritte | eigene Tabelle `pin_steps` (Text und/oder Bild) statt Galerie | Wunsch BTO: durchscrollbare Anleitung statt Galerie |
+| 26.11.2026 | Testumgebung mit Server-Daten | neueste Sicherung in `data/server-backup`, Einspielen beim Docker-Start nur bei neuer Datei, ältere Sicherungen über ihren Migrationsstand | echter Datenstand zum Testen, prüft Restore und Migrationen nebenbei |

@@ -10,6 +10,10 @@
 #   uploads/  alle hochgeladenen Bilder aus dem Document Root (media/); die sind in der
 #             Datenbank-Sicherung nicht enthalten
 # rsync überträgt nur Neues und Geändertes; hier wird nie etwas gelöscht.
+#
+# Zusätzlich für die lokale Testumgebung (docker compose up) im Projekt (nicht in Git):
+#   data/server-backup/  nur die neueste Datenbank-Sicherung (wird beim Start eingespielt)
+#   data/uploads/        die Bilder
 # Zugang wie bei deploy.sh aus deploy.env. Wiederherstellen: docs/BACKUP.md
 
 set -euo pipefail
@@ -42,6 +46,15 @@ echo "==> Datenbank-Sicherungen → $TARGET/db"
 
 echo "==> Bilder → $TARGET/uploads"
 "${RSYNC[@]}" "$REMOTE:$LEONIDA_PUBLIC_DIR/media/" "$TARGET/uploads/"
+
+echo "==> Für die lokale Testumgebung → $PROJECT_DIR/data"
+latest_file="$(ls -1 "$TARGET/db" | grep '^leonida-.*\.json\.gz$' | sort | tail -n 1 || true)"
+mkdir -p "$PROJECT_DIR/data/server-backup" "$PROJECT_DIR/data/uploads"
+if [[ -n "$latest_file" && ! -f "$PROJECT_DIR/data/server-backup/$latest_file" ]]; then
+    find "$PROJECT_DIR/data/server-backup" -name 'leonida-*' -type f -delete
+    cp "$TARGET/db/$latest_file" "$PROJECT_DIR/data/server-backup/"
+fi
+"${RSYNC[@]}" "$REMOTE:$LEONIDA_PUBLIC_DIR/media/" "$PROJECT_DIR/data/uploads/"
 
 new_db=$(( $(count "$TARGET/db") - before_db ))
 new_up=$(( $(count "$TARGET/uploads") - before_up ))

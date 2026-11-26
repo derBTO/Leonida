@@ -89,6 +89,7 @@ class ImageService
             return;
         }
         $used = \DB::table('pin_images')->where('media_id', $mediaId)->exists()
+            || \DB::table('pin_steps')->where('media_id', $mediaId)->exists()
             || \DB::table('weapons')->where('image_media_id', $mediaId)->exists()
             || \DB::table('vehicles')->where('image_media_id', $mediaId)->exists();
         if ($used) {

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ArrowLeft, Eye, EyeOff, Map as MapIcon, MapPin, Pencil, RotateCcw, Trash2 } from 'lucide-vue-next'
+import { ArrowLeft, Car, Crosshair, Eye, EyeOff, Map as MapIcon, MapPin, Pencil, RotateCcw, Trash2, Trophy } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { api } from '../api/client'
 import type { Trail, TrailStep } from '../api/types'
+import LegendaryStar from '../components/LegendaryStar.vue'
 import RichText from '../components/RichText.vue'
 import TrailForm from '../components/TrailForm.vue'
 import { formatDate } from '../lib/format'
@@ -55,7 +56,7 @@ async function toggle(s: TrailStep) {
   }
 }
 async function reset() {
-  if (!trail.value || !window.confirm('Eigenen Fortschritt dieser Spur zurücksetzen?')) return
+  if (!trail.value || !window.confirm('Eigenen Fortschritt dieses Puzzles zurücksetzen?')) return
   try {
     trail.value = (await api.delete<{ item: Trail }>(`/api/trails/${trail.value.id}/progress`)).item
     if (trails.activeId === trail.value.id) await trails.reload()
@@ -69,13 +70,13 @@ function showOnMap(step?: TrailStep) {
   router.push({ path: step?.pin ? `/pin/${step.pin.id}` : '/', query: { spur: String(trail.value.id), ...(step ? { schritt: String(step.id) } : {}) } })
 }
 async function remove() {
-  if (!trail.value || !window.confirm(`Spur „${trail.value.name}“ löschen? Die Pins bleiben erhalten.`)) return
+  if (!trail.value || !window.confirm(`Puzzle „${trail.value.name}“ löschen? Die Pins bleiben erhalten.`)) return
   try {
     await api.delete(`/api/trails/${trail.value.id}`)
     if (trails.activeId === trail.value.id) trails.clear()
     trails.version++
-    ui.toast('Spur gelöscht.', 'ok')
-    router.push('/spuren')
+    ui.toast('Puzzle gelöscht.', 'ok')
+    router.push('/puzzle')
   } catch (e) {
     ui.error(e)
   }
@@ -93,7 +94,7 @@ const pinKind = (s: TrailStep) => (s.pin?.kind === 'hint' ? 'Hinweis' : s.pin?.k
 <template>
   <div class="page">
     <div class="wrap">
-      <RouterLink to="/spuren" class="back muted"><ArrowLeft :size="16" /> Alle Spuren</RouterLink>
+      <RouterLink to="/puzzle" class="back muted"><ArrowLeft :size="16" /> Alle Puzzle</RouterLink>
       <div v-if="error" class="error-text">{{ error }}</div>
       <div v-else-if="!trail" class="muted">Lade …</div>
       <template v-else>
@@ -103,6 +104,13 @@ const pinKind = (s: TrailStep) => (s.pin?.kind === 'hint' ? 'Hinweis' : s.pin?.k
             <button class="btn primary" type="button" :disabled="!trail.steps.some((s) => s.pin)" @click="showOnMap()"><MapIcon :size="16" /> Auf Karte zeigen</button>
           </div>
           <p v-if="trail.description" class="desc"><RichText :text="trail.description" /></p>
+          <div v-if="trail.vehicles.length || trail.weapons.length" class="rewards">
+            <span class="label"><Trophy :size="15" /> Belohnung</span>
+            <RouterLink v-for="v in trail.vehicles" :key="`v${v.id}`" :to="`/fahrzeuge/${v.id}`" class="reward"><Car :size="14" />{{ v.name }}</RouterLink>
+            <RouterLink v-for="w in trail.weapons" :key="`w${w.id}`" :to="`/waffen/${w.id}`" class="reward" :class="{ 'legendary-name': w.is_legendary }">
+              <Crosshair :size="14" />{{ w.name }}<LegendaryStar v-if="w.is_legendary" :size="13" />
+            </RouterLink>
+          </div>
           <div class="toolbar">
             <span v-if="session.loggedIn" class="progress"><strong>{{ done }}</strong> von {{ trail.steps.length }} erledigt</span>
             <span v-else class="faint">Anmelden, um den eigenen Fortschritt abzuhaken.</span>
@@ -157,6 +165,10 @@ const pinKind = (s: TrailStep) => (s.pin?.kind === 'hint' ? 'Hinweis' : s.pin?.k
 .title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .title-row h1 { margin: 0; }
 .desc { white-space: pre-wrap; margin: 10px 0; }
+.rewards { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0; }
+.rewards .label { display: inline-flex; align-items: center; gap: 5px; color: #facc15; font-family: var(--font-display); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; margin-right: 4px; }
+.reward { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line-strong); border-radius: 999px; text-decoration: none; font-size: 13.5px; }
+.reward:hover { background: var(--panel-hover); }
 .toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 14px 0 6px; font-size: 14px; }
 .progress strong { color: #4ade80; }
 .toggle { display: flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; }

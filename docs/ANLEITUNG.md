@@ -10,11 +10,11 @@ Oben rechts auf **Anmelden** klicken. Beim ersten Mal muss das Startpasswort ge�
 
 | | Bearbeiter | Administrator |
 |---|---|---|
-| Pins, Hinweise und Spuren anlegen | ja | ja |
+| Pins, Hinweise und Puzzle anlegen | ja | ja |
 | Eigene Einträge ändern, verschieben, löschen | ja | ja |
 | Einträge anderer ändern oder löschen | nein | ja |
 | Waffen und Fahrzeuge anlegen oder ändern | nein, nur aus dem Katalog auswählen | ja |
-| Eigenen Fortschritt in Spuren abhaken | ja | ja |
+| Eigenen Fortschritt in Puzzlen abhaken | ja | ja |
 
 Fehlt eine Waffe oder ein Fahrzeug im Katalog, bitte den Administrator fragen.
 
@@ -24,7 +24,7 @@ Fehlt eine Waffe oder ein Fahrzeug im Katalog, bitte den Administrator fragen.
 |---|---|---|
 | **Loot-Fundort** | Fahrzeuge, Waffen, Drogen, Schmuck, Geld, mit Beträgen, Codes, Status und Respawn | runder Marker mit farbigem Ring |
 | **Ort (POI)** | feste Orte wie Tankstelle, Garage, Ammu-Nation, Wohnung | farbiges Quadrat |
-| **Hinweis** | Zwischenstation einer Spur: Treffpunkt, Zettel, Code an einer Tür | türkise Raute mit Lupe |
+| **Hinweis** | Station eines Puzzles: Treffpunkt, Zettel, Code an einer Tür, mit Schritt-für-Schritt-Anleitung | türkise Raute mit Lupe |
 
 ## Pin anlegen
 
@@ -37,19 +37,30 @@ Im Dialog lässt sich die Art oben noch umschalten. Mit **Easteregg** markierte 
 
 **Verschieben:** Pin öffnen, „Verschieben“, Marker an die richtige Stelle ziehen, „Position speichern“.
 
-## Spuren
+## Hinweise
 
-Eine Spur verbindet Stationen in fester Reihenfolge, zum Beispiel: Moses im Diner treffen → Zeitung lesen → Code am Tor → Loot im Bootshaus.
+Ein Hinweis ist eine Station auf dem Weg zu einer Belohnung. Er hat:
 
-1. Oben auf **Spuren**, dann **Neue Spur**.
-2. Für jeden Schritt kurz beschreiben, was passiert. Einen vorhandenen Pin über die Suche auswählen, oder mit **Auf Karte setzen** direkt einen neuen anlegen; danach geht es im Editor weiter.
-3. Schritte ohne Ort sind erlaubt, etwa „Auf den Anruf warten“.
-4. **Parallel** ankreuzen, wenn die Reihenfolge zweier Schritte egal ist (sie heißen dann 2a und 2b).
-5. Speichern.
+- **Titel, Beschreibung und Codes** wie andere Pins.
+- **Verknüpfungen:** einen vorhandenen **Ort** sowie beliebig viele **Fahrzeuge** und **Waffen**. Ist ein Ort gewählt, taucht er bei diesen Fahrzeugen und Waffen automatisch als Fundort auf. Ohne Ort entfällt das.
+- **Schritte:** die eigentliche Anleitung. Jeder Schritt hat einen Text und optional ein Bild (hochladen, hineinziehen oder mit Strg/⌘+V einfügen). Reihenfolge mit den Pfeilen ändern.
 
-**Unterwegs:** In der Spur auf **Auf Karte zeigen** klicken. Die Schritte erscheinen nummeriert und mit einer Linie verbunden, der Rest der Karte wird abgedunkelt. In der Leiste unten mit ← und → von Schritt zu Schritt springen und erledigte Schritte abhaken. Dein Fortschritt gehört nur dir.
+In der Ansicht bleibt oben alles vom Titel bis zu den Verknüpfungen stehen; darunter laufen die Schritte durch: Nummer mit Trennlinie, dann das Bild (falls vorhanden), darunter der Text. Ein Klick auf ein Bild öffnet es groß. Hinweise haben statt einer Bildergalerie diese Schritte.
 
-**Spoiler-Schutz:** Auf der Spurseite einschalten. Dann sind spätere Schritte verdeckt, bis du den aktuellen abhakst oder sie einzeln aufdeckst.
+## Puzzle
+
+Ein Puzzle verbindet Hinweise in fester Reihenfolge und führt zu einer **Belohnung**, zum Beispiel: Moses im Diner treffen → Zeitung lesen → Code am Tor → Belohnung Gil's Kalinga .50.
+
+1. Oben auf **Puzzle**, dann **Neues Puzzle**.
+2. Name und Beschreibung eintragen, unter **Belohnung** die Fahrzeuge und Waffen auswählen, die es am Ende gibt.
+3. Für jeden Schritt Name und Beschreibung eintragen und den passenden **Hinweis** über die Suche auswählen. Fehlt er noch, legt **Hinweis auf Karte setzen** ihn direkt an; danach geht es im Puzzle weiter.
+4. Schritte ohne Hinweis sind erlaubt, etwa „Auf den Anruf warten“.
+5. **Parallel** ankreuzen, wenn die Reihenfolge zweier Schritte egal ist (sie heißen dann 2a und 2b).
+6. Speichern.
+
+**Unterwegs:** Im Puzzle auf **Auf Karte zeigen** klicken. Die Schritte erscheinen nummeriert und mit einer Linie verbunden, der Rest der Karte wird abgedunkelt. In der Leiste unten mit ← und → von Schritt zu Schritt springen und erledigte Schritte abhaken; ein Klick auf die Nummer öffnet den Hinweis. Dein Fortschritt gehört nur dir.
+
+**Spoiler-Schutz:** Auf der Puzzle-Seite einschalten. Dann sind spätere Schritte verdeckt, bis du den aktuellen abhakst oder sie einzeln aufdeckst.
 
 ## Suchen und Filtern
 

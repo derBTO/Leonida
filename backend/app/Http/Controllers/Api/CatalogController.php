@@ -57,8 +57,8 @@ abstract class CatalogController extends Controller
             $query->where('created_by', (int) $request->query('author'));
         }
         $this->filter($query, $request);
-        $counts = DB::table($this->pivotTable())->select($this->pivotKey(), DB::raw('count(*) as n'))
-            ->groupBy($this->pivotKey())->pluck('n', $this->pivotKey());
+        // Fundorte: Loot-Pins und über Hinweise verknüpfte Orte
+        $counts = $class::locationCounts();
 
         return response()->json(['items' => $query->get()->map(fn ($item) => $item->toSummary() + [
             'location_count' => (int) ($counts[$item->id] ?? 0),

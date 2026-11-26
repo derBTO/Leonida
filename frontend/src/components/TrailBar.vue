@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronLeft, ChevronRight, Eye, Maximize2, Route, X } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, Eye, Maximize2, Puzzle, X } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useTrails } from '../stores/trails'
@@ -37,13 +37,13 @@ function close() {
 </script>
 
 <template>
-  <div class="trail-bar panel" role="region" aria-label="Aktive Spur">
+  <div class="trail-bar panel" role="region" aria-label="Aktives Puzzle">
     <div class="head">
-      <Route :size="16" class="icon" />
-      <RouterLink :to="`/spuren/${trail.id}`" class="name">{{ trail.name }}</RouterLink>
+      <Puzzle :size="16" class="icon" />
+      <RouterLink :to="`/puzzle/${trail.id}`" class="name">{{ trail.name }}</RouterLink>
       <span class="faint progress">{{ trail.steps.filter((s) => s.done).length }}/{{ trail.steps.length }}</span>
-      <button class="btn ghost sm icon" type="button" title="Ganze Spur zeigen" aria-label="Ganze Spur zeigen" @click="trails.fitRequest++"><Maximize2 :size="15" /></button>
-      <button class="btn ghost sm icon" type="button" title="Spur ausblenden" aria-label="Spur ausblenden" @click="close"><X :size="16" /></button>
+      <button class="btn ghost sm icon" type="button" title="Ganzes Puzzle zeigen" aria-label="Ganzes Puzzle zeigen" @click="trails.fitRequest++"><Maximize2 :size="15" /></button>
+      <button class="btn ghost sm icon" type="button" title="Puzzle ausblenden" aria-label="Puzzle ausblenden" @click="close"><X :size="16" /></button>
     </div>
     <div v-if="step" class="step">
       <button class="btn sm icon" type="button" aria-label="Vorheriger Schritt" :disabled="trails.stepIndex === 0" @click="go(-1)"><ChevronLeft :size="16" /></button>
@@ -62,7 +62,7 @@ function close() {
       </label>
       <button class="btn sm icon" type="button" aria-label="Nächster Schritt" :disabled="trails.stepIndex >= trail.steps.length - 1" @click="go(1)"><ChevronRight :size="16" /></button>
     </div>
-    <p v-else class="faint empty-steps">Diese Spur hat noch keine Schritte.</p>
+    <p v-else class="faint empty-steps">Dieses Puzzle hat noch keine Schritte.</p>
   </div>
 </template>
 

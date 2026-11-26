@@ -233,7 +233,7 @@ onMounted(async () => {
           <button class="btn primary" type="submit"><UserPlus :size="16" /> Anlegen</button>
         </form>
         <p class="faint roles-info">
-          <strong>Bearbeiter</strong> legen Pins und Spuren an und dürfen nur ihre eigenen ändern oder löschen. Waffen und Fahrzeuge können sie zuordnen, aber nicht anlegen oder ändern.
+          <strong>Bearbeiter</strong> legen Pins und Puzzle an und dürfen nur ihre eigenen ändern oder löschen. Waffen und Fahrzeuge können sie zuordnen, aber nicht anlegen oder ändern.
           <strong>Administratoren</strong> dürfen alles. Neue Benutzer müssen ihr Startpasswort bei der ersten Anmeldung ändern.
         </p>
       </section>

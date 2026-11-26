@@ -18,10 +18,10 @@ class TrailTest extends TestCase
     /** A → B (Hinweis) und C parallel → D (Loot) */
     private function chain(): array
     {
-        $a = $this->pin('Treffpunkt', ['kind' => 'poi', 'poi_type' => 'gas_station']);
+        $a = $this->pin('Treffpunkt', ['kind' => 'hint']);
         $b = $this->pin('Zeitung', ['kind' => 'hint']);
         $c = $this->pin('Tor', ['kind' => 'hint', 'codes' => [['code' => '4711']]]);
-        $d = $this->pin('Versteck', ['loot_types' => ['cash'], 'cash_usd' => 900]);
+        $d = $this->pin('Versteck', ['kind' => 'hint']);
         $trail = $this->postJson('/api/trails', ['name' => 'Das Erbe', 'steps' => [
             ['title' => 'Moses treffen', 'pin_id' => $a],
             ['title' => 'Zeitung lesen', 'pin_id' => $b],

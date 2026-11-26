@@ -11,9 +11,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 /**
- * Spuren (A → B → C → Loot). Lesen ist öffentlich, Fortschritt gibt es nur angemeldet und pro Person.
+ * Puzzle (früher „Spuren“; A → B → C → Belohnung). Schritte zeigen nur auf Hinweise. Lesen ist öffentlich, Fortschritt gibt es nur angemeldet und pro Person.
  * Schritte werden beim Speichern als Ganzes übergeben; vorhandene Schritte behalten über ihre id
  * den Fortschritt. „parallel“ = gleiche Nummer wie der vorige Schritt.
  */
@@ -22,7 +23,7 @@ class TrailController extends Controller
     public function index(Request $request): JsonResponse
     {
         $request->validate(['q' => ['nullable', 'string', 'max:100'], 'author' => ['nullable', 'integer']]);
-        $query = Trail::query()->with(['steps', 'createdBy'])->orderByRaw('lower(name)');
+        $query = Trail::query()->with(['steps', 'createdBy', 'weapons:id,name', 'vehicles:id,name'])->orderByRaw('lower(name)');
         if ($q = trim((string) $request->query('q'))) {
             $query->whereRaw('lower(name) LIKE ?', ['%'.mb_strtolower(addcslashes($q, '\\%_')).'%']);
         }
@@ -52,6 +53,7 @@ class TrailController extends Controller
                 'updated_by' => Auth::id(),
             ]);
             $this->syncSteps($trail, $data['steps']);
+            $this->syncRewards($trail, $data);
             AuditLogger::log('create', 'trail', $trail->id, $trail->name, ['steps' => count($data['steps'])]);
 
             return $trail;
@@ -71,6 +73,7 @@ class TrailController extends Controller
             $trail->touch();
             $trail->save();
             $this->syncSteps($trail, $data['steps']);
+            $this->syncRewards($trail, $data);
             AuditLogger::log('update', 'trail', $trail->id, $trail->name, AuditLogger::diff($before, ['name' => $trail->name, 'steps' => count($data['steps'])]));
         });
 
@@ -122,20 +125,26 @@ class TrailController extends Controller
             'steps.*.id' => ['nullable', 'integer'],
             'steps.*.title' => ['required', 'string', 'max:200', 'regex:/\S/u'],
             'steps.*.description' => ['nullable', 'string', 'max:5000'],
-            'steps.*.pin_id' => ['nullable', 'integer', 'exists:pins,id'],
+            'steps.*.pin_id' => ['nullable', 'integer', Rule::exists('pins', 'id')->where('kind', 'hint')],
+            'weapon_ids' => ['nullable', 'array', 'max:100'],
+            'weapon_ids.*' => ['distinct', 'integer', 'exists:weapons,id'],
+            'vehicle_ids' => ['nullable', 'array', 'max:100'],
+            'vehicle_ids.*' => ['distinct', 'integer', 'exists:vehicles,id'],
             'steps.*.parallel' => ['nullable', 'boolean'],
         ], [
             'name.required' => 'Der Name fehlt.',
             'name.regex' => 'Der Name darf nicht leer sein.',
             'steps.*.title.required' => 'Jeder Schritt braucht eine kurze Beschreibung.',
             'steps.*.title.regex' => 'Jeder Schritt braucht eine kurze Beschreibung.',
-            'steps.*.pin_id.exists' => 'Der gewählte Pin existiert nicht (mehr).',
+            'steps.*.pin_id.exists' => 'Ein Puzzle-Schritt kann nur auf einen vorhandenen Hinweis zeigen.',
         ]);
         $blank = fn ($v) => is_string($v) && trim($v) !== '' ? $v : null;
 
         return [
             'name' => trim($data['name']),
             'description' => $blank($data['description'] ?? null),
+            'weapon_ids' => array_values($data['weapon_ids'] ?? []),
+            'vehicle_ids' => array_values($data['vehicle_ids'] ?? []),
             'steps' => array_map(fn ($s) => [
                 'id' => $s['id'] ?? null,
                 'title' => trim($s['title']),
@@ -144,6 +153,13 @@ class TrailController extends Controller
                 'parallel' => (bool) ($s['parallel'] ?? false),
             ], array_values($data['steps'])),
         ];
+    }
+
+    private function syncRewards(Trail $trail, array $data): void
+    {
+        $order = fn (array $ids) => collect($ids)->mapWithKeys(fn ($id, $i) => [$id => ['sort_order' => $i]])->all();
+        $trail->weapons()->sync($order($data['weapon_ids']));
+        $trail->vehicles()->sync($order($data['vehicle_ids']));
     }
 
     private function syncSteps(Trail $trail, array $steps): void

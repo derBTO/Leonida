@@ -44,11 +44,12 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | POST | `/api/admin/import` | ZIP-Import (`file`, `mode=merge|replace`, `dry_run`) | Admin |
 | POST | `/api/admin/catalog-import/{weapons|vehicles}` | CSV-Import (`file`, `dry_run`, `overwrite`), siehe [KATALOG-IMPORT.md](KATALOG-IMPORT.md) | Admin |
 | GET | `/api/admin/catalog-template/{weapons|vehicles}` | CSV-Vorlage | Admin |
-| GET | `/api/trails` | Spuren (`q`, `author`); mit eigenem Fortschritt, wenn angemeldet | öffentlich |
-| GET | `/api/trails/{id}` | Spur mit Schritten | öffentlich |
-| POST / PUT / DELETE | `/api/trails…` | Spur anlegen, ändern (Schritte als Ganzes, `id` behält Fortschritt, `parallel`), löschen | angemeldet; ändern nur Ersteller oder Admin |
+| GET | `/api/trails` | Puzzle (`q`, `author`); mit eigenem Fortschritt und Belohnungsnamen (`rewards`) | öffentlich |
+| GET | `/api/trails/{id}` | Puzzle mit Belohnung (`weapons`, `vehicles`) und Schritten | öffentlich |
+| POST / PUT / DELETE | `/api/trails…` | Puzzle anlegen, ändern (`weapon_ids`, `vehicle_ids`; Schritte als Ganzes, `id` behält Fortschritt, `parallel`, `pin_id` nur Hinweise), löschen | angemeldet; ändern nur Ersteller oder Admin |
 | PUT | `/api/trails/{id}/steps/{step}/progress` | eigenen Fortschritt setzen (`done`) | angemeldet |
 | DELETE | `/api/trails/{id}/progress` | eigenen Fortschritt zurücksetzen | angemeldet |
+| POST | `/api/media` | Bild vorab hochladen (`file`), z. B. für Hinweis-Schritte; nie verwendete Bilder löscht `leonida:media-cleanup` nach 24 h | angemeldet |
 | GET | `/api/audit` | letzte 200 Änderungen | angemeldet |
 
 Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `caliber`, `vehicle_manufacturer`, `vehicle_class`, `vehicle_style`.
@@ -84,3 +85,5 @@ Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `calib
 ```
 
 Mit `If-None-Match` und dem zuletzt erhaltenen `ETag` antwortet der Server `304`, wenn sich nichts geändert hat.
+
+**Hinweise** (`kind = hint`) haben zusätzlich `place_pin_id` (nur Orts-Pins), `weapon_ids`, `vehicle_ids` und `steps: [{text, media_id}]` (Text oder Bild nötig); in der Antwort `place`, `steps: [{id, text, image}]`. Orte liefern `hints` (Hinweise, die auf sie verweisen). Bei Waffen und Fahrzeugen enthalten `locations` auch Orte, die ein Hinweis zusammen mit dem Eintrag verknüpft, und `puzzles` die Puzzle mit diesem Eintrag als Belohnung.

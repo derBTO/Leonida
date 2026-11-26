@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { X } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
-import type { PinIndexItem } from '../api/types'
+import type { PinIndexItem, PinKind } from '../api/types'
 import { HINT } from '../lib/hint'
 import { LOOT, sortLoot } from '../lib/lootTypes'
 import { terms } from '../lib/pinFilter'
@@ -10,7 +10,7 @@ import { usePins } from '../stores/pins'
 
 /** Einen Pin per Suche auswählen (Titel, Beschreibung, Codes). Leer = Schritt ohne Ort. */
 const model = defineModel<number | null>({ required: true })
-const props = defineProps<{ id: string }>()
+const props = defineProps<{ id: string; kinds?: PinKind[]; placeholder?: string }>()
 const pins = usePins()
 const q = ref('')
 const open = ref(false)
@@ -21,6 +21,7 @@ const results = computed(() => {
   const kindOrder = { hint: 0, loot: 1, poi: 2 } as const
   return pins.items
     .filter((p) => {
+      if (props.kinds && !props.kinds.includes(p.k)) return false
       const h = [p.t, p.d, ...p.c].join(' ').toLowerCase()
       return words.every((w) => h.includes(w))
     })
@@ -49,7 +50,7 @@ function pick(p: PinIndexItem) {
       <button class="btn ghost sm icon" type="button" aria-label="Pin entfernen" @click="model = null"><X :size="14" /></button>
     </div>
     <template v-else>
-      <input :id="props.id" class="input" type="search" v-model="q" placeholder="Pin suchen … (leer = ohne Ort)" autocomplete="off"
+      <input :id="props.id" class="input" type="search" v-model="q" :placeholder="props.placeholder ?? 'Pin suchen … (leer = ohne Ort)'" autocomplete="off"
         @focus="open = true" @blur="close" />
       <div v-if="open && q.trim()" class="results panel">
         <button v-for="p in results" :key="p.id" type="button" class="res" @mousedown.prevent="pick(p)">
@@ -57,7 +58,7 @@ function pick(p: PinIndexItem) {
           <span class="t">{{ p.t }}</span>
           <small class="faint">{{ kindLabel(p) }}</small>
         </button>
-        <div v-if="!results.length" class="faint none">Kein Pin gefunden. Neue Hinweise per Rechtsklick auf der Karte anlegen.</div>
+        <div v-if="!results.length" class="faint none">Kein passender Pin gefunden.</div>
       </div>
     </template>
   </div>

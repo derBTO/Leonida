@@ -2,21 +2,22 @@
 
 Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Privates Projekt unter **https://leonida.derbto.de**.
 
-Aktuelle Version: **1.0.2**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
+Aktuelle Version: **1.1.0**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
 
 ## Funktionen
 
 - Vollbild-Karte von Leonida (Kacheln von [gtadb.org](https://map.gtadb.org), lokal gehostet)
 - Drei Pin-Arten: **Loot-Fundorte**, **Orte (POIs)** in 21 Kategorien und **Hinweise** (Zwischenstationen mit Codes); jeder Pin kann zusätzlich **Easteregg** sein (eigenes Ei-Symbol)
 - Übernommene gtadb.org-Orte, per Schalter ein- und ausblendbar (Standard aus)
-- **Spuren**: Stationen in fester Reihenfolge (A → B → C → Loot), parallele Schritte, Anzeige mit Linie auf der Karte, Spoiler-Schutz, Fortschritt pro Person
+- **Puzzle**: Hinweise in fester Reihenfolge bis zur Belohnung (Waffen, Fahrzeuge), parallele Schritte, Anzeige mit Linie auf der Karte, Spoiler-Schutz, Fortschritt pro Person
+- **Hinweise** mit verknüpftem Ort, Fahrzeugen und Waffen (der Ort wird dort automatisch Fundort) und Schritt-für-Schritt-Anleitung aus Text und Bildern
 - Pins mit Loottypen (Fahrzeuge, Waffen, Drogen, Schmuck, Geld), Beträgen, Codes, Bildergalerie, Status und Respawn
 - Farbige Marker je Loottyp, kombinierter Ring bei mehreren Typen, Clustering beim Herauszoomen
 - Sidebar mit Suche, Loottyp- und Kategorie-Filtern, Ersteller-Filter, Trefferzahl und Liste, optional nur im Kartenausschnitt
 - Waffen- und Fahrzeugkatalog mit Werten als Balken, Fahrzeug-Ratings, legendären Waffen, Fundorten und Direktlinks; Grundbestand aus NiaDB, CSV-Import
 - Anlegen per Rechtsklick auf die Karte oder per „+“-Button auf Touchgeräten, Verschieben per Ziehen
 - Bilder per Datei, Drag-and-drop oder direkt aus der Zwischenablage; Sortieren, Beschreibungen, Lightbox
-- Öffentlich lesbar; Bearbeiten nur nach Anmeldung. **Administratoren** dürfen alles, **Bearbeiter** legen Pins und Spuren an und ändern nur ihre eigenen; den Katalog pflegt nur der Administrator
+- Öffentlich lesbar; Bearbeiten nur nach Anmeldung. **Administratoren** dürfen alles, **Bearbeiter** legen Pins und Puzzle an und ändern nur ihre eigenen; den Katalog pflegt nur der Administrator
 - Export und Import aller Daten als ZIP, nächtliches Datenbank-Backup mit Wiederherstellung, Installationsprüfung `leonida:check`
 
 ## Technik

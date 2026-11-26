@@ -1,5 +1,16 @@
 # Änderungsprotokoll
 
+## v1.1.0 – Puzzle und ausgebaute Hinweise, Testumgebung mit Server-Daten (26.11.2026)
+
+- **„Spuren“ heißen jetzt „Puzzle“** (Menü, Seiten, Adressen `/puzzle`; alte Links `/spuren/…` leiten weiter).
+- **Puzzle-Belohnung:** Fahrzeuge und Waffen am Puzzle; angezeigt im Puzzle, in der Liste und bei Waffe bzw. Fahrzeug unter „Belohnung in“.
+- **Puzzle-Schritte:** Name, darunter Beschreibung, dann der Hinweis. Schritte zeigen nur noch auf **Hinweise**; „Hinweis auf Karte setzen“ legt immer einen Hinweis an. Bisherige Verknüpfungen zu anderen Pins wurden gelöst (Schritt bleibt).
+- **Hinweise** verknüpfen einen vorhandenen **Ort** sowie **Fahrzeuge** und **Waffen**. Mit Ort erscheint dieser bei den verknüpften Fahrzeugen und Waffen als Fundort („über Hinweis“), ohne Ort nicht. Orte zeigen „Hinweise zu diesem Ort“.
+- **Hinweis-Schritte** statt Galerie: Text und optional Bild je Schritt. Ansicht mit festem Kopf (Titel bis Verknüpfungen), darunter scrollen nummerierte Schritte mit Trennlinie, Bild über dem Text. Vorhandene Galeriebilder von Hinweisen wurden zu Schritten.
+- Bilder lassen sich vorab hochladen (`POST /api/media`); unbenutzte löscht `leonida:media-cleanup` (läuft bei jedem Deploy und nachts im Scheduler).
+- **Lokale Testumgebung mit Server-Daten:** `scripts/backup-pull.sh` kopiert zusätzlich die neueste Sicherung nach `data/server-backup/` und die Bilder nach `data/uploads/`; `docker compose up` spielt sie über `leonida:restore-latest` ein (passender Migrationsstand, danach neuere Migrationen).
+- Sicherung/Wiederherstellung berücksichtigt Selbstbezüge (Hinweis → Ort); Export/Import enthält Ort, Schritte und Belohnungen.
+
 ## v1.0.2 – Backup-Ziel einstellbar (26.11.2026)
 
 - `scripts/backup-pull.sh` liest den Zielordner aus `LEONIDA_BACKUP_TARGET` in `deploy.env` (z. B. `~/Nextcloud/Backup/Leonida`, damit die Sicherungen zusätzlich in der Cloud liegen).

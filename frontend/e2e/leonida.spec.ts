@@ -83,41 +83,78 @@ test('Easteregg: eigenes Symbol unabhängig von der Art, Filter, Detail als Dial
   await page.locator('.sidebar .select-row select').selectOption('show')
 })
 
-test('Spur anlegen, Pin direkt aus dem Editor setzen, Fortschritt abhaken', async ({ page }) => {
+test('Puzzle anlegen mit Belohnung, Hinweis direkt aus dem Editor setzen, Fortschritt abhaken', async ({ page }) => {
   await login(page, 'e2e-alice')
-  await page.goto('/spuren')
-  await page.getByRole('button', { name: 'Neue Spur' }).click()
-  await page.locator('#tf-name').fill('E2E Spur')
+  await page.goto('/puzzle')
+  await page.getByRole('button', { name: 'Neues Puzzle' }).click()
+  await page.locator('#tf-name').fill('E2E Puzzle')
+  await page.getByPlaceholder('Waffe suchen …').fill('test-pistole')
+  await page.locator('.menu li', { hasText: 'E2E Test-Pistole' }).click()
   const steps = page.locator('#trail-form li.step')
   await steps.nth(0).locator('input[required]').fill('Zettel lesen')
   await steps.nth(0).locator('input[type=search]').fill('zettel')
   await page.locator('.results .res', { hasText: 'E2E Zettel' }).click()
   await steps.nth(1).locator('input[required]').fill('Versteck finden')
-  await steps.nth(1).getByRole('button', { name: 'Auf Karte setzen' }).click()
+  await steps.nth(1).getByRole('button', { name: 'Hinweis auf Karte setzen' }).click()
 
-  // Fadenkreuz → Pin-Dialog mit Titel aus dem Schritt → zurück in den Editor
+  // Fadenkreuz → Hinweis-Dialog (Art fest) mit Titel aus dem Schritt → zurück in den Editor
   await page.getByRole('button', { name: 'Hier setzen' }).click()
   await expect(page.locator('#pe-title')).toHaveValue('Versteck finden')
-  await page.getByRole('radio', { name: 'Loot-Fundort' }).click()
+  await expect(page.getByRole('radio', { name: 'Loot-Fundort' })).toHaveCount(0)
   await page.locator('button[type=submit][form=pin-form]').click()
-  await expect(page).toHaveURL(/\/spuren$/)
+  await expect(page).toHaveURL(/\/puzzle$/)
   await expect(steps.nth(1).locator('.chosen')).toContainText('Versteck finden')
   await page.locator('button[type=submit][form=trail-form]').click()
 
-  await expect(page).toHaveURL(/\/spuren\/\d+$/)
+  await expect(page).toHaveURL(/\/puzzle\/\d+$/)
+  await expect(page.locator('.rewards')).toContainText('E2E Test-Pistole')
   await expect(page.locator('.step')).toHaveCount(2)
   await page.locator('.step .num').first().click()
   await expect(page.locator('.progress')).toContainText('1 von 2 erledigt')
 
   await page.getByRole('button', { name: 'Auf Karte zeigen' }).click()
-  await expect(page.locator('.trail-bar')).toContainText('E2E Spur')
+  await expect(page.locator('.trail-bar')).toContainText('E2E Puzzle')
   await expect(page.locator('.trail-badge')).toHaveCount(2)
 })
 
-test('Fortschritt ist pro Person, fremde Spur nicht bearbeitbar', async ({ page }) => {
+test('Hinweis mit Ort, Waffe und Schritten; Ort wird Fundort der Waffe', async ({ page }) => {
+  await login(page, 'e2e-alice')
+  await contextMenu(page, 'Neuer Hinweis hier')
+  await page.locator('#pe-title').fill('E2E Inselhinweis')
+  await page.locator('#pe-place').fill('tankstelle')
+  await page.locator('.results .res', { hasText: 'E2E gtadb-Tankstelle' }).click()
+  await page.getByPlaceholder('Waffe suchen …').fill('test-pistole')
+  await page.locator('.menu li', { hasText: 'E2E Test-Pistole' }).click()
+  await page.getByRole('button', { name: 'Schritt hinzufügen' }).click()
+  await page.getByLabel('Schritt 1: Text').fill('Als Erstes müssen wir auf die Insel schwimmen.')
+  await page.getByRole('button', { name: 'Schritt hinzufügen' }).click()
+  // 1×1-PNG als Bild zu Schritt 2
+  const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64')
+  await page.locator('li.step').nth(1).locator('input[type=file]').setInputFiles({ name: 'insel.png', mimeType: 'image/png', buffer: png })
+  await expect(page.locator('li.step').nth(1).locator('img')).toBeVisible()
+  await page.getByLabel('Schritt 2: Text').fill('Hinter dem Haus liegt der Schlüssel.')
+  await page.locator('button[type=submit][form=pin-form]').click()
+
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.locator('header h2')).toHaveText('E2E Inselhinweis')
+  await expect(dialog.locator('.hint-head .links')).toContainText('E2E gtadb-Tankstelle')
+  await expect(dialog.locator('.hstep')).toHaveCount(2)
+  await expect(dialog.locator('.hstep').nth(0)).toContainText('Als Erstes müssen wir auf die Insel schwimmen.')
+  await expect(dialog.locator('.hstep').nth(1).locator('img')).toBeVisible()
+  // nur die Schritte scrollen, der Kopf bleibt stehen
+  expect(await dialog.locator('.hint-steps').evaluate((el) => getComputedStyle(el).overflowY)).toBe('auto')
+
+  await dialog.locator('.link-chip', { hasText: 'E2E Test-Pistole' }).click()
+  await expect(page.locator('.locations')).toContainText('E2E gtadb-Tankstelle')
+  await expect(page.locator('.locations')).toContainText('über Hinweis')
+  await expect(page.locator('.locations')).toContainText('E2E Puzzle')
+})
+
+test('Fortschritt ist pro Person, fremdes Puzzle nicht bearbeitbar', async ({ page }) => {
   await login(page, 'e2e-bob')
   await page.goto('/spuren')
-  await page.getByText('E2E Spur').click()
+  await expect(page).toHaveURL(/\/puzzle$/)
+  await page.getByText('E2E Puzzle').click()
   await expect(page.locator('.progress')).toContainText('0 von 2 erledigt')
   await expect(page.getByRole('button', { name: 'Bearbeiten' })).toHaveCount(0)
 })
@@ -125,9 +162,9 @@ test('Fortschritt ist pro Person, fremde Spur nicht bearbeitbar', async ({ page 
 test('Admin: Ersteller-Filter und Benutzer anlegen über das Menü', async ({ page }) => {
   await login(page, 'e2e-admin')
   await page.locator('.sidebar .author select').selectOption({ label: 'e2e-alice' })
-  await expect(hits(page)).toHaveText('3')
-  await page.getByText('Orte von gtadb.org zeigen').click()
   await expect(hits(page)).toHaveText('4')
+  await page.getByText('Orte von gtadb.org zeigen').click()
+  await expect(hits(page)).toHaveText('5')
   await page.locator('.sidebar .author select').selectOption({ label: 'Alle' })
 
   await page.locator('.user .btn').click()

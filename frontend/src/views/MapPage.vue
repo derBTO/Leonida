@@ -22,7 +22,7 @@ const ui = useUi()
 const trails = useTrails()
 const mapRef = ref<InstanceType<typeof LeonidaMap> | null>(null)
 // Die Kartenseite bleibt im Hintergrund erhalten (KeepAlive): nur /pin/<id> wählt einen Pin,
-// nicht die :id anderer Seiten (z. B. /spuren/1). Dialoge nur zeigen, solange die Seite aktiv ist.
+// nicht die :id anderer Seiten (z. B. /puzzle/1). Dialoge nur zeigen, solange die Seite aktiv ist.
 const active = ref(true)
 onActivated(() => (active.value = true))
 onDeactivated(() => (active.value = false))
@@ -43,7 +43,8 @@ function backToTrail() {
 function confirmStepPlacing() {
   const c = mapRef.value!.center()
   openEditor(null, c.x, c.y, 'hint')
-  if (ui.pinEditor) ui.pinEditor.title = trails.draftStep?.title ?? ''
+  // Puzzle-Schritte zeigen immer auf einen Hinweis
+  if (ui.pinEditor) Object.assign(ui.pinEditor, { title: trails.draftStep?.title ?? '', lockKind: true })
 }
 
 onMounted(() => {
@@ -165,7 +166,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
       <div class="crosshair" aria-hidden="true"><Crosshair :size="44" /></div>
       <div class="bar panel">
         <span>Ort für Schritt „{{ trails.draftStep?.title }}“ unter das Fadenkreuz schieben</span>
-        <button class="btn" type="button" @click="backToTrail"><X :size="16" /> Zurück zur Spur</button>
+        <button class="btn" type="button" @click="backToTrail"><X :size="16" /> Zurück zum Puzzle</button>
         <button class="btn primary" type="button" @click="confirmStepPlacing"><Check :size="16" /> Hier setzen</button>
       </div>
     </template>
@@ -185,7 +186,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
     <button v-else-if="session.loggedIn && !stepPlacing" class="fab" type="button" aria-label="Neuen Pin anlegen" title="Neuer Pin (Touch)" @click="startPlacing"><Plus :size="26" /></button>
 
     <TrailBar v-if="trails.active && !placing && !moving && !stepPlacing" />
-    <PinEditor v-if="active && ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" :title="ui.pinEditor.title" @close="ui.pinEditor = null" @saved="onSaved" />
+    <PinEditor v-if="active && ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" :title="ui.pinEditor.title" :lock-kind="ui.pinEditor.lockKind" @close="ui.pinEditor = null" @saved="onSaved" />
   </div>
 </template>
 

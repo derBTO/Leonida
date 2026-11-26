@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { api } from '../api/client'
-import type { Trail } from '../api/types'
+import type { Trail, VehicleSummary, WeaponSummary } from '../api/types'
 import { load, save } from '../lib/storage'
 import { useSession } from './session'
 import { useUi } from './ui'
@@ -17,6 +17,8 @@ export interface TrailDraft {
   trailId: number | null
   name: string
   description: string
+  weapons: WeaponSummary[]
+  vehicles: VehicleSummary[]
   steps: TrailDraftStep[]
   stepKey: number
   returnPath: string

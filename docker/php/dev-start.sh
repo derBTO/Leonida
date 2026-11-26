@@ -18,6 +18,8 @@ if [ ! -f .env ]; then
 fi
 [ -d vendor ] || composer install --no-interaction
 until pg_isready -h db -U leonida >/dev/null 2>&1; do sleep 1; done
+# Neueste Server-Sicherung aus data/server-backup einspielen, falls neu (scripts/backup-pull.sh legt sie dort ab)
+php artisan leonida:restore-latest --dir=/app/data/server-backup || echo "WARNUNG: Server-Sicherung konnte nicht eingespielt werden, starte mit vorhandenen Daten."
 php artisan migrate --force
 php artisan leonida:bootstrap-admin
 php artisan leonida:link

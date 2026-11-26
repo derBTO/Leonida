@@ -45,7 +45,14 @@ class BackupTest extends TestCase
         $pin = $this->postJson('/api/pins', ['title' => 'Motel „Sunset“', 'description' => "Zeile 1\nZeile 2", 'x' => -1.5, 'y' => 2.25,
             'loot_types' => ['weapons', 'cash'], 'weapon_ids' => [$weapon], 'cash_usd' => 900, 'codes' => [['label' => 'Safe', 'code' => '0042']]])->json('pin.id');
         $this->post("/api/pins/$pin/images", ['file' => $this->jpeg(), 'caption' => 'Tür'], ['Accept' => 'application/json'])->assertCreated();
-        $trail = $this->postJson('/api/trails', ['name' => 'Spur', 'steps' => [['title' => 'A', 'pin_id' => $pin], ['title' => 'B', 'parallel' => true]]])->json('item');
+        // Hinweis vor dem Ort anlegen, damit der Selbstbezug „nach vorn“ zeigt (zurückgestellte Prüfung beim Restore)
+        $media = $this->post('/api/media', ['file' => $this->jpeg()], ['Accept' => 'application/json'])->assertCreated()->json('media.id');
+        $hint = $this->postJson('/api/pins', ['kind' => 'hint', 'title' => 'Zettel', 'x' => 0, 'y' => 0, 'weapon_ids' => [$weapon],
+            'steps' => [['text' => 'Zur Insel schwimmen'], ['text' => 'Hinter dem Haus', 'media_id' => $media]]])->assertCreated()->json('pin.id');
+        $place = $this->postJson('/api/pins', ['kind' => 'poi', 'poi_type' => 'poi', 'title' => 'Insel', 'x' => 5, 'y' => 5])->json('pin.id');
+        $this->putJson("/api/pins/$hint", ['kind' => 'hint', 'title' => 'Zettel', 'x' => 0, 'y' => 0, 'weapon_ids' => [$weapon], 'place_pin_id' => $place,
+            'steps' => [['text' => 'Zur Insel schwimmen'], ['text' => 'Hinter dem Haus', 'media_id' => $media]]])->assertOk();
+        $trail = $this->postJson('/api/trails', ['name' => 'Spur', 'weapon_ids' => [$weapon], 'steps' => [['title' => 'A', 'pin_id' => $hint], ['title' => 'B', 'parallel' => true]]])->assertCreated()->json('item');
         $this->putJson("/api/trails/{$trail['id']}/steps/{$trail['steps'][0]['id']}/progress", ['done' => true])->assertOk();
     }
 
@@ -80,7 +87,7 @@ class BackupTest extends TestCase
         $file = glob("$this->dir/leonida-*.json.gz")[0];
         DB::table('migrations')->insert(['migration' => '2099_01_01_000000_zukunft', 'batch' => 99]);
         $this->artisan('leonida:restore', ['file' => $file, '--force' => true])->assertFailed();
-        $this->assertSame(1, DB::table('pins')->count());
+        $this->assertSame(3, DB::table('pins')->count(), 'nichts geändert');
     }
 
     public function test_prune_keeps_newest_of_both_formats(): void
