@@ -10,11 +10,13 @@ import AuthorSelect from './AuthorSelect.vue'
 import { POI, POI_ORDER, poiStyle } from '../lib/poiTypes'
 import type { KindMode } from '../lib/pinFilter'
 import { usePins } from '../stores/pins'
+import { useTrails } from '../stores/trails'
 import { useUi } from '../stores/ui'
 
 defineProps<{ selectedId: number | null }>()
 const emit = defineEmits<{ select: [number] }>()
 const pins = usePins()
+const trails = useTrails()
 const ui = useUi()
 const f = pins.filter
 
@@ -104,6 +106,10 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
         </select>
       </label>
       <AuthorSelect v-model="f.author" compact />
+      <div v-if="trails.active" class="puzzle-note">
+        <span>Puzzle <strong>„{{ trails.active.name }}“</strong> aktiv: Karte und Liste zeigen nur seine Hinweise und Orte.</span>
+        <button type="button" class="btn sm" @click="trails.clear()"><X :size="14" /> Puzzle schließen</button>
+      </div>
       <div class="count">
         <span><strong>{{ pins.listed.length }}</strong> Treffer<template v-if="pins.listed.length !== pins.items.length"> von {{ pins.items.length }}</template></span>
         <button v-if="filtersActive" type="button" class="btn ghost sm" @click="pins.resetFilter()">Filter zurücksetzen</button>
@@ -154,6 +160,7 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
 .poi-tools .btn { height: 24px; font-size: 12px; }
 .poi-group .chips { max-height: 190px; overflow-y: auto; }
 .poi-chip .n { font-size: 11px; }
+.puzzle-note { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--pink); background: rgba(255, 61, 139, 0.08); font-size: 13px; }
 .sq { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; background: var(--c); color: var(--fg, #fff); flex: none; }
 .sq :deep(svg) { width: 11px; height: 11px; }
 .sq.big { width: 22px; height: 22px; border-radius: 5px; }

@@ -52,11 +52,17 @@ export const useTrails = defineStore('trails', () => {
 
   const persist = () => save('trail', { id: activeId.value, spoiler: spoiler.value })
 
-  /** Pins der aktiven Spur, die gezeigt werden dürfen (verdeckte Schritte nicht). */
+  /** Pins des aktiven Puzzles, die gezeigt werden dürfen (verdeckte Schritte nicht): Hinweise und ihre Orte. */
   const pinIds = computed(() => {
     const t = active.value
     if (!t) return new Set<number>()
-    return new Set(t.steps.filter((s) => s.pin && !isHidden(t, s.id)).map((s) => s.pin!.id))
+    const ids = new Set<number>()
+    for (const s of t.steps) {
+      if (!s.pin || isHidden(t, s.id)) continue
+      ids.add(s.pin.id)
+      if (s.pin.place_id) ids.add(s.pin.place_id)
+    }
+    return ids
   })
 
   /** Höchste Schrittnummer, die ohne Spoiler sichtbar ist: alle erledigten plus die nächste offene. */

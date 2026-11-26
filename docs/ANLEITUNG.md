@@ -60,7 +60,7 @@ Ein Puzzle verbindet Hinweise in fester Reihenfolge und führt zu einer **Belohn
 5. **Parallel** ankreuzen, wenn die Reihenfolge zweier Schritte egal ist (sie heißen dann 2a und 2b).
 6. Speichern.
 
-**Unterwegs:** Im Puzzle auf **Auf Karte zeigen** klicken. Die Schritte erscheinen nummeriert und mit einer Linie verbunden, der Rest der Karte wird abgedunkelt. In der Leiste unten mit ← und → von Schritt zu Schritt springen und erledigte Schritte abhaken; ein Klick auf die Nummer öffnet den Hinweis. Dein Fortschritt gehört nur dir.
+**Unterwegs:** Im Puzzle auf **Auf Karte zeigen** klicken. Die Schritte erscheinen nummeriert und mit einer Linie verbunden. Karte und Liste zeigen dann nur noch die Hinweise dieses Puzzles und die mit ihnen verknüpften Orte; die übrigen Filter ruhen. **Puzzle schließen** (in der Seitenleiste oder in der Leiste unten) zeigt wieder alles. In der Leiste unten mit ← und → von Schritt zu Schritt springen und erledigte Schritte abhaken; ein Klick auf die Nummer öffnet den Hinweis. Dein Fortschritt gehört nur dir.
 
 **Spoiler-Schutz:** Auf der Puzzle-Seite einschalten. Dann sind spätere Schritte verdeckt, bis du den aktuellen abhakst oder sie einzeln aufdeckst.
 
@@ -73,5 +73,7 @@ Ein Puzzle verbindet Hinweise in fester Reihenfolge und führt zu einer **Belohn
 - **Eastereggs:** zeigen, ausblenden oder nur Eastereggs.
 - **Ersteller:** nur eigene Einträge („Meine“) oder die einer bestimmten Person zeigen. Bei Waffen und Fahrzeugen zählen auch Einträge, die die Person bearbeitet hat.
 - **Nur im Kartenausschnitt:** Liste auf den sichtbaren Bereich beschränken.
+
+Die Schaltfläche zwischen **+** und **−** zeigt die ganze Karte zentriert.
 
 Ein Klick auf einen Pin öffnet seine Details in einem Fenster über der Karte; Esc oder das × schließt es. Am Computer lässt sich das Fenster an der Titelleiste verschieben, ein Doppelklick auf die Titelleiste setzt es zurück in die Mitte. Jeder Pin hat eine eigene Adresse; „Link kopieren“ im Pin teilt genau diesen Ort.

@@ -93,6 +93,8 @@ class Trail extends Model
                 'pin' => $s->pin ? [
                     'id' => $s->pin->id, 'title' => $s->pin->title, 'kind' => $s->pin->kind->value,
                     'poi_type' => $s->pin->poi_type?->value, 'x' => $s->pin->x, 'y' => $s->pin->y,
+                    // Ort des Hinweises: wird bei aktivem Puzzle mit auf der Karte gezeigt
+                    'place_id' => $s->pin->place_pin_id,
                 ] : null,
                 'done' => isset($done[$s->id]),
             ])->all(),

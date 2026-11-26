@@ -153,6 +153,18 @@ test('Puzzle anlegen mit Belohnung, Hinweis direkt aus dem Editor setzen, Fortsc
   await page.getByRole('button', { name: 'Auf Karte zeigen' }).click()
   await expect(page.locator('.trail-bar')).toContainText('E2E Puzzle')
   await expect(page.locator('.trail-badge')).toHaveCount(2)
+  // aktives Puzzle: Liste zeigt nur seine Hinweise, Hinweis in der Seitenleiste
+  await expect(page.locator('.puzzle-note')).toContainText('E2E Puzzle')
+  // zwei Hinweise plus der Ort, den „E2E Zettel“ verknüpft
+  await expect(page.locator('.sidebar .row')).toHaveCount(3)
+  await expect(page.locator('.sidebar .row', { hasText: 'E2E Diner' })).toBeVisible()
+  await page.locator('.puzzle-note').getByRole('button', { name: 'Puzzle schließen' }).click()
+  await expect(page.locator('.puzzle-note')).toHaveCount(0)
+  await expect(page.locator('.sidebar .row', { hasText: 'E2E Admin-Versteck' })).toBeVisible()
+
+  // ganze Karte zeigen: weit herausgezoomt
+  await page.getByRole('button', { name: 'Ganze Karte zeigen' }).click()
+  await expect(page.locator('.leaflet-marker-icon').first()).toBeVisible()
 })
 
 test('Hinweis mit Ort, Waffe und Schritten; Ort wird Fundort der Waffe', async ({ page }) => {

@@ -20,8 +20,10 @@ export const usePins = defineStore('pins', () => {
 
   const bounds = ref<Bounds | null>(null)
 
-  /** Alle Pins, die Suche und Filter erfüllen – so auf der Karte angezeigt. Pins der aktiven Spur immer. */
+  /** Alle Pins, die Suche und Filter erfüllen – so auf der Karte angezeigt.
+   *  Ist ein Puzzle aktiv, nur dessen Hinweise und Orte (unabhängig vom Filter). */
   const visible = computed(() => {
+    if (trails.active) return items.value.filter((p) => trails.pinIds.has(p.id))
     // Ersteller-Filter nur für Angemeldete (nur sie sehen die Benutzerliste)
     const f = session.user ? filter : { ...filter, author: null }
     const pinned = trails.pinIds

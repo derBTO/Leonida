@@ -98,7 +98,8 @@ class HintTest extends TestCase
         $this->actingAs($this->editor());
         $weapon = $this->weapon('Belohnungswaffe');
         $vehicle = $this->vehicle('Belohnungsauto');
-        $hint = $this->pin(['kind' => 'hint', 'title' => 'Hinweis']);
+        $place = $this->pin(['kind' => 'poi', 'poi_type' => 'bar', 'title' => 'Diner']);
+        $hint = $this->pin(['kind' => 'hint', 'title' => 'Hinweis', 'place_pin_id' => $place['id']]);
         $loot = $this->pin(['title' => 'Loot']);
         $this->postJson('/api/trails', ['name' => 'X', 'steps' => [['title' => 'a', 'pin_id' => $loot['id']]]])
             ->assertJsonValidationErrors(['steps.0.pin_id' => 'Hinweis']);
@@ -106,6 +107,7 @@ class HintTest extends TestCase
         $trail = $this->postJson('/api/trails', ['name' => 'Das Erbe', 'weapon_ids' => [$weapon], 'vehicle_ids' => [$vehicle],
             'steps' => [['title' => 'a', 'pin_id' => $hint['id']]]])->assertCreated()->json('item');
         $this->assertSame(['Belohnungswaffe'], array_column($trail['weapons'], 'name'));
+        $this->assertSame($place['id'], $trail['steps'][0]['pin']['place_id']);
         $this->assertSame(['Belohnungsauto'], array_column($trail['vehicles'], 'name'));
         $this->assertSame(['Belohnungswaffe', 'Belohnungsauto'], $this->getJson('/api/trails')->json('items.0.rewards'));
         $this->assertSame([['id' => $trail['id'], 'name' => 'Das Erbe']], $this->getJson("/api/weapons/$weapon")->json('item.puzzles'));

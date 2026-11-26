@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## v1.3.0 – Puzzle-Ansicht, ganze Karte (26.11.2026)
+
+- **Aktives Puzzle auf der Karte:** Karte und Liste zeigen nur noch die Hinweise des Puzzles und die mit ihnen verknüpften Orte (verdeckte Schritte bleiben verdeckt). In der Seitenleiste steht, welches Puzzle aktiv ist, mit **Puzzle schließen**. Die API liefert dafür je Schritt `pin.place_id`.
+- **Ganze Karte zeigen:** neue Schaltfläche zwischen + und −, zentriert die komplette Karte (ohne dass die Seitenleiste etwas verdeckt).
+
 ## v1.2.1 – Filter, „Meine“ im Katalog, verschiebbare Dialoge (26.11.2026)
 
 - **Filter unter „Alles“:** Sind Ort-Kategorien oder Loottypen gewählt, zeigen Karte und Liste nur noch das Gewählte. Nur „Ammu-Nation“ angeklickt zeigt jetzt nur Ammu-Nation-Läden statt zusätzlich aller Loot-Pins.

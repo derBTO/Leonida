@@ -66,3 +66,4 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 26.11.2026 | Standardfarbe der Orte | Rosé `#f2ceca` mit schwarzem Symbol statt Grau | Wunsch BTO: wie die Kartensymbole im Spiel, auf der Karte besser sichtbar |
 | 26.11.2026 | Filter unter „Alles“ | Auswahl von Kategorien/Loottypen schränkt auf das Gewählte ein (Loot ohne gewählten Loottyp und Orte ohne gewählte Kategorie fallen weg) | Rückmeldung BTO: Auswahl „Ammu-Nation“ soll nur Läden zeigen |
 | 26.11.2026 | „Meine“ im Katalog | angelegt, zuletzt geändert oder im Änderungsprotokoll als Bearbeiter | Wunsch BTO; das Protokoll hält auch ältere Bearbeitungen fest |
+| 26.11.2026 | Aktives Puzzle auf der Karte | nur Hinweise des Puzzles und ihre Orte, Filter ruhen solange | Wunsch BTO: übersichtlicher unterwegs |

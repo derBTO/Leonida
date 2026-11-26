@@ -215,7 +215,7 @@ export interface TrailSummary {
   updated_at: string | null
 }
 
-export interface TrailStepPin { id: number; title: string; kind: PinKind; poi_type: PoiType | null; x: number; y: number }
+export interface TrailStepPin { id: number; title: string; kind: PinKind; poi_type: PoiType | null; x: number; y: number; place_id?: number | null }
 
 export interface TrailStep {
   id: number

@@ -2,7 +2,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
-import { Minus, Plus } from 'lucide-vue-next'
+import { Maximize, Minus, Plus } from 'lucide-vue-next'
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type { MapManifest, PinIndexItem } from '../api/types'
 import { load, save } from '../lib/storage'
@@ -56,6 +56,9 @@ function persist() {
   pins.bounds = { west: b.getWest(), east: b.getEast(), south: b.getSouth(), north: b.getNorth() }
 }
 
+/** Ausdehnung der Kartenkacheln, für „ganze Karte zeigen“ */
+let wholeMap: L.LatLngBounds | null = null
+
 function buildTiles() {
   if (!map.value || !manifest.value) return
   const set = manifest.value.tileSets.find((s) => s.id === TILE_SET) ?? manifest.value.tileSets[0]
@@ -68,6 +71,7 @@ function buildTiles() {
     },
   })
   const b = set.bounds
+  wholeMap = L.latLngBounds(toLatLng(b.west, b.south), toLatLng(b.east, b.north))
   tiles?.remove()
   tiles = new (Layer as unknown as typeof L.TileLayer)('', {
     tileSize: 256,
@@ -237,6 +241,14 @@ watch(() => trails.focusRequest, () => {
   const step = t?.steps[trails.stepIndex]
   if (t && step?.pin && !trails.isHidden(t, step.id)) flyTo(step.pin.x, step.pin.y)
 })
+/** Ganze Karte zentriert zeigen, ohne dass die Seitenleiste etwas verdeckt */
+function fitWhole() {
+  if (!map.value || !wholeMap) return
+  const wide = window.innerWidth > 760
+  const side = wide && ui.sidebarOpen ? (document.querySelector('.sidebar')?.getBoundingClientRect().right ?? 0) + 10 : 10
+  map.value.flyToBounds(wholeMap, { paddingTopLeft: [side, 70], paddingBottomRight: [70, 10], duration: 0.6 })
+}
+
 function fitTrail() {
   const trail = trails.active
   if (!map.value || !trail) return
@@ -300,6 +312,7 @@ defineExpose({ flyTo, center, invalidate, fitTrail })
     <div class="controls">
       <div class="zoom panel">
         <button type="button" aria-label="Hineinzoomen" @click="map?.zoomIn()"><Plus :size="18" /></button>
+        <button type="button" aria-label="Ganze Karte zeigen" title="Ganze Karte zeigen" @click="fitWhole"><Maximize :size="16" /></button>
         <button type="button" aria-label="Herauszoomen" @click="map?.zoomOut()"><Minus :size="18" /></button>
       </div>
     </div>
