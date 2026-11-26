@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Check, Crosshair, Landmark, MapPin, Plus, Search, X } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api/client'
 import type { Pin, PinIndexItem, PinKind } from '../api/types'
@@ -21,7 +21,12 @@ const session = useSession()
 const ui = useUi()
 const trails = useTrails()
 const mapRef = ref<InstanceType<typeof LeonidaMap> | null>(null)
-const selectedId = computed(() => (route.params.id ? Number(route.params.id) : null))
+// Die Kartenseite bleibt im Hintergrund erhalten (KeepAlive): nur /pin/<id> wählt einen Pin,
+// nicht die :id anderer Seiten (z. B. /spuren/1). Dialoge nur zeigen, solange die Seite aktiv ist.
+const active = ref(true)
+onActivated(() => (active.value = true))
+onDeactivated(() => (active.value = false))
+const selectedId = computed(() => (active.value && route.name === 'pin' ? Number(route.params.id) : null))
 const menu = ref<{ x: number; y: number; clientX: number; clientY: number } | null>(null)
 const placing = ref(false)
 const moving = ref<PinIndexItem | null>(null)
@@ -143,10 +148,10 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
 </script>
 
 <template>
-  <div class="map-page" :class="{ placing, 'has-detail': selectedId && !moving }">
+  <div class="map-page" :class="{ placing }">
     <LeonidaMap ref="mapRef" :selected-id="selectedId" :moving-pin="moving" @select="select" @context="menu = $event" @moved="moveTarget = $event" @click="menu = null" />
     <Sidebar :selected-id="selectedId" @select="select" />
-    <PinDetail v-if="selectedId && !moving" :pin-id="selectedId" :reload-key="detailKey" @close="closeDetail" @edit="openEditor($event)" @move="startMove" @deleted="closeDetail" />
+    <PinDetail v-if="selectedId && !moving && !ui.pinEditor && !stepPlacing" :pin-id="selectedId" :reload-key="detailKey" @close="closeDetail" @edit="openEditor($event)" @move="startMove" @deleted="closeDetail" />
 
     <div v-if="menu" class="ctx panel" :style="{ left: `${menu.clientX}px`, top: `${menu.clientY}px` }" @mouseleave="menu = null">
       <button type="button" @click="openEditor(null, menu.x, menu.y)"><MapPin :size="15" /> Neuer Loot-Pin hier</button>
@@ -180,7 +185,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
     <button v-else-if="session.loggedIn && !stepPlacing" class="fab" type="button" aria-label="Neuen Pin anlegen" title="Neuer Pin (Touch)" @click="startPlacing"><Plus :size="26" /></button>
 
     <TrailBar v-if="trails.active && !placing && !moving && !stepPlacing" />
-    <PinEditor v-if="ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" :title="ui.pinEditor.title" @close="ui.pinEditor = null" @saved="onSaved" />
+    <PinEditor v-if="active && ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" :title="ui.pinEditor.title" @close="ui.pinEditor = null" @saved="onSaved" />
   </div>
 </template>
 
@@ -193,12 +198,8 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
 .crosshair { position: absolute; z-index: 950; left: 50%; top: 50%; transform: translate(-50%, -50%); color: var(--orange); pointer-events: none; filter: drop-shadow(0 0 6px rgba(0, 0, 0, 0.8)); }
 .bar { position: absolute; z-index: 960; left: 50%; bottom: 24px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 10px 12px; flex-wrap: wrap; justify-content: center; max-width: calc(100vw - 24px); }
 .fab { position: absolute; z-index: 860; right: 64px; bottom: 28px; width: 54px; height: 54px; border-radius: 50%; border: 0; background: var(--grad); color: #160b12; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 8px 24px rgba(255, 61, 139, 0.45); }
-.has-detail :deep(.controls) { right: 424px; }
-.has-detail .fab { right: 476px; }
-.has-detail :deep(.trail-bar) { left: auto; right: 440px; transform: none; width: min(480px, calc(100vw - 840px)); min-width: 340px; }
 @media (max-width: 760px) {
   .fab { right: 12px; bottom: 140px; }
   .bar { bottom: 80px; }
-  .has-detail :deep(.controls), .has-detail .fab { display: none; }
 }
 </style>

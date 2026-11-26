@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ChevronLeft, ChevronRight, Eye, Maximize2, Route, X } from 'lucide-vue-next'
 import { computed } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { useTrails } from '../stores/trails'
 import { useUi } from '../stores/ui'
 
 /** Leiste der aktiven Spur über der Karte: Schritt vor/zurück, abhaken, Übersicht. */
 const trails = useTrails()
 const ui = useUi()
-const router = useRouter()
 const trail = computed(() => trails.active!)
 const step = computed(() => trail.value.steps[trails.stepIndex])
 const hidden = computed(() => (step.value ? trails.isHidden(trail.value, step.value.id) : false))
@@ -22,8 +21,7 @@ function go(delta: number) {
   const next = trails.stepIndex + delta
   if (next < 0 || next >= trail.value.steps.length) return
   trails.stepIndex = next
-  const s = trail.value.steps[next]
-  if (s.pin && !trails.isHidden(trail.value, s.id)) router.push(`/pin/${s.pin.id}`)
+  trails.focusRequest++
 }
 async function toggleDone() {
   if (!step.value) return

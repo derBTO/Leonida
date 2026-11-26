@@ -67,6 +67,8 @@ export interface PinIndexItem {
   u: number | null
   /** Herkunft: 'gtadb' = aus gtadb.org übernommen, sonst null */
   o: 'gtadb' | null
+  /** Easteregg (eigenes Symbol, egal welche Art) */
+  e: boolean
 }
 
 export interface MediaRef { id: string; url: string; thumb_url: string; width: number; height: number }
@@ -168,6 +170,7 @@ export interface Pin {
   created_by: string | null
   created_by_id: number | null
   source: 'gtadb' | null
+  is_easteregg: boolean
   updated_by: string | null
   trails: PinTrailRef[]
 }

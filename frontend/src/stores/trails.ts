@@ -42,6 +42,8 @@ export const useTrails = defineStore('trails', () => {
   const version = ref(0)
   /** Wunsch an die Karte, den Ausschnitt auf die Spur zu setzen (Zähler) */
   const fitRequest = ref(0)
+  /** Wunsch an die Karte, zum aktuellen Schritt zu fliegen (Zähler) */
+  const focusRequest = ref(0)
   /** Spur-Entwurf beim Setzen eines neuen Pins für einen Schritt */
   const draft = ref<TrailDraft | null>(null)
   const draftStep = computed(() => draft.value?.steps.find((s) => s.key === draft.value!.stepKey) ?? null)
@@ -124,5 +126,5 @@ export const useTrails = defineStore('trails', () => {
     version.value++
   }
 
-  return { draft, draftStep, fitRequest, active, activeId, stepIndex, spoiler, revealed, version, pinIds, openUpTo, isHidden, activate, restore, clear, setSpoiler, reveal, setDone, reload }
+  return { draft, draftStep, fitRequest, focusRequest, active, activeId, stepIndex, spoiler, revealed, version, pinIds, openUpTo, isHidden, activate, restore, clear, setSpoiler, reveal, setDone, reload }
 })

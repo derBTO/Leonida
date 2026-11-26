@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { Check, Copy, Link2, Move, Pencil, Route, Trash2, X } from 'lucide-vue-next'
+import { Check, Copy, Link2, Move, Pencil, Route, Trash2 } from 'lucide-vue-next'
 import { ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { api } from '../api/client'
 import type { Pin } from '../api/types'
+import { EGG } from '../lib/easteregg'
 import { formatDate, formatUsd } from '../lib/format'
 import { LOOT, sortLoot } from '../lib/lootTypes'
 import { HINT } from '../lib/hint'
@@ -15,6 +16,7 @@ import { useUi } from '../stores/ui'
 import Gallery from './Gallery.vue'
 import LegendaryStar from './LegendaryStar.vue'
 import MediaImage from './MediaImage.vue'
+import Modal from './Modal.vue'
 import RichText from './RichText.vue'
 
 const props = defineProps<{ pinId: number; reloadKey?: number }>()
@@ -75,8 +77,9 @@ defineExpose({ reload: load })
 </script>
 
 <template>
-  <aside class="detail panel" aria-label="Pin-Details">
-    <header>
+  <Modal :title="pin?.title ?? (error ? 'Pin' : 'Lade …')" width="760px" @close="emit('close')">
+    <div class="head-row">
+      <span v-if="pin?.is_easteregg" class="type egg" :style="{ '--c': EGG.color }"><span v-html="EGG.svg" />{{ EGG.label }}</span>
       <div v-if="pin && pin.kind === 'poi'" class="types">
         <span class="type" :style="{ '--c': POI[pin.poi_type ?? 'poi'].color }"><span class="sq" v-html="POI[pin.poi_type ?? 'poi'].svg" />{{ POI[pin.poi_type ?? 'poi'].label }}</span>
       </div>
@@ -86,13 +89,10 @@ defineExpose({ reload: load })
       <div v-else-if="pin" class="types">
         <span v-for="t in sortLoot(pin.loot_types)" :key="t" class="type" :style="{ '--c': LOOT[t].color }"><span v-html="LOOT[t].svg" />{{ LOOT[t].label }}</span>
       </div>
-      <button class="btn ghost icon" type="button" aria-label="Schließen" @click="emit('close')"><X :size="18" /></button>
-    </header>
-    <div class="body scroll">
+    </div>
       <div v-if="error" class="error-text">{{ error }}</div>
       <div v-else-if="!pin" class="muted">Lade …</div>
       <template v-else>
-        <h2 class="title">{{ pin.title }}</h2>
         <div v-if="pin.kind === 'loot'" class="badges">
           <span class="badge" :class="statusClass[pin.status]">{{ session.label('pin_status', pin.status) }}</span>
           <span class="badge">Respawn: {{ session.label('respawn', pin.respawn) }}</span>
@@ -118,6 +118,10 @@ defineExpose({ reload: load })
         <p v-if="pin.description" class="desc"><RichText :text="pin.description" /></p>
         <div v-if="pin.requirements" class="req"><span class="label">Voraussetzungen / Hinweise</span><p><RichText :text="pin.requirements" /></p></div>
 
+        <div v-if="pin.images.length" class="gallery">
+          <Gallery :images="pin.images" />
+        </div>
+
         <div v-if="pin.drugs_value_usd !== null || pin.jewelry_value_usd !== null || pin.cash_usd !== null" class="values">
           <div v-if="pin.loot_types.includes('drugs')"><span class="label">Drogen</span><strong>{{ formatUsd(pin.drugs_value_usd) }}</strong></div>
           <div v-if="pin.loot_types.includes('jewelry')"><span class="label">Schmuck</span><strong>{{ formatUsd(pin.jewelry_value_usd) }}</strong></div>
@@ -135,7 +139,7 @@ defineExpose({ reload: load })
           <div class="section-title">Waffen</div>
           <RouterLink v-for="w in pin.weapons" :key="w.id" :to="`/waffen/${w.id}`" class="item">
             <MediaImage :media="w.image" thumb :alt="w.name" class="thumb" />
-            <span><strong>{{ w.name }}<LegendaryStar v-if="w.is_legendary" :size="14" /></strong><small class="muted">{{ w.weapon_type?.name }}</small></span>
+            <span><strong :class="{ 'legendary-name': w.is_legendary }">{{ w.name }}<LegendaryStar v-if="w.is_legendary" :size="14" /></strong><small class="muted">{{ w.weapon_type?.name }}</small></span>
           </RouterLink>
         </template>
 
@@ -153,11 +157,6 @@ defineExpose({ reload: load })
           </div>
         </template>
 
-        <template v-if="pin.images.length">
-          <div class="section-title">Bilder</div>
-          <Gallery :images="pin.images" />
-        </template>
-
         <footer class="meta faint">
           <button class="btn ghost sm" type="button" @click="copy(link(), 'link')"><Check v-if="copied === 'link'" :size="14" /><Link2 v-else :size="14" /> Link kopieren</button>
           <div>Erstellt {{ formatDate(pin.created_at) }}<template v-if="pin.created_by"> von {{ pin.created_by }}</template></div>
@@ -165,20 +164,19 @@ defineExpose({ reload: load })
           <div>x {{ pin.x.toFixed(1) }} · y {{ pin.y.toFixed(1) }}</div>
         </footer>
       </template>
-    </div>
-  </aside>
+  </Modal>
 </template>
 
 <style scoped>
-.detail { position: absolute; z-index: 900; top: calc(var(--header-h) + 16px); right: 12px; bottom: 12px; width: 400px; display: flex; flex-direction: column; animation: fade-in 0.18s ease-out; }
-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 8px 0 16px; gap: 8px; }
+.head-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 4px; }
+.head-row:empty { display: none; }
 .types { display: flex; flex-wrap: wrap; gap: 10px; }
+.type.egg { padding: 2px 8px 2px 4px; border: 1px solid var(--c); border-radius: 999px; background: rgba(163, 230, 53, 0.08); }
+.gallery { margin: 14px 0; }
 .type { display: inline-flex; align-items: center; gap: 5px; color: var(--c); font-family: var(--font-display); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; }
 .type :deep(svg) { width: 15px; height: 15px; }
 .sq { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; background: var(--c); color: #fff; }
 .sq :deep(svg) { width: 13px; height: 13px; }
-.body { padding: 4px 16px 16px; flex: 1; }
-.title { font-size: 30px; line-height: 1.05; }
 .badges { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
 .actions { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
 .desc { white-space: pre-wrap; margin: 10px 0; }
@@ -202,7 +200,4 @@ header { display: flex; align-items: center; justify-content: space-between; pad
 .code > div { display: flex; flex-direction: column; }
 .code code { font-family: ui-monospace, Menlo, monospace; font-size: 20px; letter-spacing: 0.12em; }
 .meta { margin-top: 18px; font-size: 12px; display: flex; flex-direction: column; gap: 2px; align-items: flex-start; }
-@media (max-width: 760px) {
-  .detail { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 78vh; border-radius: 16px 16px 0 0; }
-}
 </style>

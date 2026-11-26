@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { api, ApiError } from '../api/client'
 import type { GalleryImage, LootType, Pin, PinCode, PinKind, PinStatus, PoiType, RespawnStatus, VehicleSummary, WeaponSummary } from '../api/types'
+import { EGG } from '../lib/easteregg'
 import { formatNumber, parseUsd } from '../lib/format'
 import { LOOT, LOOT_ORDER } from '../lib/lootTypes'
 import { POI, POI_ORDER } from '../lib/poiTypes'
@@ -43,6 +44,7 @@ const form = reactive({
   requirements: '',
   respawn: 'unknown' as RespawnStatus,
   status: 'unconfirmed' as PinStatus,
+  is_easteregg: false,
 })
 let initial = ''
 const dirty = computed(() => !loading.value && JSON.stringify(form) !== initial)
@@ -57,7 +59,7 @@ onMounted(async () => {
         title: pin.title, description: pin.description ?? '', x: pin.x, y: pin.y, loot_types: pin.loot_types,
         weapons: pin.weapons, vehicles: pin.vehicles, drugs: money(pin.drugs_value_usd), jewelry: money(pin.jewelry_value_usd),
         cash: money(pin.cash_usd), codes: pin.codes.map((c) => ({ ...c })), requirements: pin.requirements ?? '',
-        respawn: pin.respawn, status: pin.status,
+        respawn: pin.respawn, status: pin.status, is_easteregg: pin.is_easteregg,
       })
       images.value = pin.images
     } catch (e) {
@@ -105,6 +107,7 @@ async function save() {
     requirements: form.requirements,
     respawn: form.respawn,
     status: form.status,
+    is_easteregg: form.is_easteregg,
   }
   try {
     let pin = props.pinId
@@ -136,6 +139,11 @@ async function save() {
         <button type="button" role="radio" :aria-checked="isPoi" :class="{ on: isPoi }" @click="form.kind = 'poi'">Ort (POI)</button>
         <button type="button" role="radio" :aria-checked="isHint" :class="{ on: isHint }" @click="form.kind = 'hint'">Hinweis</button>
       </div>
+      <label class="egg-toggle" :class="{ on: form.is_easteregg }">
+        <input type="checkbox" v-model="form.is_easteregg" />
+        <span class="egg-icon" :style="{ '--c': EGG.color }" v-html="EGG.svg" />
+        Easteregg <small class="faint">– auf der Karte immer mit Ei-Symbol, egal welche Art</small>
+      </label>
       <div class="field">
         <label for="pe-title">{{ isPoi ? 'Name *' : 'Titel *' }}</label>
         <input id="pe-title" class="input" v-model="form.title" maxlength="150" required :placeholder="isPoi ? 'z. B. Ammu-Nation Port Gellhorn' : isHint ? 'z. B. Zeitung im Diner' : 'z. B. Safe im Motel'" />
@@ -232,6 +240,11 @@ async function save() {
 .block { margin-top: 14px; }
 .block > .label { margin-bottom: 6px; display: block; }
 textarea.small { min-height: 60px; }
+.egg-toggle { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 7px 10px; border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; }
+.egg-toggle.on { border-style: solid; border-color: #a3e635; background: rgba(163, 230, 53, 0.08); }
+.egg-toggle input { accent-color: #a3e635; }
+.egg-icon { display: inline-flex; color: var(--c); }
+.egg-icon :deep(svg) { width: 18px; height: 18px; }
 .hint-info { font-size: 13px; margin: 10px 0 0; }
 .kinds { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 3px; margin-bottom: 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: rgba(0,0,0,0.25); }
 .kinds button { height: 34px; border: 0; border-radius: 6px; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }

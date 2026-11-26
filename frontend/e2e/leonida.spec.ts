@@ -39,11 +39,12 @@ test('Gäste sehen die Karte, gtadb-Orte nur mit Schalter, keinen Ersteller-Filt
 test('Bearbeiter dürfen Fremdes nicht ändern und keine Waffen anlegen', async ({ page }) => {
   await login(page, 'e2e-alice')
   await page.locator('.sidebar .row', { hasText: 'E2E Admin-Versteck' }).click()
-  await expect(page.locator('.detail .title')).toHaveText('E2E Admin-Versteck')
-  await expect(page.locator('.detail .actions')).toHaveCount(0)
+  await expect(page.getByRole('dialog').locator('header h2')).toHaveText('E2E Admin-Versteck')
+  await expect(page.getByRole('dialog').locator('.actions')).toHaveCount(0)
 
   await page.goto('/waffen')
-  await expect(page.getByText('E2E Test-Pistole')).toBeVisible()
+  // legendäre Waffe: Name in Gelb mit Stern
+  await expect(page.locator('h3.legendary-name', { hasText: 'E2E Test-Pistole' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Neue Waffe' })).toHaveCount(0)
 })
 
@@ -54,11 +55,32 @@ test('Bearbeiter legt einen Hinweis an und darf ihn bearbeiten', async ({ page }
   await page.getByRole('button', { name: 'Code hinzufügen' }).click()
   await page.getByPlaceholder('Code *').fill('4711')
   await page.locator('button[type=submit][form=pin-form]').click()
-  await expect(page.locator('.detail .title')).toHaveText('E2E Zettel')
-  await expect(page.locator('.detail')).toContainText('Hinweis')
-  await expect(page.locator('.detail .actions')).toBeVisible()
+  await expect(page.getByRole('dialog').locator('header h2')).toHaveText('E2E Zettel')
+  await expect(page.getByRole('dialog')).toContainText('Hinweis')
+  await expect(page.getByRole('dialog').locator('.actions')).toBeVisible()
+  await page.keyboard.press('Escape')
   await page.getByRole('radio', { name: 'Hinweise', exact: true }).click()
   await expect(hits(page)).toHaveText('1')
+  await page.getByRole('radio', { name: 'Alles', exact: true }).click()
+})
+
+test('Easteregg: eigenes Symbol unabhängig von der Art, Filter, Detail als Dialog', async ({ page }) => {
+  await login(page, 'e2e-alice')
+  await contextMenu(page, 'Neuer Loot-Pin hier')
+  await page.locator('#pe-title').fill('E2E Geisterauto')
+  await page.getByRole('checkbox', { name: /Easteregg/ }).check()
+  await page.locator('button[type=submit][form=pin-form]').click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.locator('header h2')).toHaveText('E2E Geisterauto')
+  await expect(dialog.locator('.type.egg')).toHaveText('Easteregg')
+  await page.keyboard.press('Escape')
+  await expect(page).toHaveURL(/\/$/)
+  await expect(page.locator('.egg-marker')).toHaveCount(1)
+  await page.locator('.sidebar .select-row select').selectOption('only')
+  await expect(hits(page)).toHaveText('1')
+  await page.locator('.sidebar .select-row select').selectOption('hide')
+  await expect(page.locator('.sidebar .row', { hasText: 'E2E Geisterauto' })).toHaveCount(0)
+  await page.locator('.sidebar .select-row select').selectOption('show')
 })
 
 test('Spur anlegen, Pin direkt aus dem Editor setzen, Fortschritt abhaken', async ({ page }) => {
@@ -103,9 +125,9 @@ test('Fortschritt ist pro Person, fremde Spur nicht bearbeitbar', async ({ page 
 test('Admin: Ersteller-Filter und Benutzer anlegen über das Menü', async ({ page }) => {
   await login(page, 'e2e-admin')
   await page.locator('.sidebar .author select').selectOption({ label: 'e2e-alice' })
-  await expect(hits(page)).toHaveText('2')
-  await page.getByText('Orte von gtadb.org zeigen').click()
   await expect(hits(page)).toHaveText('3')
+  await page.getByText('Orte von gtadb.org zeigen').click()
+  await expect(hits(page)).toHaveText('4')
   await page.locator('.sidebar .author select').selectOption({ label: 'Alle' })
 
   await page.locator('.user .btn').click()
@@ -121,5 +143,5 @@ test('Admin: Ersteller-Filter und Benutzer anlegen über das Menü', async ({ pa
   // Admin darf fremde Pins bearbeiten
   await page.goto('/')
   await page.locator('.sidebar .row', { hasText: 'E2E Zettel' }).click()
-  await expect(page.locator('.detail .actions')).toBeVisible()
+  await expect(page.getByRole('dialog').locator('.actions')).toBeVisible()
 })

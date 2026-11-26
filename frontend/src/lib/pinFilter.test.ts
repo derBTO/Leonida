@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { PinIndexItem } from '../api/types'
 import { inBounds, matches, sortByTitle, type FilterState } from './pinFilter'
 
-const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, k: 'loot', p: null, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], u: null, o: null, ...o })
+const pin = (o: Partial<PinIndexItem>): PinIndexItem => ({ id: 1, k: 'loot', p: null, t: '', x: 0, y: 0, l: [], s: 'confirmed', d: '', w: [], v: [], c: [], u: null, o: null, e: false, ...o })
 const f = (o: Partial<FilterState> = {}): FilterState => ({ q: '', mode: 'both', loot: [], poi: [], showGone: true, ...o })
 
 describe('Pin-Filter', () => {
@@ -72,5 +72,13 @@ describe('Pin-Filter', () => {
     // unabhängig vom Ersteller-Filter
     expect(matches(imported, f({ showGtadb: true, author: 7 }))).toBe(true)
     expect(matches(imported, f({ showGtadb: false, author: 7 }))).toBe(false)
+  })
+
+  it('filtert Eastereggs: zeigen, ausblenden, nur diese', () => {
+    const egg = pin({ e: true })
+    const normal = pin({})
+    expect([egg, normal].map((p) => matches(p, f()))).toEqual([true, true])
+    expect([egg, normal].map((p) => matches(p, f({ eggs: 'hide' })))).toEqual([false, true])
+    expect([egg, normal].map((p) => matches(p, f({ eggs: 'only' })))).toEqual([true, false])
   })
 })

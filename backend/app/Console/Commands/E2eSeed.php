@@ -47,7 +47,7 @@ class E2eSeed extends Command
             'status' => 'confirmed', 'respawn' => 'unknown', 'created_by' => $admin->id, 'updated_by' => $admin->id,
         ]);
         $pin->syncLootTypes(['cash']);
-        Weapon::query()->create(['uuid' => (string) Str::uuid(), 'name' => 'E2E Test-Pistole', 'created_by' => $admin->id]);
+        Weapon::query()->create(['uuid' => (string) Str::uuid(), 'name' => 'E2E Test-Pistole', 'is_legendary' => true, 'created_by' => $admin->id]);
         $this->info('E2E-Testdaten angelegt.');
 
         return self::SUCCESS;

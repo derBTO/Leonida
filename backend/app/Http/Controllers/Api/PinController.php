@@ -54,9 +54,10 @@ class PinController extends Controller
             'poi.*' => [Rule::enum(PoiType::class)],
             'bbox' => ['nullable', 'regex:/^-?\d+(\.\d+)?(,-?\d+(\.\d+)?){3}$/'],
             'author' => ['nullable', 'integer'],
+            'egg' => ['nullable', 'boolean'],
         ]);
 
-        return response()->json(['ids' => PinIndex::search($data['q'] ?? null, $data['loot'] ?? [], $data['bbox'] ?? null, $data['kind'] ?? null, $data['poi'] ?? [], $data['author'] ?? null)]);
+        return response()->json(['ids' => PinIndex::search($data['q'] ?? null, $data['loot'] ?? [], $data['bbox'] ?? null, $data['kind'] ?? null, $data['poi'] ?? [], $data['author'] ?? null, isset($data['egg']) ? (bool) $data['egg'] : null)]);
     }
 
     public function show(Pin $pin): JsonResponse
@@ -163,6 +164,7 @@ class PinController extends Controller
             'requirements' => ['nullable', 'string', 'max:5000'],
             'respawn' => ['nullable', Rule::enum(RespawnStatus::class)],
             'status' => ['nullable', Rule::enum(PinStatus::class)],
+            'is_easteregg' => ['nullable', 'boolean'],
         ], [
             'title.required' => 'Der Titel fehlt.',
             'title.regex' => 'Der Titel darf nicht leer sein.',
@@ -184,6 +186,7 @@ class PinController extends Controller
             // Orte und Hinweise haben nur Name, Beschreibung, Bilder und Position (Hinweise zusätzlich Codes)
             return [
                 'kind' => $kind,
+                'is_easteregg' => (bool) ($data['is_easteregg'] ?? false),
                 'poi_type' => $kind === PinKind::Poi->value ? $data['poi_type'] : null,
                 'title' => trim($data['title']),
                 'description' => $blank($data['description'] ?? null),
@@ -201,6 +204,7 @@ class PinController extends Controller
 
         return [
             'kind' => PinKind::Loot->value,
+            'is_easteregg' => (bool) ($data['is_easteregg'] ?? false),
             'poi_type' => null,
             'title' => trim($data['title']),
             'description' => $blank($data['description'] ?? null),

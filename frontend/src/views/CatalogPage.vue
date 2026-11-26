@@ -84,7 +84,7 @@ function created(item: Weapon | Vehicle) {
       <RouterLink v-for="i in items" :key="i.id" :to="`${base}/${i.id}`" class="tile panel">
         <div class="img"><MediaImage :media="i.image" thumb :alt="i.name" /></div>
         <div class="info">
-          <h3>{{ i.name }}<LegendaryStar v-if="'is_legendary' in i && i.is_legendary" :size="16" /></h3>
+          <h3 :class="{ 'legendary-name': 'is_legendary' in i && i.is_legendary }">{{ i.name }}<LegendaryStar v-if="'is_legendary' in i && i.is_legendary" :size="16" /></h3>
           <div class="sub">{{ sub(i) }}</div>
           <div class="mini">
             <div v-for="[label, v] in mainStats(i)" :key="label"><span>{{ label }}</span><b>{{ formatStat(v) }}</b><i><em :style="{ width: `${(v ?? 0) * 10}%` }" /></i></div>

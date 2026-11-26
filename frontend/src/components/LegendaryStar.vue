@@ -9,5 +9,5 @@ withDefaults(defineProps<{ size?: number }>(), { size: 16 })
 </template>
 
 <style scoped>
-.legendary { display: inline-flex; vertical-align: 0.05em; margin-left: 0.3em; color: #facc15; filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.55)); flex: none; }
+.legendary { display: inline-flex; vertical-align: 0.05em; margin-left: 0.3em; color: var(--legendary); filter: drop-shadow(0 0 6px rgba(250, 204, 21, 0.55)); flex: none; }
 </style>

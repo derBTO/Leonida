@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import type { LootFilter } from '../lib/pinFilter'
 import type { PinIndexItem, PoiType } from '../api/types'
 import { LOOT, LOOT_ORDER, NO_LOOT_COLOR, ringGradient, sortLoot } from '../lib/lootTypes'
+import { EGG } from '../lib/easteregg'
 import { HINT } from '../lib/hint'
 import AuthorSelect from './AuthorSelect.vue'
 import { POI, POI_ORDER } from '../lib/poiTypes'
@@ -30,9 +31,11 @@ const poiCounts = computed(() => {
   for (const p of pins.items) if (p.k === 'poi' && p.p) c.set(p.p, (c.get(p.p) ?? 0) + 1)
   return c
 })
+const eggCount = computed(() => pins.items.filter((p) => p.e).length)
 const gtadbCount = computed(() => pins.items.filter((p) => p.o === 'gtadb').length)
-const sub = (p: PinIndexItem) =>
+const subKind = (p: PinIndexItem) =>
   p.k === 'hint' ? (p.c.length ? `Hinweis · ${p.c.length} Code${p.c.length > 1 ? 's' : ''}` : 'Hinweis') : p.k === 'poi' ? POI[p.p ?? 'poi'].label : sortLoot(p.l).map((t) => LOOT[t].label).join(' · ') || 'Ohne Loottyp'
+const sub = (p: PinIndexItem) => (p.e ? `Easteregg · ${subKind(p)}` : subKind(p))
 
 // Virtuelle Liste: nur sichtbare Zeilen rendern, damit auch tausende Pins flüssig bleiben.
 const ROW = 52
@@ -49,7 +52,7 @@ function onScroll() {
   scrollTop.value = scroller.value?.scrollTop ?? 0
   viewport.value = scroller.value?.clientHeight ?? 600
 }
-const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.length > 0 || f.mode !== 'both' || !f.showGone || f.showHints === false || !!f.showGtadb || f.author != null)
+const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.length > 0 || f.mode !== 'both' || !f.showGone || f.showHints === false || !!f.showGtadb || f.author != null || (f.eggs ?? 'show') !== 'show')
 </script>
 
 <template>
@@ -92,6 +95,14 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
       <label v-if="f.mode === 'both' || f.mode === 'loot'" class="switch"><input type="checkbox" v-model="f.showGone" /> Nicht mehr verfügbare Loot-Pins zeigen</label>
       <label v-if="f.mode === 'both'" class="switch"><input type="checkbox" :checked="f.showHints !== false" @change="f.showHints = ($event.target as HTMLInputElement).checked" /> Hinweise zeigen</label>
       <label v-if="f.mode === 'both' || f.mode === 'poi'" class="switch"><input type="checkbox" v-model="f.showGtadb" /> Orte von gtadb.org zeigen <span class="faint">({{ gtadbCount }})</span></label>
+      <label class="select-row">
+        <span class="egg-mini" :style="{ '--c': EGG.color }" v-html="EGG.svg" /> Eastereggs
+        <select class="input" v-model="f.eggs" aria-label="Eastereggs">
+          <option value="show">zeigen ({{ eggCount }})</option>
+          <option value="hide">ausblenden</option>
+          <option value="only">nur Eastereggs</option>
+        </select>
+      </label>
       <AuthorSelect v-model="f.author" compact />
       <div class="count">
         <span><strong>{{ pins.listed.length }}</strong> Treffer<template v-if="pins.listed.length !== pins.items.length"> von {{ pins.items.length }}</template></span>
@@ -106,7 +117,8 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
           v-for="(p, i) in rows" :key="p.id" type="button" class="row" :class="{ active: p.id === selectedId, gone: p.s === 'gone' }"
           :style="{ top: `${(range.start + i) * ROW}px` }" @click="emit('select', p.id)"
         >
-          <span v-if="p.k === 'hint'" class="hint-icon" :style="{ '--c': HINT.color }" v-html="HINT.svg" />
+          <span v-if="p.e" class="egg-row" :style="{ '--c': EGG.color }" v-html="EGG.svg" />
+          <span v-else-if="p.k === 'hint'" class="hint-icon" :style="{ '--c': HINT.color }" v-html="HINT.svg" />
           <span v-else-if="p.k === 'poi'" class="sq big" :style="{ '--c': POI[p.p ?? 'poi'].color }" v-html="POI[p.p ?? 'poi'].svg" />
           <span v-else class="ring" :style="{ background: ringGradient(sortLoot(p.l)) }"><span /></span>
           <span class="text">
@@ -156,6 +168,12 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
 .row:hover { background: var(--panel-hover); }
 .row.active { background: linear-gradient(90deg, rgba(255, 61, 139, 0.18), transparent); }
 .row.gone { opacity: 0.5; }
+.select-row { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13.5px; }
+.select-row select { height: 30px; flex: 1; padding: 0 8px; }
+.egg-mini { display: inline-flex; color: var(--c); }
+.egg-mini :deep(svg) { width: 16px; height: 16px; }
+.egg-row { width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--c); border: 1.5px solid var(--c); border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%; background: #1a2a0c; }
+.egg-row :deep(svg) { width: 13px; height: 13px; }
 .hint-icon { width: 16px; height: 16px; margin: 3px; flex: none; display: flex; align-items: center; justify-content: center; transform: rotate(45deg); border: 1.5px solid var(--c); border-radius: 3px; color: var(--c); background: #0d2a28; }
 .hint-icon :deep(svg) { width: 10px; height: 10px; transform: rotate(-45deg); }
 .ring { width: 22px; height: 22px; border-radius: 50%; padding: 3px; flex: none; }

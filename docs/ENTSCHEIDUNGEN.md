@@ -52,3 +52,5 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 25.11.2026 | gtadb-Orte ausblendbar | Feld `pins.source`, Filter standardmäßig aus | Wunsch BTO; eigene Einträge stehen im Vordergrund |
 | 25.11.2026 | Ersteller-Filter | Auswahl Alle/Meine/Benutzer statt Häkchen; Benutzernamen nur für Angemeldete | mehrere Bearbeiter möglich, Namen nicht öffentlich |
 | 25.11.2026 | Backup ohne pg_dump | PHP-Sicherung als JSON-Zeilen (gzip) mit eigenem Restore, pg_dump nur wenn die Version passt | Hetzner: pg_dump 15 gegen Server 17; kein eigenes Binary installierbar |
+| 26.11.2026 | Easteregg | Kennzeichen `is_easteregg` an jedem Pin statt eigener Art; Symbol hat Vorrang vor der Art | Eastereggs können Fahrzeug, Ort oder Hinweis sein und behalten deren Felder |
+| 26.11.2026 | Pin-Details | zentrierter Dialog statt Seitenleiste, ein durchgehend scrollbarer Inhalt | Wunsch BTO: gleiche Größe wie der Bearbeiten-Dialog, alles auf einer Seite |

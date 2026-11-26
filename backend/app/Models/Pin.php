@@ -28,6 +28,7 @@ class Pin extends Model
             'kind' => PinKind::class,
             'poi_type' => PoiType::class,
             'status' => PinStatus::class,
+            'is_easteregg' => 'boolean',
         ];
     }
 
@@ -103,6 +104,7 @@ class Pin extends Model
             'created_by' => $this->createdBy?->username,
             'created_by_id' => $this->created_by,
             'source' => $this->source,
+            'is_easteregg' => $this->is_easteregg,
             'updated_by' => $this->updatedBy?->username,
             'trails' => $this->trailSteps(),
         ];

@@ -1425,6 +1425,9 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "is_easteregg": {
+                                                    "type": "boolean"
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
@@ -1487,6 +1490,7 @@
                                                 "created_by",
                                                 "created_by_id",
                                                 "source",
+                                                "is_easteregg",
                                                 "updated_by",
                                                 "trails"
                                             ]
@@ -1589,6 +1593,16 @@
                         "schema": {
                             "type": [
                                 "integer",
+                                "null"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "egg",
+                        "in": "query",
+                        "schema": {
+                            "type": [
+                                "boolean",
                                 "null"
                             ]
                         }
@@ -1824,6 +1838,9 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "is_easteregg": {
+                                                    "type": "boolean"
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
@@ -1886,6 +1903,7 @@
                                                 "created_by",
                                                 "created_by_id",
                                                 "source",
+                                                "is_easteregg",
                                                 "updated_by",
                                                 "trails"
                                             ]
@@ -2104,6 +2122,9 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "is_easteregg": {
+                                                    "type": "boolean"
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
@@ -2166,6 +2187,7 @@
                                                 "created_by",
                                                 "created_by_id",
                                                 "source",
+                                                "is_easteregg",
                                                 "updated_by",
                                                 "trails"
                                             ]
@@ -2458,6 +2480,9 @@
                                                         "null"
                                                     ]
                                                 },
+                                                "is_easteregg": {
+                                                    "type": "boolean"
+                                                },
                                                 "updated_by": {
                                                     "type": [
                                                         "string",
@@ -2520,6 +2545,7 @@
                                                 "created_by",
                                                 "created_by_id",
                                                 "source",
+                                                "is_easteregg",
                                                 "updated_by",
                                                 "trails"
                                             ]

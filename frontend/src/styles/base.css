@@ -1,6 +1,7 @@
 /* Leonida – Grundstil. Dunkel, dezente Neonakzente, Karte im Vordergrund. */
 :root {
   --bg: #0b0a12;
+  --legendary: #facc15;
   --bg-elev: #14121f;
   --panel: rgba(20, 18, 31, 0.92);
   --panel-solid: #17152a;
@@ -136,3 +137,6 @@ textarea.input { height: auto; min-height: 84px; padding: 9px 11px; resize: vert
 
 @keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* Name legendärer / einzigartiger Waffen in der Farbe des Sterns */
+.legendary-name { color: var(--legendary) !important; }

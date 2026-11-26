@@ -1,5 +1,16 @@
 # Änderungsprotokoll
 
+## v1.0.0 – Erste vollständige Version (26.11.2026)
+
+- **Eastereggs**: Jeder Pin (Loot, Ort oder Hinweis) kann als Easteregg markiert werden und erscheint dann auf der Karte immer mit dem grünen Ei-Symbol. Filter in der Seitenleiste: zeigen, ausblenden oder nur Eastereggs. API: Feld `is_easteregg`, Index-Feld `e`, Suche `egg=1|0`.
+- **Pin-Details als Dialog** in der Mitte der Karte (Größe wie der Bearbeiten-Dialog, scrollbar, auf dem Handy bildschirmfüllend). Bilder stehen direkt unter der Beschreibung.
+- **Legendäre Waffen**: Name zusätzlich zum Stern in Gelb (Katalog, Waffenseite, Pin-Details, Auswahl).
+- Spurleiste: ← / → fliegt zum Schritt, ohne den Dialog zu öffnen; die Nummer auf der Karte öffnet ihn.
+- Fehler behoben: Auf Seiten mit eigener Nummer in der Adresse (z. B. `/spuren/1`) hätte die im Hintergrund gehaltene Karte einen gleichnamigen Pin geöffnet.
+- Browser-Tests um Eastereggs, Dialog und gelbe Waffennamen erweitert.
+
+Mit 1.0 sind alle Punkte der ursprünglichen Planung umgesetzt: Karte mit lokalen Kacheln, Loot-, Orts- und Hinweis-Pins, Waffen- und Fahrzeugdatenbank mit Werten und Ratings, Spuren, Rollen und Rechte, Export/Import, getestete Sicherung und Wiederherstellung, Installationsprüfung, Dokumentation und automatische Tests.
+
 ## v0.9.5 – Vorbereitung 1.0 (25.11.2026)
 
 - **`php artisan leonida:check`**: prüft Konfiguration (`APP_DEBUG`, `APP_KEY`, `APP_URL`), PHP und Erweiterungen, Datenbank und offene Migrationen, aktiven Administrator, Schreibrechte, Karte, Document Root sowie Alter und Protokoll der letzten Sicherung. Läuft automatisch am Ende von `deploy.sh`.

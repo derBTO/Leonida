@@ -14,7 +14,7 @@ export const usePins = defineStore('pins', () => {
   let etag: string | null = null
 
   const filter = reactive<FilterState & { viewportOnly: boolean; author: number | null }>(
-    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, showHints: true, showGtadb: false, author: null as number | null, viewportOnly: false }),
+    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, showHints: true, showGtadb: false, eggs: 'show' as 'show' | 'hide' | 'only', author: null as number | null, viewportOnly: false }),
   )
   watch(filter, () => save('filter', filter), { deep: true })
 
@@ -51,6 +51,7 @@ export const usePins = defineStore('pins', () => {
     filter.showGone = true
     filter.showHints = true
     filter.author = null
+    filter.eggs = 'show'
   }
 
   async function refresh() {

@@ -31,7 +31,7 @@ Fehlt eine Waffe oder ein Fahrzeug im Katalog, bitte den Administrator fragen.
 - **Am Computer:** mit der rechten Maustaste auf die Karte klicken und „Neuer Loot-Pin hier“, „Neuer Ort (POI) hier“ oder „Neuer Hinweis hier“ wählen.
 - **Am Handy:** auf das runde **+** tippen, die Karte unter das Fadenkreuz schieben, „Hier setzen“.
 
-Im Dialog lässt sich die Art oben noch umschalten. Pflicht ist nur der Titel. Unbekannte Werte einfach leer lassen; „unbekannt“ ist etwas anderes als 0.
+Im Dialog lässt sich die Art oben noch umschalten. Mit **Easteregg** markierte Pins erscheinen auf der Karte immer mit dem grünen Ei, egal ob Auto, Ort oder Hinweis. Pflicht ist nur der Titel. Unbekannte Werte einfach leer lassen; „unbekannt“ ist etwas anderes als 0.
 
 **Bilder:** Dateien in das Bildfeld ziehen, auswählen oder einen Screenshot direkt mit Strg/⌘+V einfügen. Die Reihenfolge lässt sich per Ziehen ändern.
 
@@ -57,7 +57,8 @@ Eine Spur verbindet Stationen in fester Reihenfolge, zum Beispiel: Moses im Dine
 - **Alles / Loot / Orte / Hinweise:** welche Pin-Arten gezeigt werden.
 - **Loottypen** und **Ort-Kategorien:** einzeln an- und abwählen.
 - **Orte von gtadb.org zeigen:** blendet die aus gtadb.org übernommenen Orte ein (standardmäßig aus).
+- **Eastereggs:** zeigen, ausblenden oder nur Eastereggs.
 - **Ersteller:** nur eigene Einträge („Meine“) oder die einer bestimmten Person zeigen.
 - **Nur im Kartenausschnitt:** Liste auf den sichtbaren Bereich beschränken.
 
-Jeder Pin hat eine eigene Adresse; „Link kopieren“ im Pin teilt genau diesen Ort.
+Ein Klick auf einen Pin öffnet seine Details in einem Fenster über der Karte; Esc oder das × schließt es. Jeder Pin hat eine eigene Adresse; „Link kopieren“ im Pin teilt genau diesen Ort.

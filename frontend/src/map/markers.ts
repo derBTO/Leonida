@@ -1,6 +1,7 @@
 import L from 'leaflet'
 import type { PinIndexItem } from '../api/types'
 import { LOOT, LOOT_ORDER, PIN_SVG, ringGradient, sortLoot } from '../lib/lootTypes'
+import { EGG } from '../lib/easteregg'
 import { DONE_COLOR, HINT } from '../lib/hint'
 import { isProminent, POI, POI_GREY } from '../lib/poiTypes'
 
@@ -27,7 +28,18 @@ export function hintIcon(selected = false): L.DivIcon {
   })
 }
 
+/** Easteregg: grünes Ei, ersetzt das Symbol jeder Pin-Art. */
+export function eggIcon(selected = false): L.DivIcon {
+  return L.divIcon({
+    className: 'pin-marker-wrap',
+    html: `<div class="egg-marker${selected ? ' selected' : ''}" style="--c:${EGG.color}">${EGG.svg}</div>`,
+    iconSize: [26, 30],
+    iconAnchor: [13, 15],
+  })
+}
+
 export function markerIcon(p: PinIndexItem, selected = false): L.DivIcon {
+  if (p.e) return eggIcon(selected)
   if (p.k === 'hint') return hintIcon(selected)
   return p.k === 'poi' ? poiIcon(p, selected) : pinIcon(p, selected)
 }

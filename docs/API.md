@@ -24,7 +24,7 @@ cd backend && php artisan scramble:export --path=../docs/openapi.json
 | POST | `/api/auth/login` · `/api/auth/logout` | Anmelden / Abmelden | öffentlich |
 | POST | `/api/auth/password` | eigenes Passwort ändern | angemeldet |
 | GET | `/api/pins` | kompakte Liste aller Pins für die Karte (mit ETag) | öffentlich |
-| GET | `/api/pins/search?q=&kind=&loot[]=&poi[]=&bbox=` | IDs passender Pins (gleiche Regeln wie im Browser) | öffentlich |
+| GET | `/api/pins/search?q=&kind=&loot[]=&poi[]=&bbox=&author=&egg=` | IDs passender Pins (gleiche Regeln wie im Browser); `egg=1` nur Eastereggs, `egg=0` ohne | öffentlich |
 | GET | `/api/pins/{id}` | Pin mit Waffen, Fahrzeugen, Codes, Bildern | öffentlich |
 | POST / PUT / DELETE | `/api/pins` · `/api/pins/{id}` | Pin anlegen / ändern / löschen | angemeldet; ändern nur Ersteller oder Admin |
 | PATCH | `/api/pins/{id}/position` | Pin verschieben | angemeldet; ändern nur Ersteller oder Admin |

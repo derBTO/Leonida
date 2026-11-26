@@ -12,7 +12,7 @@ const name = (v: { name: string } | null) => v?.name ?? '–'
 
 <template>
   <article class="card">
-    <h1 class="title">{{ weapon.name }}<LegendaryStar v-if="weapon.is_legendary" :size="26" /></h1>
+    <h1 class="title" :class="{ 'legendary-name': weapon.is_legendary }">{{ weapon.name }}<LegendaryStar v-if="weapon.is_legendary" :size="26" /></h1>
     <div class="subtitle">{{ [weapon.weapon_type?.name, weapon.fire_mode?.name].filter(Boolean).join(' · ') || 'Typ unbekannt' }}</div>
     <div class="image"><MediaImage :media="weapon.image" :alt="weapon.name" /></div>
     <dl class="props">

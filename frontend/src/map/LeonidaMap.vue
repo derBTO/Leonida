@@ -231,6 +231,12 @@ watch(() => trails.pinIds, (now, before) => {
 /** Ausschnitt auf alle sichtbaren Schritte der aktiven Spur setzen. */
 let fitted = 0
 watch(() => trails.fitRequest, () => fitTrail())
+/** Schritt-Navigation der Spurleiste: zum Pin des aktuellen Schritts fliegen (ohne Detaildialog). */
+watch(() => trails.focusRequest, () => {
+  const t = trails.active
+  const step = t?.steps[trails.stepIndex]
+  if (t && step?.pin && !trails.isHidden(t, step.id)) flyTo(step.pin.x, step.pin.y)
+})
 function fitTrail() {
   const trail = trails.active
   if (!map.value || !trail) return
@@ -241,7 +247,7 @@ function fitTrail() {
     // Sidebar, Detailansicht und Spurleiste nicht überdecken
     const wide = window.innerWidth > 760
     const side = wide && ui.sidebarOpen ? (document.querySelector('.sidebar')?.getBoundingClientRect().right ?? 0) + 40 : 40
-    const right = wide && props.selectedId ? 450 : 60
+    const right = 60
     map.value.flyToBounds(L.latLngBounds(pts), { paddingTopLeft: [side, 110], paddingBottomRight: [right, wide ? 150 : 200], maxZoom: 6, duration: 0.6 })
   }
 }
@@ -277,12 +283,7 @@ function flyTo(x: number, y: number, minZoom = 5) {
   const m = map.value
   if (!m) return
   const zoom = Math.max(m.getZoom(), minZoom)
-  let target = toLatLng(x, y)
-  if (window.innerWidth <= 760) {
-    const point = m.project(target, zoom).add([0, m.getSize().y * 0.28])
-    target = m.unproject(point, zoom)
-  }
-  m.flyTo(target, zoom, { duration: 0.6 })
+  m.flyTo(toLatLng(x, y), zoom, { duration: 0.6 })
 }
 function center() {
   return map.value ? fromLatLng(map.value.getCenter()) : { x: 0, y: 0 }
