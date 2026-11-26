@@ -4,7 +4,11 @@ import { load, save } from '../lib/storage'
 
 export interface Toast { id: number; text: string; kind: 'info' | 'error' | 'ok' }
 
-export interface PinEditorState { pinId: number | null; x: number; y: number; kind?: 'loot' | 'poi' | 'hint'; title?: string; lockKind?: boolean }
+/** draft: zwischengespeichertes Formular (JSON), z. B. nach dem Anlegen eines Orts aus dem Hinweis heraus */
+export interface EditorDraft { form: string; initial: string }
+export interface PinEditorState { pinId: number | null; x: number; y: number; kind?: 'loot' | 'poi' | 'hint'; title?: string; lockKind?: boolean; draft?: EditorDraft }
+/** Hinweis-Editor ist geparkt, während ein neuer Ort auf der Karte gesetzt wird */
+export interface HintDraft extends EditorDraft { editor: PinEditorState; placeTitle: string }
 
 export const useUi = defineStore('ui', () => {
   const stored = load('ui', { sidebarOpen: true })
@@ -13,6 +17,7 @@ export const useUi = defineStore('ui', () => {
   const loginOpen = ref(false)
   const passwordOpen = ref(false)
   const pinEditor = ref<PinEditorState | null>(null)
+  const hintDraft = ref<HintDraft | null>(null)
   let seq = 0
 
   function toast(text: string, kind: Toast['kind'] = 'info', ms = 3500) {
@@ -30,5 +35,5 @@ export const useUi = defineStore('ui', () => {
     save('ui', { sidebarOpen: sidebarOpen.value })
   }
 
-  return { sidebarOpen, toasts, loginOpen, passwordOpen, pinEditor, toast, error, toggleSidebar }
+  return { sidebarOpen, toasts, loginOpen, passwordOpen, pinEditor, hintDraft, toast, error, toggleSidebar }
 })

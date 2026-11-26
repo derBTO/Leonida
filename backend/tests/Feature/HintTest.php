@@ -122,4 +122,20 @@ class HintTest extends TestCase
         $this->artisan('leonida:media-cleanup')->assertSuccessful();
         $this->assertSame([$used, $fresh], DB::table('media')->whereIn('id', [$old, $used, $fresh])->orderBy('created_at')->pluck('id')->all());
     }
+
+    public function test_hint_keeps_its_kind_and_referenced_place_stays_place(): void
+    {
+        $this->actingAs($this->editor());
+        $place = $this->pin(['kind' => 'poi', 'poi_type' => 'bar', 'title' => 'Diner']);
+        $hint = $this->pin(['kind' => 'hint', 'title' => 'Zettel', 'place_pin_id' => $place['id']]);
+        foreach (['loot', 'poi'] as $kind) {
+            $this->putJson("/api/pins/{$hint['id']}", ['kind' => $kind, 'poi_type' => 'bar', 'title' => 'Zettel', 'x' => 1, 'y' => 1])
+                ->assertJsonValidationErrors(['kind' => 'Hinweis']);
+        }
+        $this->putJson("/api/pins/{$place['id']}", ['kind' => 'loot', 'title' => 'Diner', 'x' => 1, 'y' => 1])
+            ->assertJsonValidationErrors(['kind' => 'Hinweise']);
+        $this->putJson("/api/pins/{$hint['id']}", ['kind' => 'hint', 'title' => 'Zettel neu', 'x' => 1, 'y' => 1])->assertOk();
+        // ohne verweisende Hinweise darf ein Ort wieder Loot werden
+        $this->putJson("/api/pins/{$place['id']}", ['kind' => 'loot', 'title' => 'Diner', 'x' => 1, 'y' => 1])->assertOk();
+    }
 }

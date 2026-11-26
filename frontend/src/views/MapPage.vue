@@ -40,6 +40,26 @@ function backToTrail() {
   ui.pinEditor = null
   router.push(trails.draft.returnPath)
 }
+/** Neuer Ort aus dem Hinweis-Editor heraus: Hinweis ist geparkt, Fadenkreuz, danach zurück mit verknüpftem Ort */
+const placePlacing = computed(() => !!ui.hintDraft && !ui.pinEditor)
+function backToHint(placeId?: number) {
+  const d = ui.hintDraft
+  if (!d) return
+  const form = JSON.parse(d.form)
+  if (placeId) form.place_pin_id = placeId
+  ui.hintDraft = null
+  ui.pinEditor = { ...d.editor, draft: { form: JSON.stringify(form), initial: d.initial } }
+}
+function confirmPlacePlacing() {
+  const c = mapRef.value!.center()
+  const title = ui.hintDraft?.placeTitle ?? ''
+  openEditor(null, c.x, c.y, 'poi')
+  if (ui.pinEditor) Object.assign(ui.pinEditor, { title, lockKind: true })
+}
+/** Jedes neu geöffnete Formular bekommt eine frische Komponente (Ort → Hinweis wäre sonst beides „new“) */
+const editorSeq = ref(0)
+watch(() => ui.pinEditor, () => editorSeq.value++)
+
 function confirmStepPlacing() {
   const c = mapRef.value!.center()
   openEditor(null, c.x, c.y, 'hint')
@@ -91,6 +111,7 @@ function openEditor(pinId: number | null, x = 0, y = 0, kind: PinKind = 'loot') 
 
 function onSaved(pin: Pin) {
   ui.pinEditor = null
+  if (ui.hintDraft && pin.kind === 'poi') return backToHint(pin.id)
   if (stepPlacing.value && trails.draftStep) {
     trails.draftStep.pin_id = pin.id
     return backToTrail()
@@ -152,7 +173,7 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
   <div class="map-page" :class="{ placing }">
     <LeonidaMap ref="mapRef" :selected-id="selectedId" :moving-pin="moving" @select="select" @context="menu = $event" @moved="moveTarget = $event" @click="menu = null" />
     <Sidebar :selected-id="selectedId" @select="select" />
-    <PinDetail v-if="selectedId && !moving && !ui.pinEditor && !stepPlacing" :pin-id="selectedId" :reload-key="detailKey" @close="closeDetail" @edit="openEditor($event)" @move="startMove" @deleted="closeDetail" />
+    <PinDetail v-if="selectedId && !moving && !ui.pinEditor && !stepPlacing && !placePlacing" :pin-id="selectedId" :reload-key="detailKey" @close="closeDetail" @edit="openEditor($event)" @move="startMove" @deleted="closeDetail" />
 
     <div v-if="menu" class="ctx panel" :style="{ left: `${menu.clientX}px`, top: `${menu.clientY}px` }" @mouseleave="menu = null">
       <button type="button" @click="openEditor(null, menu.x, menu.y)"><MapPin :size="15" /> Neuer Loot-Pin hier</button>
@@ -162,7 +183,15 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
       <div class="faint small">x {{ menu.x.toFixed(1) }} · y {{ menu.y.toFixed(1) }}</div>
     </div>
 
-    <template v-if="stepPlacing && !ui.pinEditor">
+    <template v-if="placePlacing">
+      <div class="crosshair" aria-hidden="true"><Crosshair :size="44" /></div>
+      <div class="bar panel">
+        <span>Neuen Ort{{ ui.hintDraft?.placeTitle ? ` „${ui.hintDraft.placeTitle}“` : '' }} für den Hinweis unter das Fadenkreuz schieben</span>
+        <button class="btn" type="button" @click="backToHint()"><X :size="16" /> Zurück zum Hinweis</button>
+        <button class="btn primary" type="button" @click="confirmPlacePlacing"><Check :size="16" /> Hier setzen</button>
+      </div>
+    </template>
+    <template v-else-if="stepPlacing && !ui.pinEditor">
       <div class="crosshair" aria-hidden="true"><Crosshair :size="44" /></div>
       <div class="bar panel">
         <span>Ort für Schritt „{{ trails.draftStep?.title }}“ unter das Fadenkreuz schieben</span>
@@ -185,8 +214,8 @@ watch(() => ui.sidebarOpen, () => window.setTimeout(() => mapRef.value?.invalida
     </div>
     <button v-else-if="session.loggedIn && !stepPlacing" class="fab" type="button" aria-label="Neuen Pin anlegen" title="Neuer Pin (Touch)" @click="startPlacing"><Plus :size="26" /></button>
 
-    <TrailBar v-if="trails.active && !placing && !moving && !stepPlacing" />
-    <PinEditor v-if="active && ui.pinEditor" :key="ui.pinEditor.pinId ?? 'new'" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" :title="ui.pinEditor.title" :lock-kind="ui.pinEditor.lockKind" @close="ui.pinEditor = null" @saved="onSaved" />
+    <TrailBar v-if="trails.active && !placing && !moving && !stepPlacing && !placePlacing" />
+    <PinEditor v-if="active && ui.pinEditor" :key="editorSeq" :pin-id="ui.pinEditor.pinId" :x="ui.pinEditor.x" :y="ui.pinEditor.y" :kind="ui.pinEditor.kind" :title="ui.pinEditor.title" :lock-kind="ui.pinEditor.lockKind" :draft="ui.pinEditor.draft" @close="ui.pinEditor = null" @saved="onSaved" />
   </div>
 </template>
 

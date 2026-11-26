@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { MapPinPlus } from 'lucide-vue-next'
 import { computed, onMounted, reactive, ref } from 'vue'
 import { api, ApiError } from '../api/client'
 import type { GalleryImage, HintStepRow, LootType, Pin, PinCode, PinKind, PinStatus, PoiType, RespawnStatus, VehicleSummary, WeaponSummary } from '../api/types'
@@ -19,12 +20,17 @@ import Modal from './Modal.vue'
 
 /** Anlegen und Bearbeiten eines Pins. Felder je Loottyp werden dynamisch eingeblendet. */
 /** lockKind: Art ist vorgegeben (z. B. Hinweis für einen Puzzle-Schritt) */
-const props = defineProps<{ pinId: number | null; x: number; y: number; kind?: PinKind; title?: string; lockKind?: boolean }>()
+import type { EditorDraft } from '../stores/ui'
+const props = defineProps<{ pinId: number | null; x: number; y: number; kind?: PinKind; title?: string; lockKind?: boolean; draft?: EditorDraft }>()
 const emit = defineEmits<{ close: []; saved: [Pin] }>()
 const ui = useUi()
 const pins = usePins()
 const session = useSession()
-const loading = ref(props.pinId !== null)
+const loading = ref(props.pinId !== null && !props.draft)
+/** Art des gespeicherten Pins und ob Hinweise auf ihn (als Ort) verweisen */
+const savedKind = ref<PinKind | null>(null)
+const referencedByHints = ref(false)
+const placeQuery = ref('')
 const busy = ref(false)
 const errors = ref<Record<string, string[]>>({})
 const images = ref<GalleryImage[]>([])
@@ -56,6 +62,12 @@ const dirty = computed(() => !loading.value && JSON.stringify(form) !== initial)
 const money = (v: number | null) => (v === null ? '' : formatNumber(v))
 
 onMounted(async () => {
+  if (props.draft) {
+    Object.assign(form, JSON.parse(props.draft.form))
+    if (props.pinId !== null) savedKind.value = form.kind
+    initial = props.draft.initial
+    return
+  }
   if (props.pinId !== null) {
     try {
       const pin = (await api.get<{ pin: Pin }>(`/api/pins/${props.pinId}`)).pin
@@ -69,6 +81,8 @@ onMounted(async () => {
         steps: pin.steps.map((s, i) => ({ key: i + 1, text: s.text ?? '', image: s.image })),
       })
       images.value = pin.images
+      savedKind.value = pin.kind
+      referencedByHints.value = (pin.hints?.length ?? 0) > 0
     } catch (e) {
       ui.error(e)
       emit('close')
@@ -84,6 +98,16 @@ function toggle(t: LootType) {
 }
 const err = (k: string) => errors.value[k]?.[0]
 const usdError = (s: string) => (Number.isNaN(parseUsd(s)) ? 'Nur ganze Dollar-Beträge' : undefined)
+
+/** Hinweise bleiben Hinweise (Puzzle zeigen auf sie); Orte, auf die Hinweise verweisen, bleiben Orte */
+const kindLocked = computed(() => props.lockKind || savedKind.value === 'hint' || (savedKind.value === 'poi' && referencedByHints.value))
+
+/** Hinweis parken, Ort auf der Karte setzen, danach kommt man mit verknüpftem Ort zurück */
+function createPlace() {
+  if (!ui.pinEditor) return
+  ui.hintDraft = { editor: { ...ui.pinEditor, draft: undefined }, form: JSON.stringify(form), initial, placeTitle: placeQuery.value.trim() }
+  ui.pinEditor = null
+}
 
 const isPoi = computed(() => form.kind === 'poi')
 const isHint = computed(() => form.kind === 'hint')
@@ -143,11 +167,12 @@ async function save() {
   <Modal :title="heading" width="760px" :dirty="dirty" @close="emit('close')">
     <div v-if="loading" class="muted">Lade …</div>
     <form v-else id="pin-form" @submit.prevent="save">
-      <div v-if="!lockKind" class="kinds" role="radiogroup" aria-label="Art">
+      <div v-if="!kindLocked" class="kinds" role="radiogroup" aria-label="Art">
         <button type="button" role="radio" :aria-checked="form.kind === 'loot'" :class="{ on: form.kind === 'loot' }" @click="form.kind = 'loot'">Loot-Fundort</button>
         <button type="button" role="radio" :aria-checked="isPoi" :class="{ on: isPoi }" @click="form.kind = 'poi'">Ort (POI)</button>
         <button type="button" role="radio" :aria-checked="isHint" :class="{ on: isHint }" @click="form.kind = 'hint'">Hinweis</button>
       </div>
+      <p v-else-if="savedKind === 'poi' && referencedByHints" class="faint kind-note">Auf diesen Ort verweisen Hinweise, deshalb bleibt er ein Ort.</p>
       <label class="egg-toggle" :class="{ on: form.is_easteregg }">
         <input type="checkbox" v-model="form.is_easteregg" />
         <span class="egg-icon" :style="{ '--c': EGG.color }" v-html="EGG.svg" />
@@ -184,7 +209,12 @@ async function save() {
         <div class="section-title">Verknüpfungen</div>
         <div class="field">
           <label for="pe-place">Ort</label>
-          <PinPicker id="pe-place" v-model="form.place_pin_id" :kinds="['poi']" placeholder="Vorhandenen Ort suchen … (optional)" />
+          <PinPicker id="pe-place" v-model="form.place_pin_id" v-model:query="placeQuery" :kinds="['poi']" placeholder="Vorhandenen Ort suchen … (optional)">
+            <template #extra="{ query }">
+              <button type="button" class="res new-res" @mousedown.prevent="createPlace"><MapPinPlus :size="15" /> „{{ query }}“ als neuen Ort auf der Karte anlegen</button>
+            </template>
+          </PinPicker>
+          <button v-if="!form.place_pin_id" class="btn sm new-place" type="button" @click="createPlace"><MapPinPlus :size="15" /> Neuen Ort auf der Karte anlegen</button>
           <div v-if="err('place_pin_id')" class="error-text">{{ err('place_pin_id') }}</div>
         </div>
         <p class="faint hint-info">Ist ein Ort gewählt, erscheint er bei den verknüpften Fahrzeugen und Waffen als Fundort.</p>
@@ -274,6 +304,10 @@ textarea.small { min-height: 60px; }
 .egg-toggle input { accent-color: #a3e635; }
 .egg-icon { display: inline-flex; color: var(--c); }
 .egg-icon :deep(svg) { width: 18px; height: 18px; }
+.new-place { margin-top: 6px; }
+.new-res { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 8px; margin-top: 2px; border: 0; border-top: 1px solid var(--line); background: none; cursor: pointer; text-align: left; color: var(--orange); }
+.new-res:hover { background: var(--panel-hover); }
+.kind-note { font-size: 13px; margin: 0 0 10px; }
 .hint-info { font-size: 13px; margin: 10px 0 0; }
 .kinds { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px; padding: 3px; margin-bottom: 14px; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: rgba(0,0,0,0.25); }
 .kinds button { height: 34px; border: 0; border-radius: 6px; background: none; cursor: pointer; font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }

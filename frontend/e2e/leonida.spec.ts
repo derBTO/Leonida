@@ -58,6 +58,29 @@ test('Bearbeiter legt einen Hinweis an und darf ihn bearbeiten', async ({ page }
   await expect(page.getByRole('dialog').locator('header h2')).toHaveText('E2E Zettel')
   await expect(page.getByRole('dialog')).toContainText('Hinweis')
   await expect(page.getByRole('dialog').locator('.actions')).toBeVisible()
+
+  // Beim Bearbeiten lässt sich die Art eines Hinweises nicht mehr ändern
+  await page.getByRole('dialog').getByRole('button', { name: 'Bearbeiten' }).click()
+  await expect(page.locator('#pe-title')).toHaveValue('E2E Zettel')
+  await expect(page.getByRole('dialog').getByRole('radiogroup', { name: 'Art', exact: true })).toHaveCount(0)
+
+  // Ort direkt aus dem Hinweis anlegen: Karte, Fadenkreuz, zurück in den Hinweis
+  await page.locator('#pe-place').fill('E2E Diner')
+  await page.locator('.results').getByRole('button', { name: '„E2E Diner“ als neuen Ort auf der Karte anlegen' }).click()
+  await expect(page.locator('.bar')).toContainText('Neuen Ort „E2E Diner“ für den Hinweis')
+  await page.locator('.bar').getByRole('button', { name: 'Hier setzen' }).click()
+  await expect(page.getByRole('dialog').locator('header h2')).toHaveText('Neuer Ort')
+  await expect(page.getByRole('dialog').getByRole('radiogroup', { name: 'Art', exact: true })).toHaveCount(0)
+  await expect(page.locator('#pe-title')).toHaveValue('E2E Diner')
+  await page.locator('.poi-opt').first().click()
+  await page.locator('button[type=submit][form=pin-form]').click()
+  await expect(page.getByRole('dialog').locator('header h2')).toHaveText('Hinweis bearbeiten')
+  await expect(page.locator('#pe-title')).toHaveValue('E2E Zettel')
+  await expect(page.getByPlaceholder('Code *')).toHaveValue('4711')
+  await expect(page.locator('.picker .chosen')).toContainText('E2E Diner')
+  await page.locator('button[type=submit][form=pin-form]').click()
+  await expect(page.getByRole('dialog').locator('.hint-head .links')).toContainText('E2E Diner')
+
   await page.keyboard.press('Escape')
   await page.getByRole('radio', { name: 'Hinweise', exact: true }).click()
   await expect(hits(page)).toHaveText('1')
@@ -162,9 +185,9 @@ test('Fortschritt ist pro Person, fremdes Puzzle nicht bearbeitbar', async ({ pa
 test('Admin: Ersteller-Filter und Benutzer anlegen über das Menü', async ({ page }) => {
   await login(page, 'e2e-admin')
   await page.locator('.sidebar .author select').selectOption({ label: 'e2e-alice' })
-  await expect(hits(page)).toHaveText('4')
-  await page.getByText('Orte von gtadb.org zeigen').click()
   await expect(hits(page)).toHaveText('5')
+  await page.getByText('Orte von gtadb.org zeigen').click()
+  await expect(hits(page)).toHaveText('6')
   await page.locator('.sidebar .author select').selectOption({ label: 'Alle' })
 
   await page.locator('.user .btn').click()

@@ -12,7 +12,8 @@ import { usePins } from '../stores/pins'
 const model = defineModel<number | null>({ required: true })
 const props = defineProps<{ id: string; kinds?: PinKind[]; placeholder?: string }>()
 const pins = usePins()
-const q = ref('')
+/** Suchtext nach außen, z. B. als Name für einen neu anzulegenden Ort */
+const q = defineModel<string>('query', { default: '' })
 const open = ref(false)
 const selected = computed(() => (model.value ? pins.byId.get(model.value) ?? null : null))
 const results = computed(() => {
@@ -59,6 +60,8 @@ function pick(p: PinIndexItem) {
           <small class="faint">{{ kindLabel(p) }}</small>
         </button>
         <div v-if="!results.length" class="faint none">Kein passender Pin gefunden.</div>
+        <!-- z. B. „… als neuen Ort anlegen“ (mousedown.prevent, damit das Feld den Fokus behält) -->
+        <slot name="extra" :query="q.trim()" />
       </div>
     </template>
   </div>

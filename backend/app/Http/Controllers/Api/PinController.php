@@ -89,6 +89,7 @@ class PinController extends Controller
     {
         $this->ensureOwner($pin->created_by);
         $data = $this->validatePin($request);
+        $this->ensureKindKept($pin, $data['kind'] ?? PinKind::Loot->value);
         DB::transaction(function () use ($pin, $data) {
             $before = $pin->only(['title', 'x', 'y', 'status', 'respawn']);
             $pin->fill($this->attributes($data) + ['updated_by' => Auth::id()]);
@@ -288,6 +289,19 @@ class PinController extends Controller
         $images = app(ImageService::class);
         foreach ($oldMedia as $mediaId) {
             $images->deleteIfUnused($mediaId);
+        }
+    }
+
+    /**
+     * Hinweise bleiben Hinweise (Puzzle verweisen auf sie), und Orte, auf die Hinweise zeigen, bleiben Orte.
+     */
+    private function ensureKindKept(Pin $pin, string $kind): void
+    {
+        if ($pin->kind === PinKind::Hint && $kind !== PinKind::Hint->value) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['kind' => 'Ein Hinweis kann nicht in eine andere Art umgewandelt werden.']);
+        }
+        if ($pin->kind === PinKind::Poi && $kind !== PinKind::Poi->value && Pin::query()->where('place_pin_id', $pin->id)->exists()) {
+            throw \Illuminate\Validation\ValidationException::withMessages(['kind' => 'Auf diesen Ort verweisen Hinweise; er bleibt ein Ort.']);
         }
     }
 }

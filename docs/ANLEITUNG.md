@@ -31,7 +31,7 @@ Fehlt eine Waffe oder ein Fahrzeug im Katalog, bitte den Administrator fragen.
 - **Am Computer:** mit der rechten Maustaste auf die Karte klicken und „Neuer Loot-Pin hier“, „Neuer Ort (POI) hier“ oder „Neuer Hinweis hier“ wählen.
 - **Am Handy:** auf das runde **+** tippen, die Karte unter das Fadenkreuz schieben, „Hier setzen“.
 
-Im Dialog lässt sich die Art oben noch umschalten. Mit **Easteregg** markierte Pins erscheinen auf der Karte immer mit dem grünen Ei, egal ob Auto, Ort oder Hinweis. Pflicht ist nur der Titel. Unbekannte Werte einfach leer lassen; „unbekannt“ ist etwas anderes als 0.
+Beim Anlegen lässt sich die Art oben noch umschalten. Später nicht mehr bei Hinweisen und bei Orten, auf die Hinweise verweisen. Mit **Easteregg** markierte Pins erscheinen auf der Karte immer mit dem grünen Ei, egal ob Auto, Ort oder Hinweis. Pflicht ist nur der Titel. Unbekannte Werte einfach leer lassen; „unbekannt“ ist etwas anderes als 0.
 
 **Bilder:** Dateien in das Bildfeld ziehen, auswählen oder einen Screenshot direkt mit Strg/⌘+V einfügen. Die Reihenfolge lässt sich per Ziehen ändern.
 
@@ -42,7 +42,7 @@ Im Dialog lässt sich die Art oben noch umschalten. Mit **Easteregg** markierte 
 Ein Hinweis ist eine Station auf dem Weg zu einer Belohnung. Er hat:
 
 - **Titel, Beschreibung und Codes** wie andere Pins.
-- **Verknüpfungen:** einen vorhandenen **Ort** sowie beliebig viele **Fahrzeuge** und **Waffen**. Ist ein Ort gewählt, taucht er bei diesen Fahrzeugen und Waffen automatisch als Fundort auf. Ohne Ort entfällt das.
+- **Verknüpfungen:** einen vorhandenen **Ort** sowie beliebig viele **Fahrzeuge** und **Waffen**. Ist ein Ort gewählt, taucht er bei diesen Fahrzeugen und Waffen automatisch als Fundort auf. Ohne Ort entfällt das. Gibt es den Ort noch nicht: Namen ins Feld tippen, „… als neuen Ort auf der Karte anlegen“ wählen, den Ort unter dem Fadenkreuz setzen und speichern. Danach öffnet sich der Hinweis wieder, mit dem neuen Ort verknüpft.
 - **Schritte:** die eigentliche Anleitung. Jeder Schritt hat einen Text und optional ein Bild (hochladen, hineinziehen oder mit Strg/⌘+V einfügen). Reihenfolge mit den Pfeilen ändern.
 
 In der Ansicht bleibt oben alles vom Titel bis zu den Verknüpfungen stehen; darunter laufen die Schritte durch: Nummer mit Trennlinie, dann das Bild (falls vorhanden), darunter der Text. Ein Klick auf ein Bild öffnet es groß. Hinweise haben statt einer Bildergalerie diese Schritte.

@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## v1.1.1 – Ort aus dem Hinweis anlegen, Art festgelegt (26.11.2026)
+
+- **Neuer Ort direkt aus dem Hinweis:** Im Feld „Ort“ den Namen tippen und „… als neuen Ort auf der Karte anlegen“ wählen (oder den Knopf darunter). Der Hinweis wird geparkt, der Ort per Fadenkreuz gesetzt und gespeichert, danach geht es mit allen Eingaben und verknüpftem Ort zurück in den Hinweis. Funktioniert auch beim Hinweis für einen Puzzle-Schritt.
+- **Art bleibt fest:** Ein gespeicherter Hinweis lässt sich nicht mehr in Loot oder Ort umwandeln, ein Ort, auf den Hinweise verweisen, nicht mehr in eine andere Art. Gilt in der Oberfläche und auf dem Server (422).
+
 ## v1.1.0 – Puzzle und ausgebaute Hinweise, Testumgebung mit Server-Daten (26.11.2026)
 
 - **„Spuren“ heißen jetzt „Puzzle“** (Menü, Seiten, Adressen `/puzzle`; alte Links `/spuren/…` leiten weiter).
