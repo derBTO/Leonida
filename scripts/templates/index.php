@@ -10,7 +10,12 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-$base = '__LEONIDA_APP__';
+/*
+ * Den Symlink selbst auflösen: OPcache (revalidate_path=0) merkt sich sonst Skripte unter dem
+ * Pfad …/current/… und liefert nach einem Deploy weiter die alte Release aus (z. B. alte Routen).
+ * Mit dem echten Release-Pfad ist jeder Dateipfad pro Release eindeutig.
+ */
+$base = realpath('__LEONIDA_APP__') ?: '__LEONIDA_APP__';
 
 if (file_exists($maintenance = $base.'/storage/framework/maintenance.php')) {
     require $maintenance;

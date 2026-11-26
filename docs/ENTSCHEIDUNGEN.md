@@ -60,3 +60,4 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 26.11.2026 | Fundort über Hinweis | berechnet (Loot-Pins ∪ Orte von Hinweisen mit demselben Eintrag), nicht gespeichert | bleibt automatisch richtig, wenn Hinweise geändert werden |
 | 26.11.2026 | Hinweis-Schritte | eigene Tabelle `pin_steps` (Text und/oder Bild) statt Galerie | Wunsch BTO: durchscrollbare Anleitung statt Galerie |
 | 26.11.2026 | Testumgebung mit Server-Daten | neueste Sicherung in `data/server-backup`, Einspielen beim Docker-Start nur bei neuer Datei, ältere Sicherungen über ihren Migrationsstand | echter Datenstand zum Testen, prüft Restore und Migrationen nebenbei |
+| 26.11.2026 | Startdatei im Webverzeichnis | löst `current` per `realpath` auf, statt den Symlink-Pfad zu verwenden | OPcache (`revalidate_path=0`) lieferte sonst nach Deploys Skripte der alten Release (fehlende Route `/api/media`) |
