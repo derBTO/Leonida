@@ -79,7 +79,7 @@ export interface PinCode { id?: number; label: string | null; code: string; desc
 export type WeaponStats = Record<'damage' | 'accuracy' | 'handling' | 'range', number | null>
 export type VehicleStats = Record<'speed' | 'acceleration' | 'handling_on_road' | 'handling_off_road' | 'durability', number | null>
 
-export interface Location { id: number; title: string; kind?: PinKind; poi_type?: PoiType | null; x: number; y: number; status: PinStatus }
+export interface Location { id: number; title: string; kind?: PinKind; poi_type?: PoiType | null; x: number; y: number; status: PinStatus; via_hint?: boolean }
 /** Puzzle, das einen Katalogeintrag als Belohnung nennt */
 export interface PuzzleRef { id: number; name: string }
 /** Schritt eines Hinweises: Text und/oder Bild */
@@ -143,7 +143,7 @@ export interface Vehicle extends VehicleSummary {
   seats: number | null
   security: 'not_specified' | 'basic' | 'modern' | 'advanced' | null
   tracker: 'none' | 'standard' | 'advanced' | 'military' | null
-  access: 'key' | 'keyless' | null
+  access: 'none' | 'key' | 'keyless' | null
   registrable: boolean | null
   notes: string | null
   source: CatalogSource | null

@@ -6,7 +6,7 @@ import type { GalleryImage, HintStepRow, LootType, Pin, PinCode, PinKind, PinSta
 import { EGG } from '../lib/easteregg'
 import { formatNumber, parseUsd } from '../lib/format'
 import { LOOT, LOOT_ORDER } from '../lib/lootTypes'
-import { POI, POI_ORDER } from '../lib/poiTypes'
+import { POI, POI_ORDER, poiStyle } from '../lib/poiTypes'
 import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
 import { useUi } from '../stores/ui'
@@ -188,7 +188,7 @@ async function save() {
       <template v-if="isPoi">
         <div class="section-title">Kategorie *</div>
         <div class="poi-grid">
-          <button v-for="t in POI_ORDER" :key="t" type="button" class="poi-opt" :class="{ on: form.poi_type === t }" :style="{ '--c': POI[t].color }" :aria-pressed="form.poi_type === t" @click="form.poi_type = t">
+          <button v-for="t in POI_ORDER" :key="t" type="button" class="poi-opt" :class="{ on: form.poi_type === t }" :style="poiStyle(t)" :aria-pressed="form.poi_type === t" @click="form.poi_type = t">
             <span class="sq" v-html="POI[t].svg" />{{ POI[t].label }}
           </button>
         </div>
@@ -196,6 +196,11 @@ async function save() {
         <div class="field block">
           <label for="pe-desc-poi">Beschreibung</label>
           <textarea id="pe-desc-poi" class="input" v-model="form.description" maxlength="20000" />
+        </div>
+        <div v-if="form.poi_type === 'ammunation'" class="block">
+          <div class="label">Waffensortiment</div>
+          <CatalogPicker kind="weapons" v-model="form.weapons" />
+          <p class="faint hint-info">Der Laden erscheint bei diesen Waffen als Fundort.</p>
         </div>
       </template>
       <template v-else-if="isHint">
@@ -315,6 +320,6 @@ textarea.small { min-height: 60px; }
 .poi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
 .poi-opt { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 8px; border-radius: 8px; border: 1px solid var(--line-strong); background: rgba(255,255,255,0.03); cursor: pointer; text-align: left; font-size: 13px; }
 .poi-opt.on { border-color: var(--c); background: color-mix(in srgb, var(--c) 20%, transparent); }
-.sq { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 5px; background: var(--c); color: #fff; flex: none; }
+.sq { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 5px; background: var(--c); color: var(--fg, #fff); flex: none; }
 .sq :deep(svg) { width: 14px; height: 14px; }
 </style>

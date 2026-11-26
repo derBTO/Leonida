@@ -35,9 +35,9 @@ Der CSV-Import füllt oder ergänzt die Waffen- und Fahrzeugdatenbank in einem S
 | | `rating_on_road`, `rating_off_road` | ganze Zahl 0–1000 |
 | `is_legendary` | `registrable` | ja/nein (auch true/false, 1/0) |
 | | `drivetrain` | FWD, RWD, AWD |
-| | `security` | not_specified, basic, modern, advanced |
+| | `security` | not_specified (auch „Ohne“, „Nicht angegeben“), basic, modern, advanced |
 | | `tracker` | none, standard, advanced, military |
-| | `access` | key, keyless |
+| | `access` | none (auch „Ohne“), key, keyless |
 | `notes` | `notes` | Freitext |
 | `source_name`, `source_url` | `source_name`, `source_url` | Quelle, angezeigt als „Daten von …“ mit Link |
 

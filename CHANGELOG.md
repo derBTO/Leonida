@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## v1.2.0 – Ammu-Nation-Sortiment, Ortsfarben wie im Spiel (26.11.2026)
+
+- **Waffensortiment für Ammu-Nation:** Orte der Kategorie Ammu-Nation führen eine Liste ihrer Waffen. Der Laden erscheint bei diesen Waffen als Fundort (ohne „über Hinweis“). Wechselt der Ort die Kategorie, entfällt das Sortiment.
+- **Ortsfarben:** Orte ohne eigene Farbe (Ammu-Nation, Bar, Tankstelle usw.) sind jetzt rosé mit schwarzem Symbol wie die Kartensymbole im Spiel statt grau, auf der Karte, in der Liste und im Editor.
+- **Fahrzeuge:** Sicherheit „Nicht angegeben“ heißt jetzt „Ohne“; beim Zugang gibt es neu „Ohne“. Der CSV-Import nimmt weiterhin auch „Nicht angegeben“ an.
+
 ## v1.1.2 – Deploy: keine alte Release mehr aus dem OPcache (26.11.2026)
 
 - Behoben: Bild-Upload in Hinweis-Schritten meldete „Unbekannter API-Pfad“. Das Web-PHP lieferte über den OPcache noch `bootstrap/app.php` einer alten Release und damit deren Routen (ohne `/api/media`). Die Startdatei im Webverzeichnis löst den Symlink `current` jetzt selbst auf (`realpath`), dadurch ist jeder Pfad pro Release eindeutig. Nach einem Deploy kann es bis zu 2 Minuten dauern (`realpath_cache_ttl`), bis alle PHP-Prozesse die neue Release nutzen.

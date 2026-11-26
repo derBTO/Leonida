@@ -8,7 +8,7 @@ import { EGG } from '../lib/easteregg'
 import { formatDate, formatUsd } from '../lib/format'
 import { LOOT, sortLoot } from '../lib/lootTypes'
 import { HINT } from '../lib/hint'
-import { POI } from '../lib/poiTypes'
+import { POI, poiStyle } from '../lib/poiTypes'
 import { usePins } from '../stores/pins'
 import { useSession } from '../stores/session'
 import { useTrails } from '../stores/trails'
@@ -86,7 +86,7 @@ defineExpose({ reload: load })
     <div class="head-row">
       <span v-if="pin?.is_easteregg" class="type egg" :style="{ '--c': EGG.color }"><span v-html="EGG.svg" />{{ EGG.label }}</span>
       <div v-if="pin && pin.kind === 'poi'" class="types">
-        <span class="type" :style="{ '--c': POI[pin.poi_type ?? 'poi'].color }"><span class="sq" v-html="POI[pin.poi_type ?? 'poi'].svg" />{{ POI[pin.poi_type ?? 'poi'].label }}</span>
+        <span class="type" :style="poiStyle(pin.poi_type ?? 'poi')"><span class="sq" v-html="POI[pin.poi_type ?? 'poi'].svg" />{{ POI[pin.poi_type ?? 'poi'].label }}</span>
       </div>
       <div v-else-if="pin && pin.kind === 'hint'" class="types">
         <span class="type" :style="{ '--c': HINT.color }"><span v-html="HINT.svg" />{{ HINT.label }}</span>
@@ -127,7 +127,7 @@ defineExpose({ reload: load })
             </button>
           </div>
           <div v-if="pin.place || pin.vehicles.length || pin.weapons.length" class="links">
-            <RouterLink v-if="pin.place" :to="`/pin/${pin.place.id}`" class="link-chip" :style="{ '--c': POI[pin.place.poi_type ?? 'poi'].color }">
+            <RouterLink v-if="pin.place" :to="`/pin/${pin.place.id}`" class="link-chip" :style="poiStyle(pin.place.poi_type ?? 'poi')">
               <span class="sq" v-html="POI[pin.place.poi_type ?? 'poi'].svg" />{{ pin.place.title }}
             </RouterLink>
             <RouterLink v-for="v in pin.vehicles" :key="`v${v.id}`" :to="`/fahrzeuge/${v.id}`" class="link-chip"><Car :size="14" />{{ v.name }}</RouterLink>
@@ -198,7 +198,7 @@ defineExpose({ reload: load })
           </RouterLink>
         </template>
         <template v-if="pin.weapons.length">
-          <div class="section-title">Waffen</div>
+          <div class="section-title">{{ pin.kind === 'poi' ? 'Waffensortiment' : 'Waffen' }}</div>
           <RouterLink v-for="w in pin.weapons" :key="w.id" :to="`/waffen/${w.id}`" class="item">
             <MediaImage :media="w.image" thumb :alt="w.name" class="thumb" />
             <span><strong :class="{ 'legendary-name': w.is_legendary }">{{ w.name }}<LegendaryStar v-if="w.is_legendary" :size="14" /></strong><small class="muted">{{ w.weapon_type?.name }}</small></span>
@@ -252,7 +252,7 @@ defineExpose({ reload: load })
 .htext { white-space: pre-wrap; margin: 0; }
 .type { display: inline-flex; align-items: center; gap: 5px; color: var(--c); font-family: var(--font-display); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 13px; }
 .type :deep(svg) { width: 15px; height: 15px; }
-.sq { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; background: var(--c); color: #fff; }
+.sq { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 5px; background: var(--c); color: var(--fg, #fff); }
 .sq :deep(svg) { width: 13px; height: 13px; }
 .badges { display: flex; gap: 6px; margin: 8px 0; flex-wrap: wrap; }
 .actions { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }

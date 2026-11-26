@@ -252,8 +252,10 @@ class PinController extends Controller
         $pin->syncLootTypes($types);
         $order = fn (array $ids) => collect($ids)->values()->mapWithKeys(fn ($id, $i) => [$id => ['sort_order' => $i]])->all();
         $isHint = $kind === PinKind::Hint->value;
-        // Loot: Waffen/Fahrzeuge je nach Loottyp; Hinweis: frei verknüpfbar; Ort: keine
-        $pin->weapons()->sync($isHint || in_array('weapons', $types, true) ? $order($data['weapon_ids'] ?? []) : []);
+        // Loot: Waffen/Fahrzeuge je nach Loottyp; Hinweis: frei verknüpfbar;
+        // Ort: nur Ammu-Nation führt Waffen (Sortiment des Ladens), sonst keine
+        $isShop = $isPoi && ($data['poi_type'] ?? null) === PoiType::AmmuNation->value;
+        $pin->weapons()->sync($isHint || $isShop || in_array('weapons', $types, true) ? $order($data['weapon_ids'] ?? []) : []);
         $pin->vehicles()->sync($isHint || in_array('vehicles', $types, true) ? $order($data['vehicle_ids'] ?? []) : []);
         $this->syncSteps($pin, $isHint ? array_values($data['steps'] ?? []) : []);
         $pin->codes()->delete();
@@ -298,10 +300,10 @@ class PinController extends Controller
     private function ensureKindKept(Pin $pin, string $kind): void
     {
         if ($pin->kind === PinKind::Hint && $kind !== PinKind::Hint->value) {
-            throw \Illuminate\Validation\ValidationException::withMessages(['kind' => 'Ein Hinweis kann nicht in eine andere Art umgewandelt werden.']);
+            throw ValidationException::withMessages(['kind' => 'Ein Hinweis kann nicht in eine andere Art umgewandelt werden.']);
         }
         if ($pin->kind === PinKind::Poi && $kind !== PinKind::Poi->value && Pin::query()->where('place_pin_id', $pin->id)->exists()) {
-            throw \Illuminate\Validation\ValidationException::withMessages(['kind' => 'Auf diesen Ort verweisen Hinweise; er bleibt ein Ort.']);
+            throw ValidationException::withMessages(['kind' => 'Auf diesen Ort verweisen Hinweise; er bleibt ein Ort.']);
         }
     }
 }

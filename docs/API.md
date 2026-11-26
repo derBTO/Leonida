@@ -67,9 +67,9 @@ Kategorien der Auswahllisten: `weapon_type`, `fire_mode`, `weapon_brand`, `calib
 | `respawn` | `unknown`, `once`, `recurring` |
 | `status` | `unconfirmed`, `confirmed`, `gone` |
 | `drivetrain` | `FWD`, `RWD`, `AWD` |
-| `security` | `not_specified`, `basic`, `modern`, `advanced` |
+| `security` | `not_specified` (angezeigt als „Ohne“), `basic`, `modern`, `advanced` |
 | `tracker` | `none`, `standard`, `advanced`, `military` |
-| `access` | `key`, `keyless` |
+| `access` | `none` („Ohne“), `key`, `keyless` |
 | `registrable` | `true`, `false`, `null` |
 | `is_legendary` (Waffen) | `true` (legendär/unique), `false`, `null` (unbekannt) |
 | `codes[].code` | Text (führende Nullen bleiben erhalten), max. 100 Zeichen |

@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-/** Sicherheit eines Fahrzeugs. NULL = unbekannt, NotSpecified = Spielwert „Nicht angegeben“ */
+/** Sicherheit eines Fahrzeugs. NULL = unbekannt, NotSpecified = Spielwert „Nicht angegeben“, angezeigt als „Ohne“ */
 enum VehicleSecurity: string
 {
     use EnumHelpers;
@@ -15,10 +15,16 @@ enum VehicleSecurity: string
     public function label(): string
     {
         return match ($this) {
-            self::NotSpecified => 'Nicht angegeben',
+            self::NotSpecified => 'Ohne',
             self::Basic => 'Basis',
             self::Modern => 'Modern',
             self::Advanced => 'Advanced',
         };
+    }
+
+    /** Weitere Schreibweisen für den CSV-Import */
+    public function aliases(): array
+    {
+        return $this === self::NotSpecified ? ['nicht angegeben', 'none'] : [];
     }
 }

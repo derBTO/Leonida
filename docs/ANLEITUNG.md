@@ -23,7 +23,7 @@ Fehlt eine Waffe oder ein Fahrzeug im Katalog, bitte den Administrator fragen.
 | Art | Wofür | Symbol |
 |---|---|---|
 | **Loot-Fundort** | Fahrzeuge, Waffen, Drogen, Schmuck, Geld, mit Beträgen, Codes, Status und Respawn | runder Marker mit farbigem Ring |
-| **Ort (POI)** | feste Orte wie Tankstelle, Garage, Ammu-Nation, Wohnung | farbiges Quadrat |
+| **Ort (POI)** | feste Orte wie Tankstelle, Garage, Ammu-Nation, Wohnung | farbiges Quadrat; Orte ohne eigene Farbe rosé mit schwarzem Symbol wie im Spiel |
 | **Hinweis** | Station eines Puzzles: Treffpunkt, Zettel, Code an einer Tür, mit Schritt-für-Schritt-Anleitung | türkise Raute mit Lupe |
 
 ## Pin anlegen
@@ -34,6 +34,8 @@ Fehlt eine Waffe oder ein Fahrzeug im Katalog, bitte den Administrator fragen.
 Beim Anlegen lässt sich die Art oben noch umschalten. Später nicht mehr bei Hinweisen und bei Orten, auf die Hinweise verweisen. Mit **Easteregg** markierte Pins erscheinen auf der Karte immer mit dem grünen Ei, egal ob Auto, Ort oder Hinweis. Pflicht ist nur der Titel. Unbekannte Werte einfach leer lassen; „unbekannt“ ist etwas anderes als 0.
 
 **Bilder:** Dateien in das Bildfeld ziehen, auswählen oder einen Screenshot direkt mit Strg/⌘+V einfügen. Die Reihenfolge lässt sich per Ziehen ändern.
+
+**Ammu-Nation:** Bei Orten der Kategorie Ammu-Nation lässt sich unter **Waffensortiment** auswählen, welche Waffen der Laden führt. Der Laden erscheint dann bei diesen Waffen als Fundort. Das Sortiment wird je Laden gepflegt.
 
 **Verschieben:** Pin öffnen, „Verschieben“, Marker an die richtige Stelle ziehen, „Position speichern“.
 

@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Fundorte einer Waffe bzw. eines Fahrzeugs:
- * - Loot-Pins, die den Eintrag direkt führen, und
+ * - Pins, die den Eintrag direkt führen (Loot, Sortiment eines Ammu-Nation), und
  * - Orte, die ein Hinweis zusammen mit dem Eintrag verknüpft (Hinweis ohne Ort zählt nicht).
  * Jeder Pin erscheint nur einmal. Dazu die Puzzle, die den Eintrag als Belohnung nennen.
  *
@@ -14,30 +14,31 @@ use Illuminate\Support\Facades\DB;
  */
 trait HasPinLocations
 {
-    /** SQL-Teil: (eintrag_id, pin_id) aller Fundorte */
+    /** SQL-Teil: (item_id, pin_id, via) aller Fundorte; via = 'direct' oder 'hint' (ein Pin kann beides sein) */
     public static function locationPairsSql(): string
     {
         $pivot = static::PIVOT;
         $key = static::PIVOT_KEY;
 
-        return "SELECT pv.$key AS item_id, p.id AS pin_id FROM $pivot pv JOIN pins p ON p.id = pv.pin_id WHERE p.kind <> 'hint'
+        return "SELECT pv.$key AS item_id, p.id AS pin_id, 'direct' AS via FROM $pivot pv JOIN pins p ON p.id = pv.pin_id WHERE p.kind <> 'hint'
             UNION
-            SELECT pv.$key, p.place_pin_id FROM $pivot pv JOIN pins p ON p.id = pv.pin_id WHERE p.kind = 'hint' AND p.place_pin_id IS NOT NULL";
+            SELECT pv.$key, p.place_pin_id, 'hint' FROM $pivot pv JOIN pins p ON p.id = pv.pin_id WHERE p.kind = 'hint' AND p.place_pin_id IS NOT NULL";
     }
 
     /** @return array<int, int> Anzahl Fundorte je Eintrag */
     public static function locationCounts(): array
     {
-        return collect(DB::select('SELECT item_id, count(*) AS n FROM ('.static::locationPairsSql().') l GROUP BY item_id'))
+        return collect(DB::select('SELECT item_id, count(DISTINCT pin_id) AS n FROM ('.static::locationPairsSql().') l GROUP BY item_id'))
             ->mapWithKeys(fn ($r) => [(int) $r->item_id => (int) $r->n])->all();
     }
 
     public function locations(): array
     {
-        return collect(DB::select('SELECT p.id, p.kind, p.poi_type, p.title, p.x, p.y, p.status FROM pins p
-            WHERE p.id IN (SELECT pin_id FROM ('.static::locationPairsSql().') l WHERE l.item_id = ?) ORDER BY lower(p.title)', [$this->id]))
+        return collect(DB::select('SELECT p.id, p.kind, p.poi_type, p.title, p.x, p.y, p.status, bool_and(l.via = \'hint\') AS via_hint
+            FROM pins p JOIN ('.static::locationPairsSql().') l ON l.pin_id = p.id WHERE l.item_id = ?
+            GROUP BY p.id ORDER BY lower(p.title)', [$this->id]))
             ->map(fn ($p) => ['id' => (int) $p->id, 'title' => $p->title, 'kind' => $p->kind, 'poi_type' => $p->poi_type,
-                'x' => (float) $p->x, 'y' => (float) $p->y, 'status' => $p->status])
+                'x' => (float) $p->x, 'y' => (float) $p->y, 'status' => $p->status, 'via_hint' => (bool) $p->via_hint])
             ->all();
     }
 

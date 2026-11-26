@@ -7,7 +7,7 @@ import { LOOT, LOOT_ORDER, NO_LOOT_COLOR, ringGradient, sortLoot } from '../lib/
 import { EGG } from '../lib/easteregg'
 import { HINT } from '../lib/hint'
 import AuthorSelect from './AuthorSelect.vue'
-import { POI, POI_ORDER } from '../lib/poiTypes'
+import { POI, POI_ORDER, poiStyle } from '../lib/poiTypes'
 import type { KindMode } from '../lib/pinFilter'
 import { usePins } from '../stores/pins'
 import { useUi } from '../stores/ui'
@@ -85,7 +85,7 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
             <button type="button" class="btn ghost sm" @click="f.poi = []">zurücksetzen</button>
           </div>
           <div class="chips">
-            <button v-for="t in POI_ORDER" :key="t" type="button" class="chip poi-chip" :class="{ on: f.poi.includes(t) }" :style="{ '--c': POI[t].color }" :aria-pressed="f.poi.includes(t)" @click="togglePoi(t)">
+            <button v-for="t in POI_ORDER" :key="t" type="button" class="chip poi-chip" :class="{ on: f.poi.includes(t) }" :style="poiStyle(t)" :aria-pressed="f.poi.includes(t)" @click="togglePoi(t)">
               <span class="sq" v-html="POI[t].svg" />{{ POI[t].label }}<span v-if="poiCounts.get(t)" class="faint n">{{ poiCounts.get(t) }}</span>
             </button>
           </div>
@@ -119,7 +119,7 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
         >
           <span v-if="p.e" class="egg-row" :style="{ '--c': EGG.color }" v-html="EGG.svg" />
           <span v-else-if="p.k === 'hint'" class="hint-icon" :style="{ '--c': HINT.color }" v-html="HINT.svg" />
-          <span v-else-if="p.k === 'poi'" class="sq big" :style="{ '--c': POI[p.p ?? 'poi'].color }" v-html="POI[p.p ?? 'poi'].svg" />
+          <span v-else-if="p.k === 'poi'" class="sq big" :style="poiStyle(p.p ?? 'poi')" v-html="POI[p.p ?? 'poi'].svg" />
           <span v-else class="ring" :style="{ background: ringGradient(sortLoot(p.l)) }"><span /></span>
           <span class="text">
             <span class="name">{{ p.t }}</span>
@@ -154,7 +154,7 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
 .poi-tools .btn { height: 24px; font-size: 12px; }
 .poi-group .chips { max-height: 190px; overflow-y: auto; }
 .poi-chip .n { font-size: 11px; }
-.sq { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; background: var(--c); color: #fff; flex: none; }
+.sq { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; background: var(--c); color: var(--fg, #fff); flex: none; }
 .sq :deep(svg) { width: 11px; height: 11px; }
 .sq.big { width: 22px; height: 22px; border-radius: 5px; }
 .sq.big :deep(svg) { width: 14px; height: 14px; }

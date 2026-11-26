@@ -383,7 +383,8 @@ class CatalogCsvImport
     {
         $needle = mb_strtolower($raw);
         foreach ($enum::cases() as $case) {
-            if (mb_strtolower($case->value) === $needle || mb_strtolower($case->label()) === $needle) {
+            $aliases = method_exists($case, 'aliases') ? $case->aliases() : [];
+            if (mb_strtolower($case->value) === $needle || mb_strtolower($case->label()) === $needle || in_array($needle, $aliases, true)) {
                 return $case->value;
             }
         }

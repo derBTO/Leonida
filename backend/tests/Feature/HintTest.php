@@ -138,4 +138,39 @@ class HintTest extends TestCase
         // ohne verweisende Hinweise darf ein Ort wieder Loot werden
         $this->putJson("/api/pins/{$place['id']}", ['kind' => 'loot', 'title' => 'Diner', 'x' => 1, 'y' => 1])->assertOk();
     }
+
+    public function test_ammunation_has_weapon_assortment_other_places_not(): void
+    {
+        $this->actingAs($this->editor());
+        $weapon = $this->weapon('Pistole');
+        $shop = $this->pin(['kind' => 'poi', 'poi_type' => 'ammunation', 'title' => 'Ammu-Nation Vice City', 'weapon_ids' => [$weapon]]);
+        $bar = $this->pin(['kind' => 'poi', 'poi_type' => 'bar', 'title' => 'Bar', 'weapon_ids' => [$weapon]]);
+        $this->assertSame('Pistole', $shop['weapons'][0]['name']);
+        $this->assertSame([], $bar['weapons']);
+        $loc = $this->getJson("/api/weapons/$weapon")->json('item.locations');
+        $this->assertSame(['Ammu-Nation Vice City'], array_column($loc, 'title'));
+        $this->assertFalse($loc[0]['via_hint']);
+
+        // zusätzlich über einen Hinweis verknüpft: einmal gelistet, gilt als direkt
+        $this->pin(['kind' => 'hint', 'title' => 'Tipp', 'place_pin_id' => $shop['id'], 'weapon_ids' => [$weapon]]);
+        $loc = $this->getJson("/api/weapons/$weapon")->json('item.locations');
+        $this->assertCount(1, $loc);
+        $this->assertFalse($loc[0]['via_hint']);
+        $this->assertSame(1, collect($this->getJson('/api/weapons')->json('items'))->firstWhere('id', $weapon)['location_count']);
+
+        // Kategorie gewechselt: Sortiment entfällt
+        $this->putJson("/api/pins/{$shop['id']}", ['kind' => 'poi', 'poi_type' => 'bar', 'title' => 'Jetzt Bar', 'x' => 1, 'y' => 1, 'weapon_ids' => [$weapon]])->assertOk();
+        $this->assertSame([], $this->getJson("/api/pins/{$shop['id']}")->json('pin.weapons'));
+        $this->assertTrue($this->getJson("/api/weapons/$weapon")->json('item.locations.0.via_hint'));
+    }
+
+    public function test_vehicle_access_and_security_without(): void
+    {
+        $this->actingAs($this->admin());
+        $item = $this->postJson('/api/vehicles', ['name' => 'Fahrrad', 'access' => 'none', 'security' => 'not_specified'])->assertCreated()->json('item');
+        $this->assertSame('none', $item['access']);
+        $meta = $this->getJson('/api/meta')->json('enums');
+        $this->assertContains(['value' => 'none', 'label' => 'Ohne'], $meta['access']);
+        $this->assertContains(['value' => 'not_specified', 'label' => 'Ohne'], $meta['security']);
+    }
 }
