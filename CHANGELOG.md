@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## v1.5.5 – Deploy ohne NiaDB-Ordner (27.11.2026)
+
+- Behoben: `deploy.sh` brach mit „pathspec 'imports' did not match any files“ ab, weil es noch den entfernten Ordner `imports/` mit ausliefern wollte. Die NiaDB-Daten werden auf dem Server nicht gebraucht (Import ist erledigt).
+- `package-lock.json` mit Version und Lizenz aus `package.json` abgeglichen (keine Warnung „nicht committete Änderungen“ mehr beim Deploy).
+
 ## v1.5.4 – Exklusive Waffen, Easteregg-Filter, Community-Dateien (27.11.2026)
 
 - **Ammu-Nation:** Das Feld heißt jetzt **Exklusive Waffen** statt „Waffensortiment“. Gedacht für Waffen, die es nur in diesem Laden gibt, nicht für das Standardsortiment. Technisch unverändert, vorhandene Einträge bleiben.
