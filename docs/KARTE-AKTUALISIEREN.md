@@ -39,14 +39,14 @@ scripts/map-upscale.sh --activate    # ganze Karte, danach aktiv schalten
 ```
 
 - Läuft auf dem Mac mit der Apple-Grafik (PyTorch/MPS). Beim ersten Start richtet das Skript eine eigene Python-Umgebung unter `data/cache/upscale-venv` ein (ca. 1 GB) und lädt das Modell (64 MB, Prüfsumme wird kontrolliert). Aktuelles PyTorch braucht Python 3.10 oder neuer; ist nur das System-Python 3.9 da: `brew install python@3.12`.
-- Ergebnis ist eine neue Kartenversion `<version>-ki` (bzw. `<version>-ki-test`) unter `data/map/versions/`. Sie enthält alle bisherigen Kacheln als Hardlink (kein zusätzlicher Platz) plus die neuen Stufen 7 und 8 und ein angepasstes `manifest.json`. Die Karte nutzt die neuen Stufen automatisch.
+- Ergebnis ist eine neue Kartenversion `<version>-ki` (bzw. `<version>-ki-test`) unter `data/map/versions/`. Sie enthält alle bisherigen Kacheln als Hardlink (kein zusätzlicher Platz) plus die neuen Stufen 7 und 8 und ein angepasstes `manifest.json`. Die Karte nutzt die neuen Stufen automatisch; im Ebenen-Menü der Karte lassen sie sich als „Schärfere Zoomstufen 7–8 (experimentell)“ abschalten.
 - Kacheln mit offenem Meer (rund zwei Drittel) werden nur normal vergrößert, die übrigen ca. 8.200 Kacheln per KI. Jede Kachel wird mit Rand aus den Nachbarkacheln gerechnet, damit keine Nähte entstehen.
 - Abbrechen (Ctrl+C) und neu starten ist jederzeit möglich, fertige Kacheln werden übersprungen. Das Skript zeigt laufend die geschätzte Restzeit.
 - Umfang bei der ganzen Karte: etwa 93.000 Kacheln auf Stufe 7 und 371.000 auf Stufe 8, zusammen grob 2–2,5 GB. Mit `--levels 1` nur Stufe 7 (grob 0,5 GB).
 - Bei `--test` gibt es Stufe 7 und 8 nur im Ausschnitt; außerhalb bleibt die Karte bei diesen Stufen leer. Zum Ansehen kurz aktivieren, danach zurückschalten.
 - Zurück zur Originalkarte: `ln -sfn versions/<version> data/map/current`.
 - Nach einem gtadb-Update (neue Version mit `map-import.sh --activate`) einfach erneut `map-upscale.sh --activate` ausführen: Kacheln, deren Ausgangskachel samt Nachbarn unverändert ist, werden aus der vorherigen KI-Version übernommen.
-- `map-upload.sh` zeigt bei einer KI-Version vorher Kachelzahl und Größe und fragt nach. Übertragen werden nur die Zusatzstufen. Vorher prüfen, ob das Webhosting so viele Dateien erlaubt (Inode-Grenze).
+- `map-upload.sh` zeigt bei einer KI-Version vorher Kachelzahl und Größe und fragt nach. Übertragen werden nur die Zusatzstufen. Hetzner sieht bei etwa einer Million Dateien die Fair-Use-Grenze erreicht (docs.hetzner.com → Webhosting → Fair Use). Die ganze Karte mit Stufe 7 und 8 sind rund 520.000 Dateien. Nach einem Kartenupdate liegen zwei Versionen auf dem Server (Hardlinks, aber je nach Zählweise doppelt): alte Versionen unter `map/versions/` dann zeitnah löschen.
 - Lizenz: Die Kacheln stehen unter CC BY 4.0. Die hochgerechneten Stufen sind eine Bearbeitung; die Karte kennzeichnet sie in der Quellenzeile („Stufen 7–8 KI-hochgerechnet“), ebenso die Seite „Quellen & Lizenzen“.
 
 ## Optionen von map-import.sh

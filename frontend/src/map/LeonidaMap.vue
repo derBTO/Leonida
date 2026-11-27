@@ -2,7 +2,7 @@
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
-import { Maximize, Minus, Plus } from 'lucide-vue-next'
+import { Layers, Maximize, Minus, Plus } from 'lucide-vue-next'
 import { PlaceLabelLayer } from './PlaceLabelLayer'
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type { MapManifest, PinIndexItem } from '../api/types'
@@ -65,6 +65,25 @@ watch(() => ui.placeNames, (on) => {
   else placeLabels.remove()
 })
 
+/** Ebenen-Menü unten rechts: Ortsnamen, KI-Zoomstufen */
+const layersOpen = ref(false)
+const layersEl = ref<HTMLElement | null>(null)
+/** hat die aktive Kartenversion KI-hochgerechnete Stufen? */
+const hasHd = ref(false)
+watch(() => ui.hdTiles, () => buildTiles())
+function onDocClick(e: MouseEvent) {
+  if (layersOpen.value && layersEl.value && !layersEl.value.contains(e.target as Node)) layersOpen.value = false
+}
+function onDocKey(e: KeyboardEvent) {
+  if (e.key === 'Escape') layersOpen.value = false
+}
+document.addEventListener('click', onDocClick, true)
+document.addEventListener('keydown', onDocKey)
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onDocClick, true)
+  document.removeEventListener('keydown', onDocKey)
+})
+
 /** Ausdehnung der Kartenkacheln, für „ganze Karte zeigen“ */
 let wholeMap: L.LatLngBounds | null = null
 
@@ -75,7 +94,11 @@ function buildTiles() {
   const m = manifest.value
   // Hochauflösende Bildschirme: halb so große Kacheln der nächstfeineren Stufe laden (wie Leaflets
   // detectRetina, aber mit unseren Kachelgrenzen), damit 1 Kachelpixel = 1 Bildschirmpixel ist.
-  const hidpi = window.devicePixelRatio >= 1.5 && set.maxZoom > set.minZoom
+  // KI-hochgerechnete Stufen nur, wenn eingeschaltet; sonst endet die Karte bei der Originalstufe
+  const useHd = !!set.upscaled && ui.hdTiles
+  const maxNative = set.upscaled && !useHd ? set.upscaled.fromZoom : set.maxZoom
+  hasHd.value = !!set.upscaled
+  const hidpi = window.devicePixelRatio >= 1.5 && maxNative > set.minZoom
   const offset = hidpi ? 1 : 0
   const Layer = L.TileLayer.extend({
     getTileUrl(coords: L.Coords) {
@@ -90,14 +113,14 @@ function buildTiles() {
     tileSize: hidpi ? 128 : 256,
     minZoom: 0,
     maxZoom: 9,
-    maxNativeZoom: set.maxZoom - offset,
+    maxNativeZoom: maxNative - offset,
     minNativeZoom: Math.max(0, set.minZoom - offset),
     bounds: L.latLngBounds(toLatLng(b.west, b.south), toLatLng(b.east, b.north)),
     noWrap: true,
     keepBuffer: 3,
     // CC BY verlangt einen Hinweis auf Änderungen: KI-hochgerechnete Zusatzstufen kennzeichnen
     attribution: '<a href="https://map.gtadb.org" target="_blank" rel="noopener">GTA VI Map Tiles (CC BY 4.0) — map.gtadb.org</a> · gtadb.org and all contributors'
-      + (set.upscaled ? ` · Stufen ${set.upscaled.levels.join('–')} KI-hochgerechnet` : '')
+      + (useHd && set.upscaled ? ` · Stufen ${set.upscaled.levels.join('–')} KI-hochgerechnet` : '')
       + ' · <a href="/quellen">Quellen</a>',
   })
   tiles.addTo(map.value)
@@ -327,6 +350,19 @@ defineExpose({ flyTo, center, invalidate, fitTrail })
   <div class="map-wrap">
     <div ref="el" class="map" />
     <div class="controls">
+      <div ref="layersEl" class="layers-wrap">
+        <div v-if="layersOpen" class="layers-menu panel" role="dialog" aria-label="Kartenebenen">
+          <div class="lm-title">Kartenebenen</div>
+          <label class="switch"><input type="checkbox" v-model="ui.placeNames" /> Ortsnamen</label>
+          <template v-if="hasHd">
+            <label class="switch"><input type="checkbox" v-model="ui.hdTiles" /> Schärfere Zoomstufen 7–8</label>
+            <p class="lm-note">Experimentell: per KI aus den Originalkacheln hochgerechnet. Aus = Originalbilder, bei starkem Zoom unschärfer.</p>
+          </template>
+        </div>
+        <div class="zoom panel">
+          <button type="button" aria-label="Kartenebenen" title="Kartenebenen" :aria-expanded="layersOpen" :class="{ on: layersOpen }" @click="layersOpen = !layersOpen"><Layers :size="17" /></button>
+        </div>
+      </div>
       <div class="zoom panel">
         <button type="button" aria-label="Hineinzoomen" @click="map?.zoomIn()"><Plus :size="18" /></button>
         <button type="button" aria-label="Ganze Karte zeigen" title="Ganze Karte zeigen" @click="fitWhole"><Maximize :size="16" /></button>
@@ -343,5 +379,12 @@ defineExpose({ flyTo, center, invalidate, fitTrail })
 .zoom button { width: 38px; height: 38px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text); }
 .zoom button:hover { background: var(--panel-hover); }
 .zoom button + button { border-top: 1px solid var(--line); }
+.zoom button.on { color: var(--pink); }
+.layers-wrap { position: relative; }
+.layers-menu { position: absolute; right: 48px; bottom: 0; width: 250px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+.lm-title { font-family: var(--font-display); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.layers-menu .switch { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 13.5px; cursor: pointer; }
+.layers-menu .switch input { accent-color: var(--pink); width: 16px; height: 16px; margin: 0; }
+.lm-note { margin: -4px 0 0 24px; font-size: 12px; color: var(--faint); line-height: 1.35; }
 @media (max-width: 760px) { .controls { bottom: 96px; } }
 </style>

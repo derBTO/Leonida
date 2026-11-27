@@ -11,10 +11,12 @@ export interface PinEditorState { pinId: number | null; x: number; y: number; ki
 export interface HintDraft extends EditorDraft { editor: PinEditorState; placeTitle: string }
 
 export const useUi = defineStore('ui', () => {
-  const stored = load('ui', { sidebarOpen: true, placeNames: true })
+  const stored = load('ui', { sidebarOpen: true, placeNames: true, hdTiles: true })
   const sidebarOpen = ref(stored.sidebarOpen && window.innerWidth > 760)
   /** Ortsnamen (Regionen, Städte, Stadtteile …) als Text-Ebene auf der Karte */
   const placeNames = ref(stored.placeNames !== false)
+  /** KI-hochgerechnete Zoomstufen nutzen, falls die Kartenversion welche hat (experimentell) */
+  const hdTiles = ref(stored.hdTiles !== false)
   const toasts = ref<Toast[]>([])
   const loginOpen = ref(false)
   const passwordOpen = ref(false)
@@ -38,9 +40,9 @@ export const useUi = defineStore('ui', () => {
   }
 
   function persist() {
-    save('ui', { sidebarOpen: sidebarOpen.value, placeNames: placeNames.value })
+    save('ui', { sidebarOpen: sidebarOpen.value, placeNames: placeNames.value, hdTiles: hdTiles.value })
   }
-  watch(placeNames, persist)
+  watch([placeNames, hdTiles], persist)
 
-  return { sidebarOpen, placeNames, toasts, loginOpen, passwordOpen, pinEditor, hintDraft, toast, error, toggleSidebar }
+  return { sidebarOpen, placeNames, hdTiles, toasts, loginOpen, passwordOpen, pinEditor, hintDraft, toast, error, toggleSidebar }
 })

@@ -35,9 +35,14 @@ test('Gäste sehen die Karte, gtadb-Orte nur mit Schalter, keinen Ersteller-Filt
   await page.getByRole('button', { name: 'Ganze Karte zeigen' }).click()
   await expect(page.locator('.pl-region span', { hasText: 'Kelly County' })).toBeVisible()
   await expect(page.locator('.place-label span', { hasText: 'Little Cuba' })).toBeHidden()
-  await page.getByText('Ortsnamen auf der Karte').click()
+  // Ebenen-Menü unten rechts
+  await page.getByRole('button', { name: 'Kartenebenen' }).click()
+  await page.getByRole('dialog', { name: 'Kartenebenen' }).getByText('Ortsnamen').click()
   await expect(page.locator('.place-label')).toHaveCount(0)
-  await page.getByText('Ortsnamen auf der Karte').click()
+  await expect(page.getByText('Schärfere Zoomstufen 7–8')).toHaveCount(0) // Testkarte hat keine KI-Stufen
+  await page.getByRole('dialog', { name: 'Kartenebenen' }).getByText('Ortsnamen').click()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog', { name: 'Kartenebenen' })).toHaveCount(0)
   await expect(page.locator('.pl-region span', { hasText: 'Kelly County' })).toBeVisible()
   await page.getByText('Orte von gtadb.org zeigen').click()
   await expect(hits(page)).toHaveText('2')

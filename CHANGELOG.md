@@ -1,5 +1,9 @@
 # Änderungsprotokoll
 
+## v1.5.1 – Ebenen-Menü auf der Karte (27.11.2026)
+
+- **Kartenebenen:** neues Symbol über den Zoom-Knöpfen unten rechts. Darin **Ortsnamen** (aus der Seitenleiste hierher verschoben) und, wenn die Kartenversion KI-Stufen hat, **Schärfere Zoomstufen 7–8** mit Hinweis „experimentell“. Ausgeschaltet nutzt die Karte nur die Originalkacheln bis Stufe 6; die Quellenzeile nennt die KI-Stufen nur, wenn sie aktiv sind. Einstellungen werden gemerkt, Esc oder Klick daneben schließt das Menü.
+
 ## v1.5.0 – Schärfere Karte bei starkem Zoom per KI (27.11.2026)
 
 - **`scripts/map-upscale.sh`:** rechnet die Stufe-6-Kacheln mit Real-ESRGAN (×4) hoch und erzeugt die Zusatzstufen 7 und 8 als neue Kartenversion `<version>-ki`. Läuft auf dem Mac (Apple-Grafik), setzt nach Abbruch fort, übernimmt nach gtadb-Updates unveränderte Kacheln. Mit `--test` nur Downtown Vice City. Kacheln mit offenem Meer werden ohne KI vergrößert; Nachbarrand verhindert Nähte.
