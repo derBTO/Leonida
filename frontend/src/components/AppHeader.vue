@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { KeyRound, LogIn, LogOut, Settings, User, UserPlus } from 'lucide-vue-next'
+import { KeyRound, LogIn, LogOut, Settings, User, UserPlus, Github } from 'lucide-vue-next'
 import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { useSession } from '../stores/session'
@@ -40,6 +40,7 @@ async function logout() {
           <RouterLink v-if="session.isAdmin" to="/admin"><Settings :size="15" /> Verwaltung</RouterLink>
           <button type="button" @click="ui.passwordOpen = true"><KeyRound :size="15" /> Passwort ändern</button>
           <RouterLink to="/quellen">Quellen &amp; Lizenzen</RouterLink>
+          <a href="https://github.com/derBTO/Leonida" target="_blank" rel="noopener"><Github :size="15" /> Leonida auf GitHub</a>
           <button type="button" @click="logout"><LogOut :size="15" /> Abmelden</button>
         </div>
       </div>

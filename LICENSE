@@ -24,4 +24,5 @@ SOFTWARE.
 
 Die MIT-Lizenz gilt für den Code dieses Repositorys. Daten und Inhalte Dritter
 (Kartenkacheln und Landmarken von gtadb.org, Ortsnamen, Marken von Rockstar Games)
-stehen unter ihren eigenen Bedingungen, siehe NOTICE.md.
+stehen unter ihren eigenen Bedingungen, siehe NOTICE.md. Das BTO-Logo
+(frontend/public/brand/) ist von dieser Lizenz ausgenommen.

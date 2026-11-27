@@ -30,6 +30,10 @@ Die zusätzlichen Zoomstufen 7 und 8 können mit `scripts/map-upscale.sh` aus de
 
 Die Ortsnamen-Ebene der Karte (Regionen, Städte, Stadtteile, Inseln, Gewässer, Wahrzeichen) folgt der offiziellen Leonida-Karte von Rockstar Games (Poster zum Ausdrucken). Übernommen sind nur Namen und Lage der Beschriftungen (`frontend/src/map/placeLabels.ts`), nicht das Kartenbild.
 
+## BTO-Logo
+
+Das Logo unten rechts auf der Karte (`frontend/public/brand/bto-logo.webp`) gehört BTO und ist von der MIT-Lizenz ausgenommen. Wer Leonida für eine eigene Instanz nutzt, ersetzt oder entfernt es bitte.
+
 ## Grand Theft Auto VI
 
 Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Leonida ist ein Fanprojekt ohne Verbindung zu diesen Unternehmen und verwendet keine Logos, Schriften oder Grafiken aus dem Spiel.

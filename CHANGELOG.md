@@ -1,5 +1,10 @@
 # Änderungsprotokoll
 
+## v1.6.0 – Logo und GitHub-Link (27.11.2026)
+
+- **BTO-Logo** unten rechts auf der Karte neben den Zoom-Knöpfen (72 px hoch, auf dem Handy 50 px), verlinkt auf das GitHub-Repository. Das Logo ist von der MIT-Lizenz ausgenommen (`LICENSE`, `NOTICE.md`).
+- **GitHub-Link** in der Quellenzeile der Karte, im Benutzermenü („Leonida auf GitHub“) und auf der Seite „Quellen & Lizenzen“ (neuer Abschnitt „Leonida“).
+
 ## v1.5.5 – Deploy ohne NiaDB-Ordner (27.11.2026)
 
 - Behoben: `deploy.sh` brach mit „pathspec 'imports' did not match any files“ ab, weil es noch den entfernten Ordner `imports/` mit ausliefern wollte. Die NiaDB-Daten werden auf dem Server nicht gebraucht (Import ist erledigt).

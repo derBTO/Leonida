@@ -19,6 +19,12 @@ onMounted(async () => {
   <div class="page">
     <article class="panel box">
       <h1>Quellen &amp; Lizenzen</h1>
+      <h2>Leonida</h2>
+      <p>
+        Leonida ist ein Fanprojekt von BTO. Der Quellcode ist offen unter der MIT-Lizenz:
+        <a href="https://github.com/derBTO/Leonida" target="_blank" rel="noopener">github.com/derBTO/Leonida</a>.
+        Fehler und Ideen gerne dort als Issue. Das BTO-Logo ist von der MIT-Lizenz ausgenommen.
+      </p>
       <h2>Kartenkacheln</h2>
       <p>
         Die Karte von Leonida stammt von <a href="https://map.gtadb.org" target="_blank" rel="noopener">gtadb.org</a>

@@ -121,7 +121,7 @@ function buildTiles() {
     // CC BY verlangt einen Hinweis auf Änderungen: KI-hochgerechnete Zusatzstufen kennzeichnen
     attribution: '<a href="https://map.gtadb.org" target="_blank" rel="noopener">GTA VI Map Tiles (CC BY 4.0) — map.gtadb.org</a> · gtadb.org and all contributors'
       + (useHd && set.upscaled ? ` · Stufen ${set.upscaled.levels.join('–')} KI-hochgerechnet` : '')
-      + ' · <a href="/quellen">Quellen</a>',
+      + ' · <a href="/quellen">Quellen</a> · <a href="https://github.com/derBTO/Leonida" target="_blank" rel="noopener">GitHub</a>',
   })
   tiles.addTo(map.value)
   persist()
@@ -349,6 +349,9 @@ defineExpose({ flyTo, center, invalidate, fitTrail })
 <template>
   <div class="map-wrap">
     <div ref="el" class="map" />
+    <a class="brand" href="https://github.com/derBTO/Leonida" target="_blank" rel="noopener" title="Leonida auf GitHub">
+      <img src="/brand/bto-logo.webp" alt="BTO – Leonida auf GitHub" width="171" height="216" />
+    </a>
     <div class="controls">
       <div ref="layersEl" class="layers-wrap">
         <div v-if="layersOpen" class="layers-menu panel" role="dialog" aria-label="Kartenebenen">
@@ -386,5 +389,13 @@ defineExpose({ flyTo, center, invalidate, fitTrail })
 .layers-menu .switch { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 13.5px; cursor: pointer; }
 .layers-menu .switch input { accent-color: var(--pink); width: 16px; height: 16px; margin: 0; }
 .lm-note { margin: -4px 0 0 24px; font-size: 12px; color: var(--faint); line-height: 1.35; }
-@media (max-width: 760px) { .controls { bottom: 96px; } }
+/* Logo links neben den Zoom-Knöpfen, unten bündig */
+.brand { position: absolute; right: 62px; bottom: 28px; z-index: 790; display: block; line-height: 0; opacity: 0.9; transition: opacity 0.15s, transform 0.15s; }
+.brand img { height: 72px; width: auto; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6)); }
+.brand:hover { opacity: 1; transform: scale(1.04); }
+@media (max-width: 760px) {
+  .controls { bottom: 96px; }
+  .brand { bottom: 96px; right: 58px; }
+  .brand img { height: 50px; }
+}
 </style>
