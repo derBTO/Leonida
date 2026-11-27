@@ -3,6 +3,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import { Maximize, Minus, Plus } from 'lucide-vue-next'
+import { PlaceLabelLayer } from './PlaceLabelLayer'
 import { onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import type { MapManifest, PinIndexItem } from '../api/types'
 import { load, save } from '../lib/storage'
@@ -55,6 +56,14 @@ function persist() {
   const b = map.value.getBounds()
   pins.bounds = { west: b.getWest(), east: b.getEast(), south: b.getSouth(), north: b.getNorth() }
 }
+
+/** Ortsnamen-Ebene, per Schalter in der Seitenleiste */
+const placeLabels = new PlaceLabelLayer()
+watch(() => ui.placeNames, (on) => {
+  if (!map.value) return
+  if (on) placeLabels.addTo(map.value)
+  else placeLabels.remove()
+})
 
 /** Ausdehnung der Kartenkacheln, für „ganze Karte zeigen“ */
 let wholeMap: L.LatLngBounds | null = null
@@ -165,6 +174,7 @@ onMounted(async () => {
   })
   m.addLayer(poiCluster)
   trailLayer = L.layerGroup().addTo(m)
+  if (ui.placeNames) placeLabels.addTo(m)
   m.on('moveend zoomend', persist)
   m.on('contextmenu', (e: L.LeafletMouseEvent) => {
     const c = fromLatLng(e.latlng)

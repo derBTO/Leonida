@@ -96,6 +96,7 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
       <label class="switch"><input type="checkbox" v-model="f.viewportOnly" /> Nur im Kartenausschnitt</label>
       <label v-if="f.mode === 'both' || f.mode === 'loot'" class="switch"><input type="checkbox" v-model="f.showGone" /> Nicht mehr verfügbare Loot-Pins zeigen</label>
       <label v-if="f.mode === 'both'" class="switch"><input type="checkbox" :checked="f.showHints !== false" @change="f.showHints = ($event.target as HTMLInputElement).checked" /> Hinweise zeigen</label>
+      <label class="switch"><input type="checkbox" v-model="ui.placeNames" /> Ortsnamen auf der Karte</label>
       <label v-if="f.mode === 'both' || f.mode === 'poi'" class="switch"><input type="checkbox" v-model="f.showGtadb" /> Orte von gtadb.org zeigen <span class="faint">({{ gtadbCount }})</span></label>
       <label class="select-row">
         <span class="egg-mini" :style="{ '--c': EGG.color }" v-html="EGG.svg" /> Eastereggs

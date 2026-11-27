@@ -67,3 +67,4 @@ Vollständiges Konzept mit Datenmodell und Oberfläche: Claude-Dokument „Leoni
 | 26.11.2026 | Filter unter „Alles“ | Auswahl von Kategorien/Loottypen schränkt auf das Gewählte ein (Loot ohne gewählten Loottyp und Orte ohne gewählte Kategorie fallen weg) | Rückmeldung BTO: Auswahl „Ammu-Nation“ soll nur Läden zeigen |
 | 26.11.2026 | „Meine“ im Katalog | angelegt, zuletzt geändert oder im Änderungsprotokoll als Bearbeiter | Wunsch BTO; das Protokoll hält auch ältere Bearbeitungen fest |
 | 26.11.2026 | Aktives Puzzle auf der Karte | nur Hinweise des Puzzles und ihre Orte, Filter ruhen solange | Wunsch BTO: übersichtlicher unterwegs |
+| 27.11.2026 | Ortsnamen | eigene Text-Ebene (Leaflet-Pane unter den Pins) mit Namen und Lage nach dem offiziellen Poster statt Bild-Overlay; Sichtbarkeit je Art und Zoom, Überdeckung nach Vorrang | Wunsch BTO; Text bleibt bei jedem Zoom scharf, Pins bleiben klickbar, kein Kartenbild übernommen |

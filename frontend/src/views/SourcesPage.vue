@@ -31,6 +31,12 @@ onMounted(async () => {
       </p>
       <p>Ein Teil der Orte (POIs) wie Tankstellen, Haltestellen und Geschäfte wurde aus den Landmarken-Daten von gtadb.org übernommen (CC BY 4.0, „GTA VI Landmarks Data — https://map.gtadb.org“). Die Beschreibung jedes übernommenen Orts verlinkt auf den Originaleintrag.</p>
       <p v-if="manifest" class="muted">Aktueller Kartenstand: {{ manifest.version }} (gtadb.org-Commit {{ manifest.source.commit.slice(0, 7) }}).</p>
+      <h2>Ortsnamen</h2>
+      <p>
+        Die Namen von Regionen, Städten, Stadtteilen, Inseln, Gewässern und Wahrzeichen auf der Karte richten sich nach der offiziellen
+        Leonida-Karte von Rockstar Games (Poster zum Ausdrucken). Übernommen wurden nur Namen und Lage der Beschriftungen, nicht das Kartenbild;
+        die Positionen wurden per Bildabgleich auf die gtadb-Karte übertragen.
+      </p>
       <h2>Waffen- und Fahrzeugdaten</h2>
       <p>
         Viele Waffen und Fahrzeuge samt Werten (Schaden, Treffgenauigkeit, Geschwindigkeit, Ratings usw.) und Beschreibungen stammen aus

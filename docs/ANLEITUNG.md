@@ -76,4 +76,6 @@ Ein Puzzle verbindet Hinweise in fester Reihenfolge und führt zu einer **Belohn
 
 Die Schaltfläche zwischen **+** und **−** zeigt die ganze Karte zentriert.
 
+**Ortsnamen:** Wie bei Kartendiensten stehen weit herausgezoomt die Regionen (Counties), großen Städte und Meere auf der Karte. Beim Hineinzoomen kommen Orte, Buchten, dann Stadtteile, Inseln, kleine Gewässer und Wahrzeichen dazu, die Regionen verschwinden. Überlappen sich Namen, bleibt der wichtigere stehen. Der Schalter **Ortsnamen auf der Karte** in der Seitenleiste blendet sie aus.
+
 Ein Klick auf einen Pin öffnet seine Details in einem Fenster über der Karte; Esc oder das × schließt es. Am Computer lässt sich das Fenster an der Titelleiste verschieben, ein Doppelklick auf die Titelleiste setzt es zurück in die Mitte. Jeder Pin hat eine eigene Adresse; „Link kopieren“ im Pin teilt genau diesen Ort.

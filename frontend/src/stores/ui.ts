@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { load, save } from '../lib/storage'
 
 export interface Toast { id: number; text: string; kind: 'info' | 'error' | 'ok' }
@@ -11,8 +11,10 @@ export interface PinEditorState { pinId: number | null; x: number; y: number; ki
 export interface HintDraft extends EditorDraft { editor: PinEditorState; placeTitle: string }
 
 export const useUi = defineStore('ui', () => {
-  const stored = load('ui', { sidebarOpen: true })
+  const stored = load('ui', { sidebarOpen: true, placeNames: true })
   const sidebarOpen = ref(stored.sidebarOpen && window.innerWidth > 760)
+  /** Ortsnamen (Regionen, Städte, Stadtteile …) als Text-Ebene auf der Karte */
+  const placeNames = ref(stored.placeNames !== false)
   const toasts = ref<Toast[]>([])
   const loginOpen = ref(false)
   const passwordOpen = ref(false)
@@ -32,8 +34,13 @@ export const useUi = defineStore('ui', () => {
 
   function toggleSidebar(open?: boolean) {
     sidebarOpen.value = open ?? !sidebarOpen.value
-    save('ui', { sidebarOpen: sidebarOpen.value })
+    persist()
   }
 
-  return { sidebarOpen, toasts, loginOpen, passwordOpen, pinEditor, hintDraft, toast, error, toggleSidebar }
+  function persist() {
+    save('ui', { sidebarOpen: sidebarOpen.value, placeNames: placeNames.value })
+  }
+  watch(placeNames, persist)
+
+  return { sidebarOpen, placeNames, toasts, loginOpen, passwordOpen, pinEditor, hintDraft, toast, error, toggleSidebar }
 })

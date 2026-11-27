@@ -2,11 +2,11 @@
 
 Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Privates Projekt unter **https://leonida.derbto.de**.
 
-Aktuelle Version: **1.3.0**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
+Aktuelle Version: **1.4.0**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
 
 ## Funktionen
 
-- Vollbild-Karte von Leonida (Kacheln von [gtadb.org](https://map.gtadb.org), lokal gehostet)
+- Vollbild-Karte von Leonida (Kacheln von [gtadb.org](https://map.gtadb.org), lokal gehostet) mit zoomabhängigen Ortsnamen nach der offiziellen Karte
 - Drei Pin-Arten: **Loot-Fundorte**, **Orte (POIs)** in 21 Kategorien und **Hinweise** (Zwischenstationen mit Codes); jeder Pin kann zusätzlich **Easteregg** sein (eigenes Ei-Symbol)
 - Übernommene gtadb.org-Orte, per Schalter ein- und ausblendbar (Standard aus)
 - **Puzzle**: Hinweise in fester Reihenfolge bis zur Belohnung (Waffen, Fahrzeuge), parallele Schritte, Anzeige mit Linie auf der Karte, Spoiler-Schutz, Fortschritt pro Person

@@ -22,6 +22,10 @@ Ein Grundbestand an Waffen und Fahrzeugen (Namen, Typ/Klasse, Hersteller, Werte,
 - Jeder übernommene Eintrag trägt `source_name = NiaDB` und `source_url` mit der Seite, von der seine Daten stammen; die Karte zeigt „Daten von NiaDB“ mit Link.
 - Änderungen durch Leonida: Typ- und Klassennamen ins Deutsche übertragen, Sammel- und Platzhaltereinträge weggelassen, „legendär“ aus der Beschreibung abgeleitet.
 
+## Ortsnamen
+
+Die Ortsnamen-Ebene der Karte (Regionen, Städte, Stadtteile, Inseln, Gewässer, Wahrzeichen) folgt der offiziellen Leonida-Karte von Rockstar Games (Poster zum Ausdrucken). Übernommen sind nur Namen und Lage der Beschriftungen (`frontend/src/map/placeLabels.ts`), nicht das Kartenbild.
+
 ## Grand Theft Auto VI
 
 Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Leonida ist ein privates Fanprojekt ohne Verbindung zu diesen Unternehmen und verwendet keine Logos, Schriften oder Grafiken aus dem Spiel.

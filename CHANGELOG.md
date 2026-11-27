@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## v1.4.0 – Ortsnamen auf der Karte (27.11.2026)
+
+- **Ortsnamen-Ebene:** rund 150 Namen nach der offiziellen Leonida-Karte von Rockstar Games: 5 Regionen, Städte und Orte, Stadtteile, Inseln und Keys, Parks, Meere, Buchten, Seen und Flüsse sowie rund 30 Wahrzeichen. Weit herausgezoomt Regionen, Städte und Meere, beim Hineinzoomen Orte, dann Stadtteile, Inseln und Wahrzeichen; die Regionen verschwinden nah. Überlappende Namen werden nach Wichtigkeit ausgeblendet, die Schrift wächst mit dem Zoom.
+- Übernommen sind nur Namen und Lage, nicht das Kartenbild. Die Lage wurde per Bildabgleich (1293 Passpunkte, Restfehler ≈ 2 m) auf die gtadb-Karte übertragen.
+- Schalter **Ortsnamen auf der Karte** in der Seitenleiste (Standard an, wird gemerkt). Quellenangabe unter „Quellen & Lizenzen“.
+
 ## v1.3.0 – Puzzle-Ansicht, ganze Karte (26.11.2026)
 
 - **Aktives Puzzle auf der Karte:** Karte und Liste zeigen nur noch die Hinweise des Puzzles und die mit ihnen verknüpften Orte (verdeckte Schritte bleiben verdeckt). In der Seitenleiste steht, welches Puzzle aktiv ist, mit **Puzzle schließen**. Die API liefert dafür je Schritt `pin.place_id`.
