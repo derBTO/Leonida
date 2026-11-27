@@ -8,9 +8,9 @@ Der CSV-Import füllt oder ergänzt die Waffen- und Fahrzeugdatenbank in einem S
 - **Server/Konsole:** im Release-Ordner (`~/leonida/current`)
 
   ```bash
-  php artisan leonida:catalog-import weapons imports/niadb/waffen.csv          # Probelauf
-  php artisan leonida:catalog-import weapons imports/niadb/waffen.csv --apply  # schreiben
-  php artisan leonida:catalog-import vehicles imports/niadb/fahrzeuge.csv --apply
+  php artisan leonida:catalog-import weapons data/imports/niadb/waffen.csv          # Probelauf
+  php artisan leonida:catalog-import weapons data/imports/niadb/waffen.csv --apply  # schreiben
+  php artisan leonida:catalog-import vehicles data/imports/niadb/fahrzeuge.csv --apply
   ```
 
 ## Regeln
@@ -45,6 +45,6 @@ Die Vorlage in der Oberfläche enthält alle Spalten und eine Beispielzeile.
 
 ## NiaDB-Grundbestand
 
-`imports/niadb/` enthält die am 25.11.2026 von https://meowdb.com/gta6/ übernommenen Daten (153 Waffen, 235 Fahrzeuge). NiaDB erlaubt die Weiterverwendung mit Quellenlink; jeder Eintrag verlinkt auf seine NiaDB-Seite. Die Beschreibungen sind englisch wie im Original.
+Der Startbestand (153 Waffen, 235 Fahrzeuge) wurde am 25.11.2026 von https://meowdb.com/gta6/ übernommen. Die Daten liegen **nicht im Repository**, sondern lokal unter `data/imports/niadb/` (von Git ausgenommen); wer sie braucht, ruft sie selbst bei NiaDB ab und legt sie als `raw/weapons.csv` und `raw/vehicles.csv` ab. NiaDB erlaubt die Weiterverwendung mit Quellenlink; jeder Eintrag verlinkt auf seine NiaDB-Seite. Die Beschreibungen sind englisch wie im Original.
 
-Aktualisieren: Rohdaten in `imports/niadb/raw/` ersetzen (gleiche Spalten), `python3 scripts/niadb_convert.py` ausführen, dann importieren. Bereits vorhandene Einträge werden nur ergänzt.
+Aktualisieren: Rohdaten in `data/imports/niadb/raw/` ersetzen (gleiche Spalten), `python3 scripts/niadb_convert.py` ausführen, dann importieren. Bereits vorhandene Einträge werden nur ergänzt.

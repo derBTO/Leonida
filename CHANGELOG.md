@@ -1,5 +1,12 @@
 # Änderungsprotokoll
 
+## v1.5.3 – Vorbereitung für ein öffentliches Repository (27.11.2026)
+
+- **Lizenz:** MIT für den Code (`LICENSE`); Daten Dritter weiter nach `NOTICE.md`.
+- **NiaDB-Daten nicht mehr im Repository:** Die Waffen- und Fahrzeugtabellen liegen nur noch lokal unter `data/imports/niadb/` (von Git ausgenommen), auch aus der Git-Historie entfernt. Skript, Import und Anleitung bleiben; der NiaDB-Import-Test läuft nur, wenn die Daten lokal vorhanden sind.
+- Doku mit Platzhaltern statt der eigenen Serverpfade und Domain (Installation, Backup, `.env.example`, Deploy-Ausgabe, Server-Check).
+- `NOTICE.md`: Hinweis auf die optional KI-hochgerechneten Kartenstufen.
+
 ## v1.5.2 – KI-Stufen bei Kartenupdates automatisch (27.11.2026)
 
 - `map-import.sh` rechnet eine neue gtadb-Version automatisch per KI hoch, wenn es schon eine KI-Version gibt, und aktiviert mit `--activate` direkt die neue KI-Version. Nur geänderte Kacheln (samt Nachbarn) werden neu gerechnet, der Rest wird übernommen. Neue Optionen `--upscale` / `--no-upscale`.

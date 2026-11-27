@@ -117,11 +117,15 @@ class CatalogImportTest extends TestCase
         $this->assertStringStartsWith('name,manufacturer,vehicle_class', $body);
     }
 
+    /** Nur lokal: die NiaDB-Daten liegen nicht im Repository (data/imports/niadb, siehe docs/KATALOG-IMPORT.md). */
     public function test_niadb_files_import_cleanly(): void
     {
+        if (! is_file(base_path('../data/imports/niadb/waffen.csv'))) {
+            $this->markTestSkipped('NiaDB-Daten nicht vorhanden (data/imports/niadb).');
+        }
         $this->actingAs($this->admin());
         foreach (['weapons' => 'waffen.csv', 'vehicles' => 'fahrzeuge.csv'] as $kind => $file) {
-            $report = $this->import($kind, file_get_contents(base_path("../imports/niadb/$file")), ['dry_run' => 1])->assertOk()->json('report');
+            $report = $this->import($kind, file_get_contents(base_path("../data/imports/niadb/$file")), ['dry_run' => 1])->assertOk()->json('report');
             $this->assertSame([], $report['errors'], $kind);
             $this->assertSame($report['rows'], $report['created'], $kind);
         }

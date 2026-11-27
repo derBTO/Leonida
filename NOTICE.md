@@ -7,7 +7,7 @@
 - Copyright (C) 2025-2026 GTADB.ORG and contributors
 - Namensnennung in Leonida: „GTA VI Map Tiles (CC BY 4.0) — https://map.gtadb.org“ und „gtadb.org and all contributors“, unten rechts auf der Karte und auf der Seite „Quellen & Lizenzen“.
 - Genutztes Tile-Set: `day` (Satellitenkarte).
-- Änderungen durch Leonida: Die Kacheln werden unverändert übernommen. Hinzugefügt wird nur eine `manifest.json` mit Kachelbereichen und Prüfsummen. Die Zuordnung der Kachelbereiche stammt aus `maps/maps.js` von gtadb.org (Code unter MIT-Lizenz, Copyright (C) 2025-2026 GTADB.ORG); Leonida übernimmt daraus nur die Umrechnungsformel, keinen Code.
+- Änderungen durch Leonida: Die Kacheln der Stufen 0–6 werden unverändert übernommen. Hinzugefügt wird eine `manifest.json` mit Kachelbereichen und Prüfsummen. Optional werden die Stufen 7 und 8 per KI aus Stufe 6 hochgerechnet (siehe „Kartenschärfung“); diese Kacheln sind eine Bearbeitung und werden auf der Karte gekennzeichnet. Die Zuordnung der Kachelbereiche stammt aus `maps/maps.js` von gtadb.org (Code unter MIT-Lizenz, Copyright (C) 2025-2026 GTADB.ORG); Leonida übernimmt daraus nur die Umrechnungsformel, keinen Code.
 - Die Lizenzdatei von gtadb.org (`LICENSE-DATA`) liegt jeder importierten Kartenversion bei.
 
 ## Orte (POIs) – gtadb.org-Landmarken
@@ -18,7 +18,7 @@ Ein Teil der Orte wurde aus `map/data/6/landmarks.json` von gtadb.org übernomme
 
 Ein Grundbestand an Waffen und Fahrzeugen (Namen, Typ/Klasse, Hersteller, Werte, Ratings, Beschreibungen) stammt aus NiaMeowDB, https://meowdb.com/gta6/ (abgerufen am 25.11.2026). NiaDB erlaubt die Weiterverwendung der Daten mit Quellenlink („Data from NiaDB“); Bilder gehören ihren Urhebern und wurden nicht übernommen.
 
-- Rohdaten: `imports/niadb/raw/`, umgewandelt mit `scripts/niadb_convert.py` nach `imports/niadb/waffen.csv` und `fahrzeuge.csv`.
+- Die Daten selbst sind nicht Teil dieses Repositorys. Lokal liegen sie unter `data/imports/niadb/` (Rohdaten in `raw/`, umgewandelt mit `scripts/niadb_convert.py`).
 - Jeder übernommene Eintrag trägt `source_name = NiaDB` und `source_url` mit der Seite, von der seine Daten stammen; die Karte zeigt „Daten von NiaDB“ mit Link.
 - Änderungen durch Leonida: Typ- und Klassennamen ins Deutsche übertragen, Sammel- und Platzhaltereinträge weggelassen, „legendär“ aus der Beschreibung abgeleitet.
 
@@ -32,7 +32,7 @@ Die Ortsnamen-Ebene der Karte (Regionen, Städte, Stadtteile, Inseln, Gewässer,
 
 ## Grand Theft Auto VI
 
-Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Leonida ist ein privates Fanprojekt ohne Verbindung zu diesen Unternehmen und verwendet keine Logos, Schriften oder Grafiken aus dem Spiel.
+Grand Theft Auto VI, Leonida und zugehörige Namen sind Marken von Take-Two Interactive bzw. Rockstar Games. Leonida ist ein Fanprojekt ohne Verbindung zu diesen Unternehmen und verwendet keine Logos, Schriften oder Grafiken aus dem Spiel.
 
 ## Bibliotheken
 

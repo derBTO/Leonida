@@ -6,7 +6,7 @@ use App\Services\CatalogCsvImport;
 use Illuminate\Console\Command;
 use Illuminate\Validation\ValidationException;
 
-/** Waffen oder Fahrzeuge aus einer CSV-Datei übernehmen (z. B. imports/niadb/waffen.csv). */
+/** Waffen oder Fahrzeuge aus einer CSV-Datei übernehmen (z. B. data/imports/niadb/waffen.csv). */
 class ImportCatalogCsv extends Command
 {
     protected $signature = 'leonida:catalog-import

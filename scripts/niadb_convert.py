@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Wandelt die NiaDB-Rohdaten (imports/niadb/raw) in Leonidas CSV-Importformat um.
+"""Wandelt die NiaDB-Rohdaten (data/imports/niadb/raw) in Leonidas CSV-Importformat um.
+
+Die NiaDB-Daten liegen nicht im Repository (data/ ist von Git ausgenommen): Rohdaten von
+https://meowdb.com/gta6/ selbst abrufen und als raw/weapons.csv bzw. raw/vehicles.csv ablegen.
 
 Quelle: NiaMeowDB, https://meowdb.com/gta6/ – die Daten dürfen mit Quellenlink
 weiterverwendet werden ("Data from NiaDB"). Bilder werden nicht übernommen.
 
 Aufruf:  python3 scripts/niadb_convert.py
-Ergebnis: imports/niadb/waffen.csv und imports/niadb/fahrzeuge.csv
+Ergebnis: data/imports/niadb/waffen.csv und data/imports/niadb/fahrzeuge.csv
 """
 
 import csv
@@ -14,8 +17,8 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-RAW = ROOT / "imports" / "niadb" / "raw"
-OUT = ROOT / "imports" / "niadb"
+RAW = ROOT / "data" / "imports" / "niadb" / "raw"
+OUT = ROOT / "data" / "imports" / "niadb"
 BASE = "https://meowdb.com/gta6/"
 SOURCE = "NiaDB"
 

@@ -117,4 +117,4 @@ remote "cd '$R/current' && $RPHP artisan leonida:check" || echo "WARNUNG: leonid
 
 echo "==> Alte Releases aufräumen (behalte $KEEP)"
 remote "cd '$R/releases' && ls -1 | sort | head -n -$KEEP | xargs -r rm -rf"
-echo "==> Fertig: https://leonida.derbto.de (Release $RELEASE)"
+echo "==> Fertig (Release $RELEASE)"

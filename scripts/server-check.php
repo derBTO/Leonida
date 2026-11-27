@@ -11,7 +11,7 @@
  *
  * Aufruf im Browser (zeigt die PHP-Version, die der Webserver wirklich nutzt):
  *     Datei in den Document Root legen, TOKEN unten ändern, dann
- *     https://leonida.derbto.de/server-check.php?token=<TOKEN> aufrufen.
+ *     https://<deine-subdomain>/server-check.php?token=<TOKEN> aufrufen.
  *     Danach die Datei wieder löschen.
  *
  * Exit-Code: 0 = alles in Ordnung, 1 = Warnungen, 2 = mindestens ein Problem.

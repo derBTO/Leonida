@@ -5,7 +5,7 @@ Leonida läuft auf einem Hetzner-Webhosting **L oder XL** (SSH nötig). Gebaut w
 Der Webserver von Hetzner darf das Home-Verzeichnis (`/usr/home/<benutzer>`) nicht betreten. Deshalb liegen nur die öffentlichen Dateien im Webverzeichnis, Code und Zugangsdaten im Home:
 
 ```
-/usr/home/derbto/leonida/              nicht vom Web erreichbar
+/usr/home/<benutzer>/leonida/              nicht vom Web erreichbar
 ├─ releases/<datum>-<commit>/          hochgeladene Versionen
 ├─ current → releases/…                aktive Version
 └─ shared/                             bleibt bei Updates erhalten (700)
@@ -13,7 +13,7 @@ Der Webserver von Hetzner darf das Home-Verzeichnis (`/usr/home/<benutzer>`) nic
    ├─ storage/                         Logs, Sessions, Cache
    └─ backups/                         nächtliche Datenbank-Dumps
 
-/usr/www/users/derbto/derbto.de/leonida/   Document Root der Subdomain (= public_html/derbto.de/leonida)
+/usr/www/users/<benutzer>/<domain>/leonida/   Document Root der Subdomain (= public_html/<domain>/leonida)
 ├─ index.php                           Startdatei, lädt die Anwendung aus …/leonida/current
 ├─ .htaccess, spa/, favicon.svg …      bei jedem Deployment aus der Release kopiert
 ├─ media/                              hochgeladene Bilder
@@ -30,7 +30,7 @@ Absoluten Pfad herausfinden: `ssh -p 222 benutzer@wwwXXX.your-server.de pwd` und
 
 ## 2. Server vorbereiten (einmalig)
 
-1. **Subdomain** `leonida.derbto.de` in konsoleH anlegen, SSL-Zertifikat aktivieren.
+1. **Subdomain** z. B. `leonida.<domain>` in konsoleH anlegen, SSL-Zertifikat aktivieren.
 2. **Datenbank**: PostgreSQL-Datenbank mit Benutzer anlegen. Host, Name, Benutzer und Passwort notieren.
 3. **Server prüfen**: `scripts/server-check.php` nach `~/leonida/` kopieren und per SSH ausführen:
    ```
@@ -45,9 +45,9 @@ Absoluten Pfad herausfinden: `ssh -p 222 benutzer@wwwXXX.your-server.de pwd` und
    - `APP_KEY`: lokal `cd backend && php artisan key:generate --show` und den Wert eintragen
    - `DB_*`: Datenbankzugang
    - `LEONIDA_ADMIN_INITIAL_PASSWORD`: Startpasswort für **BTO** (mind. 10 Zeichen)
-   - `LEONIDA_PUBLIC_DIR`: Document Root (`/usr/www/users/derbto/derbto.de/leonida`)
+   - `LEONIDA_PUBLIC_DIR`: Document Root (`/usr/www/users/<benutzer>/<domain>/leonida`)
    - `LEONIDA_UPLOAD_DIR`, `LEONIDA_MAP_DIR`: `<Document Root>/media` und `<Document Root>/map`
-   - `LEONIDA_BACKUP_DIR`: `/usr/home/derbto/leonida/shared/backups`
+   - `LEONIDA_BACKUP_DIR`: `/usr/home/<benutzer>/leonida/shared/backups`
    ```
    chmod 600 ~/leonida/shared/.env
    ```
@@ -69,11 +69,11 @@ scripts/deploy.sh
 
 Das Skript baut Frontend und Backend aus dem **letzten Commit** (fehlen PHP/Composer/Node lokal, über Docker), lädt eine neue Release ins Home hoch, verlinkt `.env` und `storage`, führt die Datenbank-Migrationen aus, legt beim ersten Mal den Administrator **BTO** an, schaltet `current` um und kopiert die öffentlichen Dateien samt `index.php` in den Document Root. `media/` und `map/` im Document Root bleiben dabei unangetastet.
 
-Der Document Root der Subdomain ist der von Hetzner angelegte Ordner `public_html/derbto.de/leonida`. Er muss ein echter Ordner sein, kein Symlink.
+Der Document Root der Subdomain ist der von Hetzner angelegte Ordner `public_html/<domain>/leonida`. Er muss ein echter Ordner sein, kein Symlink.
 
 ## 5. Erste Anmeldung
 
-1. https://leonida.derbto.de öffnen, als **BTO** mit dem Startpasswort anmelden.
+1. Die Subdomain im Browser öffnen, als **BTO** mit dem Startpasswort anmelden.
 2. Leonida verlangt sofort ein neues Passwort. Vorher sind keine Änderungen möglich.
 3. `LEONIDA_ADMIN_INITIAL_PASSWORD` in `shared/.env` wieder leeren.
 4. Weitere Benutzer unter *Verwaltung → Benutzer* anlegen.
@@ -92,14 +92,14 @@ Erneute Läufe (z. B. nach einem Karten-Update) legen nur neu hinzugekommene Ort
 Einmal ein kleines Skript im Home anlegen (bleibt bei jedem Deploy gleich):
 
 ```bash
-ssh hetzner 'printf "%s\n" "#!/bin/sh" "cd /usr/home/derbto/leonida/current && /usr/bin/php artisan leonida:backup >> /usr/home/derbto/leonida/shared/storage/logs/backup.log 2>&1" > ~/leonida/cron-backup.sh && chmod 705 ~/leonida/cron-backup.sh && ~/leonida/cron-backup.sh && tail -1 ~/leonida/shared/storage/logs/backup.log'
+ssh hetzner 'printf "%s\n" "#!/bin/sh" "cd /usr/home/<benutzer>/leonida/current && /usr/bin/php artisan leonida:backup >> /usr/home/<benutzer>/leonida/shared/storage/logs/backup.log 2>&1" > ~/leonida/cron-backup.sh && chmod 705 ~/leonida/cron-backup.sh && ~/leonida/cron-backup.sh && tail -1 ~/leonida/shared/storage/logs/backup.log'
 ```
 
-Dann in konsoleH unter *Cronjobs → Hinzufügen* anlegen: Interpreter „Anderer Interpreter/Direktaufruf“, Skript `/usr/home/derbto/leonida/cron-backup.sh`, manuell Minute 30, Stunde 03:00, sonst „jeden“ (Zusammenfassung `30 03 * * *`). Hetzner verlangt mindestens die Rechte 705 auf dem Skript. Es sichert die Datenbank nach `shared/backups/` (14 Stück werden aufbewahrt) und schreibt Erfolg oder Fehler in `shared/storage/logs/backup.log`.
+Dann in konsoleH unter *Cronjobs → Hinzufügen* anlegen: Interpreter „Anderer Interpreter/Direktaufruf“, Skript `/usr/home/<benutzer>/leonida/cron-backup.sh`, manuell Minute 30, Stunde 03:00, sonst „jeden“ (Zusammenfassung `30 03 * * *`). Hetzner verlangt mindestens die Rechte 705 auf dem Skript. Es sichert die Datenbank nach `shared/backups/` (14 Stück werden aufbewahrt) und schreibt Erfolg oder Fehler in `shared/storage/logs/backup.log`.
 
 Hetzner hat nur `pg_dump` 15, die Datenbank ist Version 17; deshalb sichert Leonida dort automatisch per PHP (`*.json.gz`). Prüfen am nächsten Tag: `ssh hetzner 'ls -lh ~/leonida/shared/backups; tail -3 ~/leonida/shared/storage/logs/backup.log'`.
 
-Alternative bei minütlichen Cronjobs: `cd /usr/home/derbto/leonida/current && /usr/bin/php artisan schedule:run` jede Minute; der Laravel-Scheduler startet das Backup dann um 03:30 Uhr.
+Alternative bei minütlichen Cronjobs: `cd /usr/home/<benutzer>/leonida/current && /usr/bin/php artisan schedule:run` jede Minute; der Laravel-Scheduler startet das Backup dann um 03:30 Uhr.
 
 ## 8. Installation prüfen
 

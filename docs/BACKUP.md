@@ -8,7 +8,7 @@ Alle eigenen Daten liegen außerhalb des Codes: die Datenbank (PostgreSQL) und d
 |---|---|---|
 | Hetzner | gesamtes Webhosting inkl. Datenbank | automatisch jede Nacht, 14 Tage, Wiederherstellung über konsoleH |
 | `leonida:backup` | Datenbank: `pg_dump` (Custom-Format, `*.dump`), wenn es zur Serverversion passt, sonst PHP-Sicherung (`*.json.gz`) | Cronjob 03:30 Uhr nach `shared/backups/`, 14 Stück, Protokoll `storage/logs/backup.log` |
-| Bilder spiegeln | `public_html/derbto.de/leonida/media` | `rsync` auf den Mac, siehe unten |
+| Bilder spiegeln | `public_html/<domain>/leonida/media` | `rsync` auf den Mac, siehe unten |
 | Export in der Oberfläche | Pins, Waffen, Fahrzeuge, Auswahllisten, Bilder als ZIP | *Verwaltung → Export & Import* |
 
 Benutzerkonten sind nur im Datenbank-Dump enthalten, nicht im ZIP-Export.
@@ -64,7 +64,7 @@ php artisan up
 **Bilder**:
 
 ```
-rsync -av ~/LeonidaBackup/uploads/ hetzner:public_html/derbto.de/leonida/media/
+rsync -av ~/LeonidaBackup/uploads/ hetzner:public_html/<domain>/leonida/media/
 ```
 
 **Aus dem ZIP-Export**: *Verwaltung → Export & Import*, Datei wählen, erst „Probelauf“, dann „Importieren“.

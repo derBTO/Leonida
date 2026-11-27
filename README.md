@@ -1,8 +1,8 @@
 # Leonida
 
-Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Privates Projekt unter **https://leonida.derbto.de**.
+Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Fanprojekt ohne Verbindung zu Rockstar Games; die Instanz des Autors läuft unter https://leonida.derbto.de. Lizenz: MIT (Code), Daten Dritter siehe [NOTICE.md](NOTICE.md).
 
-Aktuelle Version: **1.5.2**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
+Aktuelle Version: **1.5.3**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
 
 ## Funktionen
 
