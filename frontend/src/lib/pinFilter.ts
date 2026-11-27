@@ -24,8 +24,8 @@ export interface FilterState {
   showGone: boolean
   showHints?: boolean
   showGtadb?: boolean
-  /** Eastereggs: zeigen (Standard), ausblenden oder nur Eastereggs */
-  eggs?: 'show' | 'hide' | 'only'
+  /** Eastereggs: alle Pins (Standard) oder nur Eastereggs (Filter-Chip). Ausblenden gibt es nicht mehr. */
+  eggs?: 'show' | 'only'
   author?: number | null
 }
 
@@ -44,7 +44,6 @@ function haystack(p: PinIndexItem): string {
 }
 
 export function matches(p: PinIndexItem, f: FilterState): boolean {
-  if (f.eggs === 'hide' && p.e) return false
   if (f.eggs === 'only' && !p.e) return false
   // gtadb-Orte sind eine eigene Ebene: nur der Schalter zählt, nicht der Ersteller
   if (p.o === 'gtadb') {

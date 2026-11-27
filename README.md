@@ -2,7 +2,7 @@
 
 Interaktive Karte für GTA VI mit eigener Loot-, Waffen- und Fahrzeugdatenbank. Fanprojekt ohne Verbindung zu Rockstar Games; die Instanz des Autors läuft unter https://leonida.derbto.de. Lizenz: MIT (Code), Daten Dritter siehe [NOTICE.md](NOTICE.md).
 
-Aktuelle Version: **1.5.3**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
+Aktuelle Version: **1.5.4**. Änderungen stehen in [CHANGELOG.md](CHANGELOG.md), Entscheidungen in [docs/ENTSCHEIDUNGEN.md](docs/ENTSCHEIDUNGEN.md).
 
 ## Funktionen
 
@@ -62,3 +62,7 @@ docker compose up                  # http://localhost:5173, Anmeldung BTO / entw
 ## Quellen und Lizenzen
 
 Die Kartenkacheln und übernommenen Orte stammen von gtadb.org (CC BY 4.0), der Waffen- und Fahrzeug-Grundbestand von NiaDB (mit Quellenlink je Eintrag). Alle Hinweise: [NOTICE.md](NOTICE.md).
+
+## Mitmachen
+
+Fehler, Ideen und Pull Requests sind willkommen, siehe [CONTRIBUTING.md](CONTRIBUTING.md). Sicherheitslücken bitte privat melden, siehe [SECURITY.md](SECURITY.md).

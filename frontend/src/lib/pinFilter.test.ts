@@ -84,11 +84,10 @@ describe('Pin-Filter', () => {
     expect(matches(imported, f({ showGtadb: false, author: 7 }))).toBe(false)
   })
 
-  it('filtert Eastereggs: zeigen, ausblenden, nur diese', () => {
+  it('filtert Eastereggs: alle oder nur diese', () => {
     const egg = pin({ e: true })
     const normal = pin({})
     expect([egg, normal].map((p) => matches(p, f()))).toEqual([true, true])
-    expect([egg, normal].map((p) => matches(p, f({ eggs: 'hide' })))).toEqual([false, true])
     expect([egg, normal].map((p) => matches(p, f({ eggs: 'only' })))).toEqual([true, false])
   })
 })

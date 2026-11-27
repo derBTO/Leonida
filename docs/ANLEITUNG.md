@@ -35,7 +35,7 @@ Beim Anlegen lässt sich die Art oben noch umschalten. Später nicht mehr bei Hi
 
 **Bilder:** Dateien in das Bildfeld ziehen, auswählen oder einen Screenshot direkt mit Strg/⌘+V einfügen. Die Reihenfolge lässt sich per Ziehen ändern.
 
-**Ammu-Nation:** Bei Orten der Kategorie Ammu-Nation lässt sich unter **Waffensortiment** auswählen, welche Waffen der Laden führt. Der Laden erscheint dann bei diesen Waffen als Fundort. Das Sortiment wird je Laden gepflegt.
+**Ammu-Nation:** Bei Orten der Kategorie Ammu-Nation lassen sich unter **Exklusive Waffen** die Waffen eintragen, die es nur in diesem Laden gibt. Das normale Sortiment, das jeder Laden führt, wird nicht erfasst. Der Laden erscheint dann bei diesen Waffen als Fundort.
 
 **Verschieben:** Pin öffnen, „Verschieben“, Marker an die richtige Stelle ziehen, „Position speichern“.
 
@@ -70,7 +70,7 @@ Ein Puzzle verbindet Hinweise in fester Reihenfolge und führt zu einer **Belohn
 - **Alles / Loot / Orte / Hinweise:** welche Pin-Arten gezeigt werden.
 - **Loottypen** und **Ort-Kategorien:** einzeln an- und abwählen. Unter „Alles“ zeigt eine Auswahl nur noch das Gewählte: nur „Ammu-Nation“ angeklickt → nur Ammu-Nation-Läden, keine Loot-Pins. Ist nichts gewählt, wird alles gezeigt.
 - **Orte von gtadb.org zeigen:** blendet die aus gtadb.org übernommenen Orte ein (standardmäßig aus).
-- **Eastereggs:** zeigen, ausblenden oder nur Eastereggs.
+- **Easteregg:** Der Filter-Chip zeigt nur Eastereggs. Sonst erscheinen sie ganz normal mit ihrem Ei-Symbol in Karte und Liste.
 - **Ersteller:** nur eigene Einträge („Meine“) oder die einer bestimmten Person zeigen. Bei Waffen und Fahrzeugen zählen auch Einträge, die die Person bearbeitet hat.
 - **Nur im Kartenausschnitt:** Liste auf den sichtbaren Bereich beschränken.
 

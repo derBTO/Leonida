@@ -1,0 +1,29 @@
+name: Fehler melden
+description: Etwas funktioniert nicht wie erwartet
+labels: [Fehler]
+body:
+  - type: textarea
+    id: was
+    attributes:
+      label: Was ist passiert?
+      description: Was hast du gemacht, was ist passiert, was hättest du erwartet?
+    validations:
+      required: true
+  - type: textarea
+    id: schritte
+    attributes:
+      label: Schritte zum Nachvollziehen
+      placeholder: |
+        1. Karte öffnen
+        2. Auf … klicken
+        3. …
+  - type: input
+    id: umgebung
+    attributes:
+      label: Browser und Gerät
+      placeholder: z. B. Safari auf dem iPhone, Chrome unter Windows
+  - type: textarea
+    id: bilder
+    attributes:
+      label: Screenshots
+      description: Gerne mit ungefährer Position auf der Karte.

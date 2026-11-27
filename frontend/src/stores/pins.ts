@@ -14,8 +14,10 @@ export const usePins = defineStore('pins', () => {
   let etag: string | null = null
 
   const filter = reactive<FilterState & { viewportOnly: boolean; author: number | null }>(
-    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, showHints: true, showGtadb: false, eggs: 'show' as 'show' | 'hide' | 'only', author: null as number | null, viewportOnly: false }),
+    load('filter', { q: '', mode: 'both', loot: [], poi: [], showGone: true, showHints: true, showGtadb: false, eggs: 'show' as 'show' | 'only', author: null as number | null, viewportOnly: false }),
   )
+  // früher gab es „Eastereggs ausblenden“: gespeicherte Einstellung auf „alle“ zurücksetzen
+  if ((filter.eggs as string) === 'hide') filter.eggs = 'show'
   watch(filter, () => save('filter', filter), { deep: true })
 
   const bounds = ref<Bounds | null>(null)

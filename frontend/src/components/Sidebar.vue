@@ -93,18 +93,15 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
           </div>
         </template>
       </div>
+      <div v-if="eggCount" class="chips">
+        <button type="button" class="chip egg-chip" :class="{ on: f.eggs === 'only' }" :style="{ '--c': EGG.color }" :aria-pressed="f.eggs === 'only'" @click="f.eggs = f.eggs === 'only' ? 'show' : 'only'">
+          <span class="egg-mini" v-html="EGG.svg" />Easteregg<span class="faint n">{{ eggCount }}</span>
+        </button>
+      </div>
       <label class="switch"><input type="checkbox" v-model="f.viewportOnly" /> Nur im Kartenausschnitt</label>
       <label v-if="f.mode === 'both' || f.mode === 'loot'" class="switch"><input type="checkbox" v-model="f.showGone" /> Nicht mehr verfügbare Loot-Pins zeigen</label>
       <label v-if="f.mode === 'both'" class="switch"><input type="checkbox" :checked="f.showHints !== false" @change="f.showHints = ($event.target as HTMLInputElement).checked" /> Hinweise zeigen</label>
       <label v-if="f.mode === 'both' || f.mode === 'poi'" class="switch"><input type="checkbox" v-model="f.showGtadb" /> Orte von gtadb.org zeigen <span class="faint">({{ gtadbCount }})</span></label>
-      <label class="select-row">
-        <span class="egg-mini" :style="{ '--c': EGG.color }" v-html="EGG.svg" /> Eastereggs
-        <select class="input" v-model="f.eggs" aria-label="Eastereggs">
-          <option value="show">zeigen ({{ eggCount }})</option>
-          <option value="hide">ausblenden</option>
-          <option value="only">nur Eastereggs</option>
-        </select>
-      </label>
       <AuthorSelect v-model="f.author" compact />
       <div v-if="trails.active" class="puzzle-note">
         <span>Puzzle <strong>„{{ trails.active.name }}“</strong> aktiv: Karte und Liste zeigen nur seine Hinweise und Orte.</span>
@@ -177,7 +174,8 @@ const filtersActive = computed(() => f.q !== '' || f.loot.length > 0 || f.poi.le
 .row.gone { opacity: 0.5; }
 .select-row { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13.5px; }
 .select-row select { height: 30px; flex: 1; padding: 0 8px; }
-.egg-mini { display: inline-flex; color: var(--c); }
+.egg-mini { display: inline-flex; color: var(--c); margin-right: 5px; }
+.egg-chip .n { margin-left: 6px; }
 .egg-mini :deep(svg) { width: 16px; height: 16px; }
 .egg-row { width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center; color: var(--c); border: 1.5px solid var(--c); border-radius: 50% 50% 50% 50% / 58% 58% 42% 42%; background: #1a2a0c; }
 .egg-row :deep(svg) { width: 13px; height: 13px; }

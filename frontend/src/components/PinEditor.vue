@@ -198,9 +198,9 @@ async function save() {
           <textarea id="pe-desc-poi" class="input" v-model="form.description" maxlength="20000" />
         </div>
         <div v-if="form.poi_type === 'ammunation'" class="block">
-          <div class="label">Waffensortiment</div>
+          <div class="label">Exklusive Waffen</div>
           <CatalogPicker kind="weapons" v-model="form.weapons" />
-          <p class="faint hint-info">Der Laden erscheint bei diesen Waffen als Fundort.</p>
+          <p class="faint hint-info">Nur Waffen, die es ausschließlich in diesem Laden gibt, nicht das ganze Sortiment. Der Laden erscheint bei diesen Waffen als Fundort.</p>
         </div>
       </template>
       <template v-else-if="isHint">

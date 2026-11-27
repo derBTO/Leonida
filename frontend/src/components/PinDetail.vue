@@ -198,7 +198,7 @@ defineExpose({ reload: load })
           </RouterLink>
         </template>
         <template v-if="pin.weapons.length">
-          <div class="section-title">{{ pin.kind === 'poi' ? 'Waffensortiment' : 'Waffen' }}</div>
+          <div class="section-title">{{ pin.kind === 'poi' ? 'Exklusive Waffen' : 'Waffen' }}</div>
           <RouterLink v-for="w in pin.weapons" :key="w.id" :to="`/waffen/${w.id}`" class="item">
             <MediaImage :media="w.image" thumb :alt="w.name" class="thumb" />
             <span><strong :class="{ 'legendary-name': w.is_legendary }">{{ w.name }}<LegendaryStar v-if="w.is_legendary" :size="14" /></strong><small class="muted">{{ w.weapon_type?.name }}</small></span>

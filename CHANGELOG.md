@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## v1.5.4 – Exklusive Waffen, Easteregg-Filter, Community-Dateien (27.11.2026)
+
+- **Ammu-Nation:** Das Feld heißt jetzt **Exklusive Waffen** statt „Waffensortiment“. Gedacht für Waffen, die es nur in diesem Laden gibt, nicht für das Standardsortiment. Technisch unverändert, vorhandene Einträge bleiben.
+- **Eastereggs:** Statt eigenem Auswahlfeld (zeigen/ausblenden/nur) gibt es einen normalen Filter-Chip „Easteregg“ (nur Eastereggs). Ausblenden entfällt; das Ei-Symbol auf Karte und Liste bleibt. Eine gespeicherte Einstellung „ausblenden“ wird auf „alle“ zurückgesetzt.
+- **GitHub:** `SECURITY.md` (Lücken privat melden), `CONTRIBUTING.md` (lokal starten, Tests, Doku) und Issue-Vorlagen für Fehler und Wünsche.
+
 ## v1.5.3 – Vorbereitung für ein öffentliches Repository (27.11.2026)
 
 - **Lizenz:** MIT für den Code (`LICENSE`); Daten Dritter weiter nach `NOTICE.md`.
