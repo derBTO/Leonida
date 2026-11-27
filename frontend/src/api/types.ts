@@ -257,6 +257,8 @@ export interface MapManifest {
     ranges: Record<string, [[number, number], [number, number]]>
     bounds: { west: number; east: number; south: number; north: number }
     overlay: { combined: string; parts: string[] } | null
+    /** feinere Stufen per KI hochgerechnet (scripts/map-upscale.sh) */
+    upscaled?: { fromZoom: number; levels: number[]; model: string }
   }>
   overlayRanges: Record<string, Record<string, [[number, number], [number, number]]>>
   attribution: string[]

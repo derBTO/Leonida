@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## v1.5.0 – Schärfere Karte bei starkem Zoom per KI (27.11.2026)
+
+- **`scripts/map-upscale.sh`:** rechnet die Stufe-6-Kacheln mit Real-ESRGAN (×4) hoch und erzeugt die Zusatzstufen 7 und 8 als neue Kartenversion `<version>-ki`. Läuft auf dem Mac (Apple-Grafik), setzt nach Abbruch fort, übernimmt nach gtadb-Updates unveränderte Kacheln. Mit `--test` nur Downtown Vice City. Kacheln mit offenem Meer werden ohne KI vergrößert; Nachbarrand verhindert Nähte.
+- Die Karte nutzt vorhandene Zusatzstufen automatisch (über das Manifest) und kennzeichnet sie in der Quellenzeile als „KI-hochgerechnet“ (CC BY verlangt einen Hinweis auf Änderungen).
+- `map-upload.sh` zeigt bei KI-Versionen vorher Kachelzahl und Größe und fragt nach.
+
 ## v1.4.1 – Schärfere Karte auf Retina-Bildschirmen (27.11.2026)
 
 - Auf hochauflösenden Bildschirmen (Retina, Pixeldichte ≥ 1,5) lädt die Karte halb so große Kacheln der nächstfeineren Stufe. Ein Kachelpixel entspricht dann einem Bildschirmpixel, die Karte ist bis Zoomstufe 5 deutlich schärfer. Gleiche Kacheln, keine neuen Daten.

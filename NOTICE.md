@@ -22,6 +22,10 @@ Ein Grundbestand an Waffen und Fahrzeugen (Namen, Typ/Klasse, Hersteller, Werte,
 - Jeder übernommene Eintrag trägt `source_name = NiaDB` und `source_url` mit der Seite, von der seine Daten stammen; die Karte zeigt „Daten von NiaDB“ mit Link.
 - Änderungen durch Leonida: Typ- und Klassennamen ins Deutsche übertragen, Sammel- und Platzhaltereinträge weggelassen, „legendär“ aus der Beschreibung abgeleitet.
 
+## Kartenschärfung (optional)
+
+Die zusätzlichen Zoomstufen 7 und 8 können mit `scripts/map-upscale.sh` aus den gtadb-Kacheln der Stufe 6 hochgerechnet werden. Verwendet wird das Modell Real-ESRGAN x4plus (Xintao Wang u. a., BSD-3-Clause, https://github.com/xinntao/Real-ESRGAN) über die Bibliothek spandrel (MIT) und PyTorch (BSD-3-Clause). Die so erzeugten Kacheln sind eine Bearbeitung der CC-BY-4.0-Kacheln von gtadb.org und werden auf der Karte als „KI-hochgerechnet“ gekennzeichnet.
+
 ## Ortsnamen
 
 Die Ortsnamen-Ebene der Karte (Regionen, Städte, Stadtteile, Inseln, Gewässer, Wahrzeichen) folgt der offiziellen Leonida-Karte von Rockstar Games (Poster zum Ausdrucken). Übernommen sind nur Namen und Lage der Beschriftungen (`frontend/src/map/placeLabels.ts`), nicht das Kartenbild.

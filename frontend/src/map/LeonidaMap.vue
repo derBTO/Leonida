@@ -95,7 +95,10 @@ function buildTiles() {
     bounds: L.latLngBounds(toLatLng(b.west, b.south), toLatLng(b.east, b.north)),
     noWrap: true,
     keepBuffer: 3,
-    attribution: '<a href="https://map.gtadb.org" target="_blank" rel="noopener">GTA VI Map Tiles (CC BY 4.0) — map.gtadb.org</a> · gtadb.org and all contributors · <a href="/quellen">Quellen</a>',
+    // CC BY verlangt einen Hinweis auf Änderungen: KI-hochgerechnete Zusatzstufen kennzeichnen
+    attribution: '<a href="https://map.gtadb.org" target="_blank" rel="noopener">GTA VI Map Tiles (CC BY 4.0) — map.gtadb.org</a> · gtadb.org and all contributors'
+      + (set.upscaled ? ` · Stufen ${set.upscaled.levels.join('–')} KI-hochgerechnet` : '')
+      + ' · <a href="/quellen">Quellen</a>',
   })
   tiles.addTo(map.value)
   persist()

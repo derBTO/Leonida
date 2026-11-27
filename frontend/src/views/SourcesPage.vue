@@ -27,7 +27,9 @@ onMounted(async () => {
       </p>
       <p class="muted">„GTA VI Map Tiles (CC BY 4.0) — https://map.gtadb.org“ · Copyright © 2025–2026 GTADB.ORG and contributors.</p>
       <p>
-        Genutzt wird die Satellitenkarte (Tile-Set <em>day</em>). Die Kacheln werden unverändert und lokal ausgeliefert.
+        Genutzt wird die Satellitenkarte (Tile-Set <em>day</em>). Die Kacheln werden lokal ausgeliefert. Ist die Karte bei starkem Zoom
+        geschärft, sind die zusätzlichen Zoomstufen (7 und 8) aus den Originalkacheln der Stufe 6 mit dem KI-Modell Real-ESRGAN
+        (BSD-3-Clause) hochgerechnet; diese Stufen sind also eine Bearbeitung der Originalkacheln. Alle übrigen Stufen sind unverändert.
       </p>
       <p>Ein Teil der Orte (POIs) wie Tankstellen, Haltestellen und Geschäfte wurde aus den Landmarken-Daten von gtadb.org übernommen (CC BY 4.0, „GTA VI Landmarks Data — https://map.gtadb.org“). Die Beschreibung jedes übernommenen Orts verlinkt auf den Originaleintrag.</p>
       <p v-if="manifest" class="muted">Aktueller Kartenstand: {{ manifest.version }} (gtadb.org-Commit {{ manifest.source.commit.slice(0, 7) }}).</p>

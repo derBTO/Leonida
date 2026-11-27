@@ -50,6 +50,17 @@ if [[ -n "$REMOTE_CURRENT" && "$(basename "$REMOTE_CURRENT")" != "$VERSION" ]]; 
     LINK_DEST="--link-dest=$REMOTE_CURRENT/"
     echo "    unveränderte Kacheln werden aus $(basename "$REMOTE_CURRENT") übernommen"
 fi
+# KI-hochgerechnete Stufen sind groß (viele Dateien): vorher Umfang zeigen und nachfragen
+UPSCALED="$(python3 -c 'import json,sys; m=json.load(open(sys.argv[1])); print(" ".join("%s:%s:%s" % (s["id"], s["tiles"], s["bytes"]) for s in m["tileSets"] if s.get("upscaled")))' "$SOURCE/manifest.json")"
+if [[ -n "$UPSCALED" && -z "$DRY_RUN" ]]; then
+    for entry in $UPSCALED; do
+        IFS=: read -r name count bytes <<< "$entry"
+        echo "    Achtung: Tile-Set $name enthält KI-hochgerechnete Stufen: $count Kacheln, $((bytes / 1024 / 1024)) MB insgesamt."
+    done
+    echo "    Neu übertragen werden nur die Zusatzstufen. Dateianzahl-Grenze des Webhostings vorher prüfen."
+    read -r -p "    Trotzdem hochladen? [j/N] " answer
+    [[ "$answer" == "j" || "$answer" == "J" ]] || { echo "==> Abgebrochen."; exit 1; }
+fi
 rsync -a --delete $DRY_RUN ${LINK_DEST:+"$LINK_DEST"} \
     -e "ssh -p $LEONIDA_SSH_PORT" "$SOURCE/" \
     "$LEONIDA_SSH_USER@$LEONIDA_SSH_HOST:$REMOTE_MAP/versions/$VERSION/"
