@@ -73,9 +73,13 @@ function buildTiles() {
   const set = manifest.value.tileSets.find((s) => s.id === TILE_SET) ?? manifest.value.tileSets[0]
   const base = session.meta?.map.tiles_url ?? '/map/current/tiles'
   const m = manifest.value
+  // Hochauflösende Bildschirme: halb so große Kacheln der nächstfeineren Stufe laden (wie Leaflets
+  // detectRetina, aber mit unseren Kachelgrenzen), damit 1 Kachelpixel = 1 Bildschirmpixel ist.
+  const hidpi = window.devicePixelRatio >= 1.5 && set.maxZoom > set.minZoom
+  const offset = hidpi ? 1 : 0
   const Layer = L.TileLayer.extend({
     getTileUrl(coords: L.Coords) {
-      const path = tilePath(set, m.overlayRanges, false, coords.z, coords.x, coords.y)
+      const path = tilePath(set, m.overlayRanges, false, coords.z + offset, coords.x, coords.y)
       return path ? `${base}/${path}` : L.Util.emptyImageUrl
     },
   })
@@ -83,11 +87,11 @@ function buildTiles() {
   wholeMap = L.latLngBounds(toLatLng(b.west, b.south), toLatLng(b.east, b.north))
   tiles?.remove()
   tiles = new (Layer as unknown as typeof L.TileLayer)('', {
-    tileSize: 256,
+    tileSize: hidpi ? 128 : 256,
     minZoom: 0,
     maxZoom: 9,
-    maxNativeZoom: set.maxZoom,
-    minNativeZoom: set.minZoom,
+    maxNativeZoom: set.maxZoom - offset,
+    minNativeZoom: Math.max(0, set.minZoom - offset),
     bounds: L.latLngBounds(toLatLng(b.west, b.south), toLatLng(b.east, b.north)),
     noWrap: true,
     keepBuffer: 3,

@@ -1,5 +1,9 @@
 # Änderungsprotokoll
 
+## v1.4.1 – Schärfere Karte auf Retina-Bildschirmen (27.11.2026)
+
+- Auf hochauflösenden Bildschirmen (Retina, Pixeldichte ≥ 1,5) lädt die Karte halb so große Kacheln der nächstfeineren Stufe. Ein Kachelpixel entspricht dann einem Bildschirmpixel, die Karte ist bis Zoomstufe 5 deutlich schärfer. Gleiche Kacheln, keine neuen Daten.
+
 ## v1.4.0 – Ortsnamen auf der Karte (27.11.2026)
 
 - **Ortsnamen-Ebene:** rund 150 Namen nach der offiziellen Leonida-Karte von Rockstar Games: 5 Regionen, Städte und Orte, Stadtteile, Inseln und Keys, Parks, Meere, Buchten, Seen und Flüsse sowie rund 30 Wahrzeichen. Weit herausgezoomt Regionen, Städte und Meere, beim Hineinzoomen Orte, dann Stadtteile, Inseln und Wahrzeichen; die Regionen verschwinden nah. Überlappende Namen werden nach Wichtigkeit ausgeblendet, die Schrift wächst mit dem Zoom.
