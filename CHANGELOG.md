@@ -1,5 +1,11 @@
 # Änderungsprotokoll
 
+## v1.5.2 – KI-Stufen bei Kartenupdates automatisch (27.11.2026)
+
+- `map-import.sh` rechnet eine neue gtadb-Version automatisch per KI hoch, wenn es schon eine KI-Version gibt, und aktiviert mit `--activate` direkt die neue KI-Version. Nur geänderte Kacheln (samt Nachbarn) werden neu gerechnet, der Rest wird übernommen. Neue Optionen `--upscale` / `--no-upscale`.
+- `map-import.sh` erkennt eine aktive KI-Version als „dieselbe gtadb-Version“ und importiert dann nicht unnötig neu.
+- `map-upscale.sh --version NAME` rechnet eine bestimmte gtadb-Version hoch (statt der aktiven).
+
 ## v1.5.1 – Ebenen-Menü auf der Karte (27.11.2026)
 
 - **Kartenebenen:** neues Symbol über den Zoom-Knöpfen unten rechts. Darin **Ortsnamen** (aus der Seitenleiste hierher verschoben) und, wenn die Kartenversion KI-Stufen hat, **Schärfere Zoomstufen 7–8** mit Hinweis „experimentell“. Ausgeschaltet nutzt die Karte nur die Originalkacheln bis Stufe 6; die Quellenzeile nennt die KI-Stufen nur, wenn sie aktiv sind. Einstellungen werden gemerkt, Esc oder Klick daneben schließt das Menü.

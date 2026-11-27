@@ -2,11 +2,12 @@
 # Rechnet die aktive Kartenversion per KI (Real-ESRGAN ×4) hoch: aus der feinsten Stufe (6)
 # werden zwei schärfere Zusatzstufen (7 und 8). Läuft auf dem Mac (Apple-Grafik über PyTorch/MPS).
 #
-#   scripts/map-upscale.sh [--test] [--levels 1|2] [--area x0,y0,x1,y1] [--activate] [--data-dir DIR]
+#   scripts/map-upscale.sh [--test] [--levels 1|2] [--area x0,y0,x1,y1] [--version NAME] [--activate] [--data-dir DIR]
 #
 #   --test       nur ein Ausschnitt (Downtown Vice City), dauert wenige Minuten
 #   --levels 1   nur Stufe 7 (Standard 2: Stufen 7 und 8)
 #   --area       eigener Ausschnitt in Spielmetern
+#   --version    diese gtadb-Version hochrechnen (Standard: die aktive)
 #   --activate   die neue Version danach aktiv schalten (data/map/current)
 #
 # Das Ergebnis ist eine neue Kartenversion <version>-ki unter data/map/versions/. Die bisherige
@@ -21,6 +22,7 @@ DATA_DIR="${LEONIDA_DATA_DIR:-$PROJECT_DIR/data}"
 LEVELS=2
 AREA=""
 ACTIVATE=0
+BASE_VERSION=""
 SUFFIX="-ki"
 
 while [[ $# -gt 0 ]]; do
@@ -29,18 +31,23 @@ while [[ $# -gt 0 ]]; do
         --levels) LEVELS="$2"; shift 2 ;;
         --area) AREA="$2"; SUFFIX="-ki-test"; shift 2 ;;
         --test) AREA="-1500,-1200,400,800"; SUFFIX="-ki-test"; shift ;;
+        --version) BASE_VERSION="$2"; shift 2 ;;
         --activate) ACTIVATE=1; shift ;;
-        -h|--help) sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        -h|--help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         *) echo "Unbekannte Option: $1" >&2; exit 2 ;;
     esac
 done
 
 MAP_DIR="$DATA_DIR/map"
 CURRENT="$MAP_DIR/current"
-[[ -L "$CURRENT" ]] || { echo "FEHLER: Keine aktive Kartenversion. Zuerst scripts/map-import.sh --activate." >&2; exit 1; }
-ACTIVE="$(basename "$(readlink "$CURRENT")")"
-# Quelle ist immer die gtadb-Version, auch wenn gerade eine KI-Version aktiv ist
-BASE="${ACTIVE%-ki-test}"; BASE="${BASE%-ki}"
+if [[ -n "$BASE_VERSION" ]]; then
+    BASE="$BASE_VERSION"
+else
+    [[ -L "$CURRENT" ]] || { echo "FEHLER: Keine aktive Kartenversion. Zuerst scripts/map-import.sh --activate." >&2; exit 1; }
+    ACTIVE="$(basename "$(readlink "$CURRENT")")"
+    # Quelle ist immer die gtadb-Version, auch wenn gerade eine KI-Version aktiv ist
+    BASE="${ACTIVE%-ki-test}"; BASE="${BASE%-ki}"
+fi
 SOURCE="$MAP_DIR/versions/$BASE"
 TARGET="$MAP_DIR/versions/$BASE$SUFFIX"
 [[ -f "$SOURCE/manifest.json" ]] || { echo "FEHLER: $SOURCE/manifest.json fehlt." >&2; exit 1; }

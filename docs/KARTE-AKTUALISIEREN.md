@@ -12,6 +12,7 @@ Leonida hostet die Kartenkacheln von gtadb.org selbst. gtadb.org bittet ausdrüc
    - legt die Version unter `data/map/versions/<JJJJMMTT>-<commit>/` an
    - übernimmt unveränderte Kacheln per Hardlink aus der aktiven Version, belegt also nur für geänderte Kacheln neuen Platz
    - schreibt `manifest.json` und prüft: alle Kacheln im Bereich vorhanden, Kartenparameter unverändert, Landmarken nicht systematisch verschoben
+   - rechnet die neue Version per KI hoch, falls es schon eine KI-Version gibt (siehe „Schärfere Zoomstufen per KI“)
 2. **Ergebnis ansehen.** Bei Problemen bleibt die Version inaktiv und das Skript nennt den Grund.
 3. **Aktivieren**:
    ```
@@ -45,7 +46,7 @@ scripts/map-upscale.sh --activate    # ganze Karte, danach aktiv schalten
 - Umfang bei der ganzen Karte: etwa 93.000 Kacheln auf Stufe 7 und 371.000 auf Stufe 8, zusammen grob 2–2,5 GB. Mit `--levels 1` nur Stufe 7 (grob 0,5 GB).
 - Bei `--test` gibt es Stufe 7 und 8 nur im Ausschnitt; außerhalb bleibt die Karte bei diesen Stufen leer. Zum Ansehen kurz aktivieren, danach zurückschalten.
 - Zurück zur Originalkarte: `ln -sfn versions/<version> data/map/current`.
-- Nach einem gtadb-Update (neue Version mit `map-import.sh --activate`) einfach erneut `map-upscale.sh --activate` ausführen: Kacheln, deren Ausgangskachel samt Nachbarn unverändert ist, werden aus der vorherigen KI-Version übernommen.
+- **Nach einem gtadb-Update geht das automatisch:** Gibt es schon eine KI-Version, rechnet `map-import.sh` die neue gtadb-Version gleich mit hoch und aktiviert mit `--activate` direkt die neue KI-Version. Neu gerechnet werden nur Kacheln, die sich geändert haben (und ihre direkten Nachbarn, wegen der Ränder), alles andere wird aus der vorherigen KI-Version übernommen. Bei kleinen gtadb-Änderungen dauert das also nur Minuten. `--no-upscale` lässt das aus, `--upscale` erzwingt es auch ohne vorhandene KI-Version. Von Hand geht es mit `map-upscale.sh --version <gtadb-version>`.
 - `map-upload.sh` zeigt bei einer KI-Version vorher Kachelzahl und Größe und fragt nach. Übertragen werden nur die Zusatzstufen. Hetzner sieht bei etwa einer Million Dateien die Fair-Use-Grenze erreicht (docs.hetzner.com → Webhosting → Fair Use). Die ganze Karte mit Stufe 7 und 8 sind rund 520.000 Dateien. Nach einem Kartenupdate liegen zwei Versionen auf dem Server (Hardlinks, aber je nach Zählweise doppelt): alte Versionen unter `map/versions/` dann zeitnah löschen.
 - Lizenz: Die Kacheln stehen unter CC BY 4.0. Die hochgerechneten Stufen sind eine Bearbeitung; die Karte kennzeichnet sie in der Quellenzeile („Stufen 7–8 KI-hochgerechnet“), ebenso die Seite „Quellen & Lizenzen“.
 
@@ -58,6 +59,7 @@ scripts/map-upscale.sh --activate    # ganze Karte, danach aktiv schalten
 | `--data-dir DIR` | anderer Datenordner, Standard `data/` im Projekt (oder `LEONIDA_DATA_DIR`) |
 | `--activate` | neue Version direkt aktivieren |
 | `--force` | auch bei Problemen weitermachen bzw. aktive Version neu importieren |
+| `--upscale` / `--no-upscale` | neue Version per KI hochrechnen bzw. nicht. Standard: automatisch, wenn es schon eine KI-Version gibt |
 
 ## Koordinatensystem
 
